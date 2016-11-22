@@ -1283,9 +1283,19 @@ int HandleKeyMessage(WPARAM wParam, LPARAM lParam)
         if(wParam == CustomKeys.Rewind.key
 		&& modifiers == CustomKeys.Rewind.modifiers)
 		{
+			if (RA_HardcoreModeIsActive())
+			{
+				if (MessageBox(nullptr,
+					_T("Hardcore mode is active. If you rewind, Hardcore Mode will be disabled. Continue?"),
+					_T("Warning"),
+					MB_YESNO) == IDNO)
+					return 0;
+			}
+
             if(!GUI.rewinding)
                 S9xMessage (S9X_INFO, 0, GUI.rewindBufferSize?WINPROC_REWINDING_TEXT:WINPROC_REWINDING_DISABLED);
             GUI.rewinding = true;
+			RA_OnRewind();
         }
 		//if(wParam == CustomKeys.BGLHack.key
 		//&& modifiers == CustomKeys.BGLHack.modifiers)

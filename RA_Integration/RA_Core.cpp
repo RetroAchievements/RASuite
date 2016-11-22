@@ -48,7 +48,7 @@ const char* g_sClientName = nullptr;
 const char* g_sClientDownloadURL = nullptr;	
 const char* g_sClientEXEName = nullptr;
 bool g_bRAMTamperedWith = false;
-bool g_bHardcoreModeActive = false;
+bool g_bHardcoreModeActive = true;
 bool g_bLeaderboardsActive = true;
 unsigned int g_nNumHTTPThreads = 15;
 
@@ -1201,6 +1201,23 @@ API void CCONV _RA_OnLoadState( const char* sFilename )
 		}
 
 		CoreAchievements->LoadProgress( sFilename );
+		g_LeaderboardManager.Reset();
+		g_PopupWindows.LeaderboardPopups().Reset();
+	}
+}
+
+// disable hardcore mode when rewinding. (User was warned)
+API void CCONV _RA_OnRewind()
+{
+	if (RAUsers::LocalUser().IsLoggedIn())
+	{
+		if (g_bHardcoreModeActive)
+		{
+			MessageBox(nullptr, L"Rewind is not allowed during Hardcore Mode!", L"Warning!", MB_OK | MB_ICONEXCLAMATION);
+			g_bHardcoreModeActive = false;
+			RA_RebuildMenu();
+		}
+
 		g_LeaderboardManager.Reset();
 		g_PopupWindows.LeaderboardPopups().Reset();
 	}
