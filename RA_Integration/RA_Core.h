@@ -47,10 +47,11 @@ API void CCONV _RA_OnLoadState( const char* sFileName );
 //	Immediately after saving a new state.
 API void CCONV _RA_OnSaveState( const char* sFileName );
 
+//	When rewinding.
+API void CCONV _RA_OnRewind();
 
 //	Perform one test for all achievements in the current set. Call this once per frame/cycle.
 API void CCONV _RA_DoAchievementsFrame();
-
 
 //	Use in special cases where the emulator contains more than one console ID.
 API void CCONV _RA_SetConsoleID( unsigned int nConsoleID );

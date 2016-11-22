@@ -137,6 +137,7 @@ extern void RA_SetConsoleID( unsigned int nConsoleID );
 extern void RA_OnLoadState( const char* sFilename );
 extern void RA_OnSaveState( const char* sFilename );
 
+extern void RA_OnRewind();
 
 //	Call this when initializing DirectX. TBD: clarify this.
 extern void RA_InitDirectX();

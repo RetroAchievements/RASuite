@@ -1206,6 +1206,23 @@ API void CCONV _RA_OnLoadState( const char* sFilename )
 	}
 }
 
+// disable hardcore mode when rewinding. (User was warned)
+API void CCONV _RA_OnRewind()
+{
+	if (RAUsers::LocalUser().IsLoggedIn())
+	{
+		if (g_bHardcoreModeActive)
+		{
+			MessageBox(nullptr, L"Rewind is not allowed during Hardcore Mode!", L"Warning!", MB_OK | MB_ICONEXCLAMATION);
+			g_bHardcoreModeActive = false;
+			RA_RebuildMenu();
+		}
+
+		g_LeaderboardManager.Reset();
+		g_PopupWindows.LeaderboardPopups().Reset();
+	}
+}
+
 API void CCONV _RA_DoAchievementsFrame()
 {
 	if( RAUsers::LocalUser().IsLoggedIn() )

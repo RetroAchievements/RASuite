@@ -69,6 +69,8 @@ void	(CCONV *_RA_InstallMemoryBank)( int nBankID, void* pReader, void* pWriter, 
 void	(CCONV *_RA_ClearMemoryBanks)() = nullptr;
 void	(CCONV *_RA_OnLoadState)( const char* sFilename ) = nullptr;
 void	(CCONV *_RA_OnSaveState)( const char* sFilename ) = nullptr;
+//	Emulator Tools:
+void    (CCONV *_RA_OnRewind)() = nullptr;
 //	Achievements:
 void	(CCONV *_RA_DoAchievementsFrame)() = nullptr;
 //	User:
@@ -209,6 +211,12 @@ void RA_OnSaveState( const char* sFilename )
 {
 	if( _RA_OnSaveState != nullptr )
 		_RA_OnSaveState( sFilename );
+}
+
+void RA_OnRewind()
+{
+	if (_RA_OnRewind != nullptr)
+		_RA_OnRewind();
 }
 
 void RA_DoAchievementsFrame()
@@ -432,6 +440,7 @@ const char* CCONV _RA_InstallIntegration()
 	_RA_SetPaused			= (void(CCONV *)(bool))									GetProcAddress( g_hRADLL, "_RA_SetPaused" );
 	_RA_OnLoadState			= (void(CCONV *)(const char*))							GetProcAddress( g_hRADLL, "_RA_OnLoadState" );
 	_RA_OnSaveState			= (void(CCONV *)(const char*))							GetProcAddress( g_hRADLL, "_RA_OnSaveState" );
+	_RA_OnRewind			= (void(CCONV *)())										GetProcAddress(g_hRADLL, "_RA_OnRewind");
 	_RA_DoAchievementsFrame = (void(CCONV *)())										GetProcAddress( g_hRADLL, "_RA_DoAchievementsFrame" );
 	_RA_SetConsoleID		= (int(CCONV *)(unsigned int))							GetProcAddress( g_hRADLL, "_RA_SetConsoleID" );
 	_RA_HardcoreModeIsActive= (int(CCONV *)())										GetProcAddress( g_hRADLL, "_RA_HardcoreModeIsActive" );
