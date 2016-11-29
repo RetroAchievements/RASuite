@@ -4,8 +4,7 @@ RASuite
 All emulators used for interfacing with RetroAchievements.org
 
 
-Instructions on using the packages.config file
-----------------------------------------------
+<h2>Instructions on using the packages.config file</h2>
 <p>Before you try this, first try right clicking the solution in solution explorer and click restore nuget packages</p>
 <p>Automatic package restore doesn't work for native projects so you'll need to go to the root directory and type the following.</p>
 <ul>
@@ -14,8 +13,7 @@ Instructions on using the packages.config file
 </ul>
 
 
-Compiling Snes9x w/o all the Junk 
----------------------------------
+<h2>Compiling Snes9x w/o all the Junk </h2>
 <p><i>Note: this is for Snes9x 1.54.1 by itself, I didn't integrate it with RA yet.</i></p>
 
 <p>
@@ -38,8 +36,10 @@ Compiling Snes9x w/o all the Junk
 </ul>
 
 
-<p>I'm assuming you followed the instructions above.</p>
-You'll need 4 enviornment variables, do the following in cmd:
+<p>
+	I'm assuming you followed the instructions above.<br />
+	You'll need 4 enviornment variables, do the following in cmd:
+</p>
 <ol>
 	<li>setx DXSDK_DIR %Path_to_dir%\packages\DXSDK_March09_x86.9.26.1590\DXSDK_March09_x86</li>
 	<li>setx ZLIB_DIR %Path_to_dir%\packages\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native</li>
@@ -48,14 +48,20 @@ You'll need 4 enviornment variables, do the following in cmd:
 </ol>
 <p>You could use the include/lib folders for the full SDK for %DXSDK_DIR% but I don't guarantee it'll work</p>
 
-<p>If not done already put this in the include directories in VC++</p>
+<h3>Library Directories</h3>
 <ul>
-	<li>$(DXSDK_DIR);<br />$(DXSDK_DIR)\include;<br />$(ZLIB_DIR)\include;<br />$(CG_INC_PATH)\;<br />$(IncludePath)</li>
-<ul>
-
-<p>Also for libraries</p>
-<ul>
-	<li>$(DXSDK_DIR)\Lib\x86;<br />$(CG_LIB_PATH);<br />$(LibraryPath)</li>
+	<li>$(DXSDK_DIR)\Lib\x86;</li>
+	<li>$(CG_LIB_PATH);</li>
+	<li>$(LibraryPath);</li>
 </ul>
 
-<p>Build and Run, for now I decided not have fmod audio support since it's taking too long to download</p>
+<h3>Include Directories</h3>
+<ul>
+	<li>$(DXSDK_DIR);</li>
+	<li>$(DXSDK_DIR)\include;</li>
+	<li>$(ZLIB_DIR)\include;</li>
+	<li>$(CG_INC_PATH)\;</li>
+	<li>$(IncludePath)</li>
+<ul>
+
+Build and Run, for now I decided not have fmod audio support since it's taking too long to download
