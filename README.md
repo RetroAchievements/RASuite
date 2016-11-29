@@ -17,6 +17,9 @@ Compiling Snes9x w/o all the Junk
 ---------------------------------
 Note: this is for Snes9x 1.54.1 by itself, I didn't integrate it with RA yet.
 
+You also need Windows 7.1a SDK, if you don't have get chocolatey from chocolatey.org
+After it's installed, as an admin type in cinst windows-sdk-7.1 in cmd or powershell and it'll install in the background.
+
 I'm assuming you followed the instructions above.
 You'll need 4 enviornment variables, do the following in cmd:
 
