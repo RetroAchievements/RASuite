@@ -18,7 +18,7 @@ All emulators used for interfacing with RetroAchievements.org
 <em>Also these instructions only work for a Win32 build, any paths, etc need to use x86 or Win32 folders <strong>NOT</strong>x64</em>
 <p>
 	You also need Windows 7.1a SDK, if you don't have get chocolatey from chocolatey.org<br />
-	After it's installed, as an admin type in cinst windows-sdk-7.1 in cmd or powershell and it'll install in the background.<br />
+	After it's installed, as an admin type in cinst windows-sdk-7.1 in cmd or powershell and it'll install in the background. Read directly below this for a workaround if it fails.<br />
 </p>
 
 <p><strong>If you have an AMD Archetecture:</strong></p>
