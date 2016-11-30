@@ -1,0 +1,3 @@
+Reading config file C:\Users\Sam\Repositories\Gaming\Snes9x\win32\snes9x.conf.
+Saving	config file	C:\Users\Sam\Repositories\Gaming\Snes9x\win32\snes9x.conf
+Sound buffer size: 8192 (2048 samples)
