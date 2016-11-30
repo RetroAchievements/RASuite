@@ -273,3 +273,17 @@ RASnes9x_Dev/ipch/
 RASnes9x_Dev/win32/Win32/Debug/
 RASnes9x_Dev/win32/RASnes9x_Dev.VC.VC.opendb
 RASnes9x_Dev/win32/RASnes9x_Dev.VC.db
+.vs/config/applicationhost.config
+packages/
+Diffs.txt
+LiveTag.txt
+MakeBuildVer.bat
+RASnes9x.VC.db
+RASnes9x_Dev.VC.db
+RASnes9x_Dev.sln
+RASnes9x_Dev.vsext
+RASnes9x_Dev/BuildVer.h
+RASnes9x_Dev/Diffs.txt
+RASnes9x_Dev/LiveTag.txt
+RASnes9x_Dev/win32/RASnes9x_Dev.vcxproj.filters
+RASnes9x_Dev.VC.VC.opendb

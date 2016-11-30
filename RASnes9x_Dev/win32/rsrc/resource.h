@@ -37,6 +37,19 @@
 #define IDB_LOCKEDFOLDER                148
 #define IDB_HIDDENFOLDER                149
 #define IDD_MULTICART                   150
+#define IDB_BITMAP1                     151
+#define IDB_BITMAP2                     164
+#define IDB_BITMAP3                     165
+#define IDB_BITMAP4                     166
+#define IDB_BITMAP5                     167
+#define IDB_BITMAP6                     168
+#define IDB_BITMAP7                     169
+#define IDB_BITMAP8                     170
+#define IDB_BITMAP9                     171
+#define IDB_BITMAP10                    172
+#define IDB_BITMAP11                    173
+#define IDB_BITMAP12                    174
+#define IDB_BITMAP13                    175
 #define IDC_DRIVER                      1001
 #define IDC_BUFLEN                      1002
 #define IDC_RATE                        1003
@@ -502,7 +515,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        151
+#define _APS_NEXT_RESOURCE_VALUE        188
 #define _APS_NEXT_COMMAND_VALUE         40176
 #define _APS_NEXT_CONTROL_VALUE         3018
 #define _APS_NEXT_SYMED_VALUE           101

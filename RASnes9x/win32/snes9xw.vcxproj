@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectName>RASnes9X</ProjectName>
-    <ProjectGuid>{B86059D8-C9A6-46BE-8FBA-3170C54F1DFD}</ProjectGuid>
+    <ProjectGuid>{01933AA6-152E-420A-AFC8-9E1CAEAF802D}</ProjectGuid>
     <RootNamespace>Snes9X</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
