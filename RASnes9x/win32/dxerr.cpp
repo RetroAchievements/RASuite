@@ -29,8 +29,7 @@
 #endif
 
 #include <d3d10_1.h>
-
-//#include <d3d11_1.h>
+#include <d3d11.h>
 
 #if !defined(WINAPI_FAMILY) || WINAPI_FAMILY != WINAPI_FAMILY_PHONE_APP
 #include <wincodec.h>
@@ -3364,18 +3363,18 @@ const WCHAR* WINAPI DXGetErrorStringW(_In_ HRESULT hr)
 			// -------------------------------------------------------------
 			// d3d11.h error codes
 			// -------------------------------------------------------------
-			/*        CHK_ERRA(D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS)
-					CHK_ERRA(D3D11_ERROR_FILE_NOT_FOUND)
-					CHK_ERRA(D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS)
-					CHK_ERRA(D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD)*/
+			CHK_ERRA(D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS)
+			CHK_ERRA(D3D11_ERROR_FILE_NOT_FOUND)
+			CHK_ERRA(D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS)
+			CHK_ERRA(D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD)
 
 #if !defined(WINAPI_FAMILY) || WINAPI_FAMILY != WINAPI_FAMILY_PHONE_APP
 
-					// -------------------------------------------------------------
-					// Direct2D error codes
-					// -------------------------------------------------------------
-					//        CHK_ERRA(D2DERR_UNSUPPORTED_PIXEL_FORMAT)
-					//        CHK_ERRA(D2DERR_INSUFFICIENT_BUFFER)
+			// -------------------------------------------------------------
+			// Direct2D error codes
+			// -------------------------------------------------------------
+			//        CHK_ERRA(D2DERR_UNSUPPORTED_PIXEL_FORMAT)
+			//        CHK_ERRA(D2DERR_INSUFFICIENT_BUFFER)
 			CHK_ERRA(D2DERR_WRONG_STATE)
 			CHK_ERRA(D2DERR_NOT_INITIALIZED)
 			CHK_ERRA(D2DERR_UNSUPPORTED_OPERATION)
@@ -3847,18 +3846,18 @@ void WINAPI DXGetErrorDescriptionW(_In_ HRESULT hr, _Out_cap_(count) WCHAR* desc
 			// -------------------------------------------------------------
 			// d3d11.h error codes
 			// -------------------------------------------------------------
-					/*CHK_ERR(D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS, "There are too many unique state objects.")
-					CHK_ERR(D3D11_ERROR_FILE_NOT_FOUND, "File not found")
-					CHK_ERR(D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS, "Therea are too many unique view objects.")
-					CHK_ERR(D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD, "Deferred context requires Map-Discard usage pattern")*/
+			CHK_ERR(D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS, "There are too many unique state objects.")
+			CHK_ERR(D3D11_ERROR_FILE_NOT_FOUND, "File not found")
+			CHK_ERR(D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS, "Therea are too many unique view objects.")
+			CHK_ERR(D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD, "Deferred context requires Map-Discard usage pattern")
 
 #if !defined(WINAPI_FAMILY) || WINAPI_FAMILY != WINAPI_FAMILY_PHONE_APP
 
-					// -------------------------------------------------------------
-					// Direct2D error codes
-					// -------------------------------------------------------------
-					//        CHK_ERR(D2DERR_UNSUPPORTED_PIXEL_FORMAT, "The pixel format is not supported.")
-					//        CHK_ERR(D2DERR_INSUFFICIENT_BUFFER, "The supplied buffer was too small to accomodate the data.")
+			// -------------------------------------------------------------
+			// Direct2D error codes
+			// -------------------------------------------------------------
+			//        CHK_ERR(D2DERR_UNSUPPORTED_PIXEL_FORMAT, "The pixel format is not supported.")
+			//        CHK_ERR(D2DERR_INSUFFICIENT_BUFFER, "The supplied buffer was too small to accomodate the data.")
 			CHK_ERR(D2DERR_WRONG_STATE, "The object was not in the correct state to process the method.")
 			CHK_ERR(D2DERR_NOT_INITIALIZED, "The object has not yet been initialized.")
 			CHK_ERR(D2DERR_UNSUPPORTED_OPERATION, "The requested opertion is not supported.")

@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectName>RASnes9X</ProjectName>
-    <ProjectGuid>{01933AA6-152E-420A-AFC8-9E1CAEAF802D}</ProjectGuid>
+    <ProjectGuid>{B86059D8-C9A6-46BE-8FBA-3170C54F1DFD}</ProjectGuid>
     <RootNamespace>Snes9X</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -29,7 +29,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v140_xp</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -77,6 +77,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(Configuration)\</OutDir>
     <IntDir>$(Configuration)\obj\</IntDir>
+    <IncludePath>$(DXSDK_DIR)Include;$(CG_INC_PATH);$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);</IncludePath>
+    <LibraryPath>$(DXSDK_DIR)Lib\x86;$(CG_LIB_PATH);$(VC_LibraryPath_x86);$(WindowsSdk_71A_LibraryPath_x86);</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>.\Release_x64\</OutDir>
@@ -152,7 +154,7 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include;$(CG_INC_PATH);$(ProjectDir);$(ProjectDir)..\;$(ProjectDir)..\..\;$(ProjectDir)..\apu\bapu;$(ProjectDir)..\libpng;$(ProjectDir)..\unzip;$(ProjectDir)..\zlib-1.2.8;$(ProjectDir)..\..\common;$(ProjectDir)..\..\FMOD\api\inc;$(ProjectDir)..\..\RA_Integration;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\;$(ProjectDir)..\..\;$(ProjectDir)..\apu\bapu;$(ProjectDir)..\libpng;$(ProjectDir)..\unzip;$(ProjectDir)..\zlib-1.2.8;$(ProjectDir)..\..\common;$(ProjectDir)..\..\FMOD\api\inc;$(ProjectDir)..\..\RA_Integration;$(FMOD_API)lowlevel\inc;$(DXSDK_DIR)Utilities\Source\dxerr;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;HAVE_LIBPNG;JMA_SUPPORT;ZLIB_WINAPI;UNZIP_SUPPORT;__WIN32__;NETPLAY_SUPPORT;D3D_DEBUG_INFO;RA_SNES9X;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
@@ -164,19 +166,19 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
       <BrowseInformation>true</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>Default</CompileAs>
       <ForcedIncludeFiles>_tfwopen.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4005;4018;4091;4101;4102;4244;4290;4477;4800;4805;4838;4996;</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>libpngd.lib;comctl32.lib;winmm.lib;opengl32.lib;glu32.lib;wsock32.lib;ddraw.lib;dsound.lib;dxguid.lib;delayimp.lib;vfw32.lib;zlibd.lib;msxml2.lib;shlwapi.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\x86;$(CG_LIB_PATH);$(ProjectDir)..\libpng\projects\visualc71\Win32_LIB_Debug;$(ProjectDir)..\zlib-1.2.8\contrib\vstudio\vc9\x86\ZlibStatDebug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libpngd.lib;comctl32.lib;winmm.lib;opengl32.lib;glu32.lib;wsock32.lib;ddraw.lib;dsound.lib;dxguid.lib;delayimp.lib;vfw32.lib;zlibd.lib;msxml2.lib;shlwapi.lib;winhttp.lib;DxErr.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\libpng\projects\visualc71\Win32_LIB_Debug;$(ProjectDir)..\zlib-1.2.8\contrib\vstudio\vc9\x86\ZlibStatDebug;$(FMOD_API)lowlevel\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EnableUAC>false</EnableUAC>
       <DelayLoadDLLs>fmod.dll;fmodex.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -186,6 +188,7 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalOptions>/IGNORE:4199 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>robocopy ..\..\RA_Integration $(OutputPath) RA_Integration_d.dll RA_Integration_d.pdb /njh /njs /np /XX
@@ -315,6 +318,9 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
     <CustomBuild Include="..\fxinst.h" />
     <CustomBuild Include="..\getset.h" />
     <CustomBuild Include="..\gfx.h" />
+    <ClInclude Include="..\filter\xbrz-config.h" />
+    <ClInclude Include="..\filter\xbrz.h" />
+    <ClInclude Include="..\msu1.h" />
     <ClInclude Include="globals.h" />
     <CustomBuild Include="..\language.h" />
     <CustomBuild Include="..\logger.h" />
@@ -427,7 +433,9 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
     <ClInclude Include="..\..\RA_Integration\RA_Interface.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\bsx.cpp" />
+    <ClCompile Include="..\bsx.cpp">
+      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
     <ClCompile Include="..\c4.cpp" />
     <ClCompile Include="..\c4emu.cpp" />
     <ClCompile Include="..\cheats.cpp" />
@@ -446,6 +454,7 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
     <ClCompile Include="..\dsp2.cpp" />
     <ClCompile Include="..\dsp3.cpp" />
     <ClCompile Include="..\dsp4.cpp" />
+    <ClCompile Include="..\filter\xbrz.cpp" />
     <ClCompile Include="..\fxdbg.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -463,6 +472,7 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
     <ClCompile Include="..\logger.cpp" />
     <ClCompile Include="..\memmap.cpp" />
     <ClCompile Include="..\movie.cpp" />
+    <ClCompile Include="..\msu1.cpp" />
     <ClCompile Include="..\netplay.cpp" />
     <ClCompile Include="..\obc1.cpp" />
     <ClCompile Include="..\ppu.cpp" />
@@ -506,6 +516,7 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
     <ClCompile Include="..\unzip\mztools.c" />
     <ClCompile Include="..\unzip\unzip.c" />
     <ClCompile Include="..\unzip\zip.c" />
+    <ClCompile Include="dxerr.cpp" />
     <ClCompile Include="_tfwopen.cpp" />
     <ClCompile Include="AVIOutput.cpp" />
     <ClCompile Include="CXML.cpp" />

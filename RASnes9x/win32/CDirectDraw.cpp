@@ -22,8 +22,12 @@
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2011  BearOso,
+  (c) Copyright 2009 - 2016  BearOso,
                              OV2
+
+  (c) Copyright 2011 - 2016  Hans-Kristian Arntzen,
+                             Daniel De Matteis
+                             (Under no circumstances will commercial rights be given)
 
 
   BS-X C emulator code
@@ -118,6 +122,9 @@
   Sound emulator code used in 1.52+
   (c) Copyright 2004 - 2007  Shay Green (gblargg@gmail.com)
 
+  S-SMP emulator code used in 1.54+
+  (c) Copyright 2016         byuu
+
   SH assembler code partly based on x86 assembler code
   (c) Copyright 2002 - 2004  Marcus Comstedt (marcus@mc.pp.se)
 
@@ -131,7 +138,7 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2011  BearOso
+  (c) Copyright 2004 - 2016  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
@@ -139,11 +146,16 @@
                              Matthew Kendora,
                              Nach,
                              nitsuja
-  (c) Copyright 2009 - 2011  OV2
+  (c) Copyright 2009 - 2016  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
   (c) Copyright 2001 - 2011  zones
+
+  Libretro port
+  (c) Copyright 2011 - 2016  Hans-Kristian Arntzen,
+                             Daniel De Matteis
+                             (Under no circumstances will commercial rights be given)
 
 
   Specific ports contains the works of other authors. See headers in
@@ -182,8 +194,6 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "RA_Interface.h"
-
 #include "wsnes9x.h"
 #include "../snes9x.h"
 #include "../gfx.h"
@@ -192,14 +202,6 @@
 
 #include "../filter/hq2x.h"
 #include "../filter/2xsai.h"
-
-
-//	##RA
-#include "port.h"
-#include "controls.h"
-#include "ppu.h"
-
-RECT g_LastOverlaySize = { 0, 0, 512, 448 };
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -211,8 +213,7 @@ CDirectDraw::CDirectDraw()
     lpDDPalette = NULL;
 
     lpDDSPrimary2 = NULL;
-	lpDDSOffScreen2 = NULL;
-	lpDDS_Achievement = NULL;
+    lpDDSOffScreen2 = NULL;
 
     width = height = -1;
     depth = -1;
@@ -270,13 +271,7 @@ void CDirectDraw::DeInitialize()
             lpDDSOffScreen2->PageUnlock(0);
             lpDDSOffScreen2->Release();
             lpDDSOffScreen2 = NULL;
-		}
-		if (lpDDS_Achievement != NULL)
-		{
-			lpDDS_Achievement->Release();
-			lpDDS_Achievement = NULL;
-		}
-
+        }
         if (lpDDClipper != NULL)
         {
             lpDDClipper->Release();
@@ -296,39 +291,6 @@ void CDirectDraw::DeInitialize()
 	}
 	filterScale = 0;
 	dDinitialized = false;
-}
-
-void CDirectDraw::RenderAchievementOverlays( RECT& rc )
-{
-	static int nOldTime = GetTickCount();
-
-	int nDelta = GetTickCount() - nOldTime;
-	nOldTime = GetTickCount();
-
-	HDC hDC;
-	if( lpDDS_Achievement != NULL )
-	{
-		RECT rcSize;
-		SetRect( &rcSize, 0, 0, rc.right-rc.left, rc.bottom-rc.top );
-
-		if( lpDDS_Achievement->GetDC( &hDC )== DD_OK )
-		{
-			ControllerInput input;
-
-			input.m_bUpPressed		= (CHECK_KEY(0, Up));
-			input.m_bDownPressed	= (CHECK_KEY(0, Down));
-			input.m_bLeftPressed	= (CHECK_KEY(0, Left));
-			input.m_bRightPressed	= (CHECK_KEY(0, Right));
-			input.m_bConfirmPressed	= (CHECK_KEY(0, A));
-			input.m_bCancelPressed	= (CHECK_KEY(0, B));
-			//input.bCButton		= (CHECK_KEY(0, X));
-			input.m_bQuitPressed	= (CHECK_KEY(0, Start));
-
-			RA_UpdateRenderOverlay( hDC, &input, ((float)nDelta / 1000.0f), &rcSize, 0, 0 );
-
-			lpDDS_Achievement->ReleaseDC( hDC );
-		}
-	}
 }
 
 bool CDirectDraw::SetDisplayMode(
@@ -362,12 +324,7 @@ bool CDirectDraw::SetDisplayMode(
         lpDDSOffScreen2->PageUnlock(0);
         lpDDSOffScreen2->Release();
         lpDDSOffScreen2 = NULL;
-	}
-	if (lpDDS_Achievement != NULL)
-	{
-		lpDDS_Achievement->Release();
-		lpDDS_Achievement = NULL;
-	}
+    }
     if( lpDDPalette != NULL)
     {
         lpDDPalette->Release();
@@ -451,19 +408,6 @@ bool CDirectDraw::SetDisplayMode(
     }
     lpDDSOffScreen2->PageLock(0);
     lpDDSOffScreen->Release();
-	
-
-
-	//////////////////////////////////////////////////////////////////////////
-	//	Setup Achievement surface
-
-	RECT rcTgtSize;
-	SetRect( &rcTgtSize, 0, 0, SNES_WIDTH * pScale, SNES_HEIGHT_EXTENDED * pScale );
-	RecreateAchievementSurface( rcTgtSize );
-
-
-
-    LPDIRECTDRAWSURFACE lpDDSPrimary;
 
     ZeroMemory (&ddsd, sizeof (ddsd));
     if (pDoubleBuffered)
@@ -480,7 +424,9 @@ bool CDirectDraw::SetDisplayMode(
         ddsd.dwSize = sizeof (ddsd);
         ddsd.dwFlags = DDSD_CAPS;
         ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
-	}
+    }
+
+    LPDIRECTDRAWSURFACE lpDDSPrimary;
 
     dErr = lpDD->CreateSurface (&ddsd, &lpDDSPrimary, NULL);
     if( FAILED(dErr) )
@@ -550,54 +496,9 @@ bool CDirectDraw::SetDisplayMode(
     height = pHeight;
     width = pWidth;
     doubleBuffered = pDoubleBuffered;
-	BLOCK = false;
+    BLOCK = false;
 
     return (true);
-}
-
-bool CDirectDraw::RecreateAchievementSurface( RECT& rc )
-{
-    DDSURFACEDESC ddsd;
-	ZeroMemory (&ddsd, sizeof (ddsd));
-	ddsd.dwSize = sizeof (ddsd);
-	ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
-	if(GUI.BilinearFilter)
-	{
-		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY | (GUI.LocalVidMem ? DDSCAPS_LOCALVIDMEM : DDSCAPS_NONLOCALVIDMEM);
-	}
-	else
-	{
-		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
-	}
-	ddsd.dwWidth = (rc.right - rc.left);
-	ddsd.dwHeight = (rc.bottom - rc.top);
-
-	LPDIRECTDRAWSURFACE lpDDSAchievement;
-	if (FAILED(lpDD->CreateSurface (&ddsd, &lpDDSAchievement, NULL)))
-	{
-		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY | (GUI.LocalVidMem ? DDSCAPS_NONLOCALVIDMEM : DDSCAPS_LOCALVIDMEM);
-		if(!GUI.BilinearFilter || FAILED(lpDD->CreateSurface (&ddsd, &lpDDSAchievement, NULL)))
-		{
-			ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
-			if(!GUI.BilinearFilter || FAILED(lpDD->CreateSurface (&ddsd, &lpDDSAchievement, NULL)))
-			{
-				//BLOCK = false;
-				return (false);
-			}
-		}
-	}
-
-	if (FAILED (lpDDSAchievement->QueryInterface (IID_IDirectDrawSurface2,
-											 (void **)&lpDDS_Achievement)))
-	{
-		lpDDSAchievement->Release();
-		//BLOCK = false;
-		return (false);
-	}
-	lpDDS_Achievement->PageLock(0);
-	lpDDSAchievement->Release();
-
-	return true;
 }
 
 void CDirectDraw::GetPixelFormat ()
@@ -758,20 +659,6 @@ void CDirectDraw::Render(SSurface Src)
 		{
 			OffsetRect(&dstRect, p.x, p.y);
 		}
-
-		if( dstRect.left != -32000 )
-		{
-			if( g_LastOverlaySize.bottom != dstRect.bottom ||
-				g_LastOverlaySize.left != dstRect.left ||
-				g_LastOverlaySize.right != dstRect.right ||
-				g_LastOverlaySize.top != dstRect.top )
-			{
-				//	Cause update to ach surface size
-				g_LastOverlaySize = dstRect;
-				RecreateAchievementSurface( g_LastOverlaySize );
-			}
-		}
-
 	}
 	else
 	{
@@ -812,15 +699,8 @@ void CDirectDraw::Render(SSurface Src)
 	else
 		lpDDSurface2 = pDDSurface;
 
-	//	Copy to the achievement layer, then copy THAT to the main surface
-	if( lpDDS_Achievement != NULL )
-	{
-		lpDDS_Achievement->Blt( NULL, lpDDSOffScreen2, &srcRect, DDBLT_WAIT | DDBLT_ASYNC, NULL );
-		RenderAchievementOverlays( dstRect );
-	}
-
 	// actually draw it onto the screen (unless in fullscreen mode; see UpdateBackBuffer() for that)
-	while (lpDDSurface2->Blt (&dstRect, lpDDS_Achievement, NULL, DDBLT_WAIT, NULL) == DDERR_SURFACELOST)
+	while (lpDDSurface2->Blt (&dstRect, lpDDSOffScreen2, &srcRect, DDBLT_WAIT, NULL) == DDERR_SURFACELOST)
 		lpDDSurface2->Restore ();
 
 
@@ -902,16 +782,16 @@ bool CDirectDraw::SetFullscreen(bool fullscreen)
 
 int ffs (uint32 mask)
 {
-	int m = 0;
-	if (mask)
-	{
-		while (!(mask & (1 << m)))
-			m++;
+    int m = 0;
+    if (mask)
+    {
+        while (!(mask & (1 << m)))
+            m++;
 
-		return (m);
-	}
+        return (m);
+    }
 
-	return (0);
+    return (0);
 }
 
 void CDirectDraw::SetSnes9xColorFormat()

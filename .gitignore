@@ -312,3 +312,6 @@ RASnes9x_Dev/LiveTag.txt
 RASnes9x_Dev/win32/RASnes9x_Dev.vcxproj.filters
 RASnes9x_Dev.VC.VC.opendb
 >>>>>>> bab7d5b0f2c2d388c5b2de245d39711d83065db9
+RASnes9x/Backup/
+RASnes9x/win32/Backup/
+RASnes9x/RA_BuildVer.h
