@@ -91,6 +91,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>x86\ZlibStat$(Configuration)\</OutDir>
     <IntDir>x86\ZlibStat$(Configuration)\Tmp\</IntDir>
+    <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>x86\ZlibStat$(Configuration)\</OutDir>
