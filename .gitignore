@@ -276,3 +276,14 @@ RASnes9x_Dev.sln
 RASnes9x_Dev.vsext
 todo.txt
 /RASnes9x_Dev/
+/RASnes9x/win32/Win32/Debug
+/RASnes9x/win32/ipch/SNES9XW-c60d2fe7
+/RASnes9x/win32/zlib
+*.db
+/RASnes9x/win32/stderr.txt
+/RASnes9x/win32/stdout.txt
+/RASnes9x/gtk
+/RASnes9x/macosx
+/RASnes9x/unix
+/RASnes9x/libretro
+/RASnes9x/win32/packages.config
