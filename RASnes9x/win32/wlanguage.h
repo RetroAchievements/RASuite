@@ -22,8 +22,12 @@
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2011  BearOso,
+  (c) Copyright 2009 - 2016  BearOso,
                              OV2
+
+  (c) Copyright 2011 - 2016  Hans-Kristian Arntzen,
+                             Daniel De Matteis
+                             (Under no circumstances will commercial rights be given)
 
 
   BS-X C emulator code
@@ -118,6 +122,9 @@
   Sound emulator code used in 1.52+
   (c) Copyright 2004 - 2007  Shay Green (gblargg@gmail.com)
 
+  S-SMP emulator code used in 1.54+
+  (c) Copyright 2016         byuu
+
   SH assembler code partly based on x86 assembler code
   (c) Copyright 2002 - 2004  Marcus Comstedt (marcus@mc.pp.se)
 
@@ -131,7 +138,7 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2011  BearOso
+  (c) Copyright 2004 - 2016  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
@@ -139,11 +146,16 @@
                              Matthew Kendora,
                              Nach,
                              nitsuja
-  (c) Copyright 2009 - 2011  OV2
+  (c) Copyright 2009 - 2016  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
   (c) Copyright 2001 - 2011  zones
+
+  Libretro port
+  (c) Copyright 2011 - 2016  Hans-Kristian Arntzen,
+                             Daniel De Matteis
+                             (Under no circumstances will commercial rights be given)
 
 
   Specific ports contains the works of other authors. See headers in
@@ -180,8 +192,7 @@
 
 /* This is where all the GUI text strings will eventually end up */
 
-//#define WINDOW_TITLE TEXT("RASnes9X v%s for Windows")
-#define WINDOW_TITLE TEXT("RASnes9X v%s")
+#define WINDOW_TITLE TEXT("Snes9X v%s for Windows")
 
 // the windows registry is no longer used
 //#define MY_REG_KEY   "Software\\Emulators\\Snes9X"
@@ -195,16 +206,14 @@
 (c) Copyright 2001 - 2006  John Weidman\r\n\
 (c) Copyright 2002 - 2010  Brad Jorsch, funkyass, Kris Bleakley, Nach, zones\r\n\
 (c) Copyright 2006 - 2007  nitsuja\r\n\
-(c) Copyright 2009 - 2011  BearOso, OV2\r\n\r\n\
+(c) Copyright 2009 - 2016  BearOso, OV2\r\n\r\n\
 Windows Port Authors: Matthew Kendora, funkyass, nitsuja, Nach, blip, OV2.\r\n\r\n\
 Snes9X is a Super Nintendo Entertainment System\r\n\
 emulator that allows you to play most games designed\r\n\
 for the SNES on your PC.\r\n\r\n\
-Nintendo is a trade mark.\r\n\r\n\
 Please visit http://www.snes9x.com for\r\n\
 up-to-the-minute information and help on Snes9X.\r\n\r\n\
-Patched for RetroAchievements by Immense Games.\r\n\
-Visit www.RetroAchievements.org for more info about this patch.\r\n" )
+Nintendo is a trade mark.")
 
 
 #define APP_NAME TEXT("Snes9x")
@@ -257,7 +266,7 @@ Visit www.RetroAchievements.org for more info about this patch.\r\n" )
 #define HOTKEYS_HKCOMBO TEXT("Page %d")
 #define HOTKEYS_LABEL_1_1 TEXT("speed +")
 #define HOTKEYS_LABEL_1_2 TEXT("speed -")
-#define HOTKEYS_LABEL_1_3 TEXT("pause/overlay")
+#define HOTKEYS_LABEL_1_3 TEXT("pause")
 #define HOTKEYS_LABEL_1_4 TEXT("frame advance")
 #define HOTKEYS_LABEL_1_5 TEXT("fast forward")
 #define HOTKEYS_LABEL_1_6 TEXT("skip +")
@@ -587,6 +596,8 @@ Visit www.RetroAchievements.org for more info about this patch.\r\n" )
 #define SRM_SAVE_FAILED "Failed to save SRM file."
 
 #define INFO_SAVE_SPC "Saving SPC Data."
+
+#define MPAK_SAVE_FAILED "Failed to save Memory Pack."
 
 #define CHEATS_INFO_ENABLED "Cheats enabled."
 #define CHEATS_INFO_DISABLED "Cheats disabled."

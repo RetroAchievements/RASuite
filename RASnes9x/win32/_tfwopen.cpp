@@ -2,7 +2,7 @@
   Snes9x - Portable Super Nintendo Entertainment System (TM) emulator.
 
   (c) Copyright 1996 - 2002  Gary Henderson (gary.henderson@ntlworld.com),
-                             Jerremy Koot (jkoot@snes9x.com)
+							 Jerremy Koot (jkoot@snes9x.com)
 
   (c) Copyright 2002 - 2004  Matthew Kendora
 
@@ -13,102 +13,105 @@
   (c) Copyright 2001 - 2006  John Weidman (jweidman@slip.net)
 
   (c) Copyright 2002 - 2006  funkyass (funkyass@spam.shaw.ca),
-                             Kris Bleakley (codeviolation@hotmail.com)
+							 Kris Bleakley (codeviolation@hotmail.com)
 
   (c) Copyright 2002 - 2010  Brad Jorsch (anomie@users.sourceforge.net),
-                             Nach (n-a-c-h@users.sourceforge.net),
-                             zones (kasumitokoduck@yahoo.com)
+							 Nach (n-a-c-h@users.sourceforge.net),
+							 zones (kasumitokoduck@yahoo.com)
 
   (c) Copyright 2006 - 2007  nitsuja
 
   (c) Copyright 2009 - 2010  BearOso,
-                             OV2
+							 OV2
 
+  (c) Copyright 2011 - 2016  Hans-Kristian Arntzen,
+							 Daniel De Matteis
+							 (Under no circumstances will commercial rights be given)
 
   BS-X C emulator code
   (c) Copyright 2005 - 2006  Dreamer Nom,
-                             zones
+							 zones
 
   C4 x86 assembler and some C emulation code
   (c) Copyright 2000 - 2003  _Demo_ (_demo_@zsnes.com),
-                             Nach,
-                             zsKnight (zsknight@zsnes.com)
+							 Nach,
+							 zsKnight (zsknight@zsnes.com)
 
   C4 C++ code
   (c) Copyright 2003 - 2006  Brad Jorsch,
-                             Nach
+							 Nach
 
   DSP-1 emulator code
   (c) Copyright 1998 - 2006  _Demo_,
-                             Andreas Naive (andreasnaive@gmail.com),
-                             Gary Henderson,
-                             Ivar (ivar@snes9x.com),
-                             John Weidman,
-                             Kris Bleakley,
-                             Matthew Kendora,
-                             Nach,
-                             neviksti (neviksti@hotmail.com)
+							 Andreas Naive (andreasnaive@gmail.com),
+							 Gary Henderson,
+							 Ivar (ivar@snes9x.com),
+							 John Weidman,
+							 Kris Bleakley,
+							 Matthew Kendora,
+							 Nach,
+							 neviksti (neviksti@hotmail.com)
 
   DSP-2 emulator code
   (c) Copyright 2003         John Weidman,
-                             Kris Bleakley,
-                             Lord Nightmare (lord_nightmare@users.sourceforge.net),
-                             Matthew Kendora,
-                             neviksti
+							 Kris Bleakley,
+							 Lord Nightmare (lord_nightmare@users.sourceforge.net),
+							 Matthew Kendora,
+							 neviksti
 
   DSP-3 emulator code
   (c) Copyright 2003 - 2006  John Weidman,
-                             Kris Bleakley,
-                             Lancer,
-                             z80 gaiden
+							 Kris Bleakley,
+							 Lancer,
+							 z80 gaiden
 
   DSP-4 emulator code
   (c) Copyright 2004 - 2006  Dreamer Nom,
-                             John Weidman,
-                             Kris Bleakley,
-                             Nach,
-                             z80 gaiden
+							 John Weidman,
+							 Kris Bleakley,
+							 Nach,
+							 z80 gaiden
 
   OBC1 emulator code
   (c) Copyright 2001 - 2004  zsKnight,
-                             pagefault (pagefault@zsnes.com),
-                             Kris Bleakley
-                             Ported from x86 assembler to C by sanmaiwashi
+							 pagefault (pagefault@zsnes.com),
+							 Kris Bleakley
+							 Ported from x86 assembler to C by sanmaiwashi
 
   SPC7110 and RTC C++ emulator code used in 1.39-1.51
   (c) Copyright 2002         Matthew Kendora with research by
-                             zsKnight,
-                             John Weidman,
-                             Dark Force
+							 zsKnight,
+							 John Weidman,
+							 Dark Force
 
   SPC7110 and RTC C++ emulator code used in 1.52+
   (c) Copyright 2009         byuu,
-                             neviksti
+							 neviksti
 
   S-DD1 C emulator code
   (c) Copyright 2003         Brad Jorsch with research by
-                             Andreas Naive,
-                             John Weidman
+							 Andreas Naive,
+							 John Weidman
 
   S-RTC C emulator code
   (c) Copyright 2001 - 2006  byuu,
-                             John Weidman
+							 John Weidman
 
   ST010 C++ emulator code
   (c) Copyright 2003         Feather,
-                             John Weidman,
-                             Kris Bleakley,
-                             Matthew Kendora
+							 John Weidman,
+							 Kris Bleakley,
+							 Matthew Kendora
 
   Super FX x86 assembler emulator code
   (c) Copyright 1998 - 2003  _Demo_,
-                             pagefault,
-                             zsKnight
+							 pagefault,
+							 zsKnight
 
   Super FX C emulator code
   (c) Copyright 1997 - 1999  Ivar,
-                             Gary Henderson,
-                             John Weidman
+							 Gary Henderson,
+							 John Weidman
 
   Sound emulator code used in 1.5-1.51
   (c) Copyright 1998 - 2003  Brad Martin
@@ -116,6 +119,9 @@
 
   Sound emulator code used in 1.52+
   (c) Copyright 2004 - 2007  Shay Green (gblargg@gmail.com)
+
+  S-SMP emulator code used in 1.54+
+  (c) Copyright 2016         byuu
 
   SH assembler code partly based on x86 assembler code
   (c) Copyright 2002 - 2004  Marcus Comstedt (marcus@mc.pp.se)
@@ -134,20 +140,18 @@
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
-                             funkyass,
-                             Matthew Kendora,
-                             Nach,
-                             nitsuja
+							 funkyass,
+							 Matthew Kendora,
+							 Nach,
+							 nitsuja
   (c) Copyright 2009 - 2010  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
   (c) Copyright 2001 - 2010  zones
 
-
   Specific ports contains the works of other authors. See headers in
   individual files.
-
 
   Snes9x homepage: http://www.snes9x.com/
 
@@ -174,50 +178,55 @@
   Nintendo Co., Limited and its subsidiary companies.
  ***********************************************************************************/
 
-
-
-#include <windows.h>
+#include <Windows.h>
 #include "_tfwopen.h"
 
-Utf8ToWide::Utf8ToWide(const char *utf8Chars) {
-	int requiredChars = MultiByteToWideChar(CP_UTF8,0,utf8Chars,-1,wideChars,0);
+Utf8ToWide::Utf8ToWide(const char *utf8Chars)
+{
+	int requiredChars = MultiByteToWideChar(CP_UTF8, 0, utf8Chars, -1, wideChars, 0);
 	wideChars = new wchar_t[requiredChars];
-	MultiByteToWideChar(CP_UTF8,0,utf8Chars,-1,wideChars,requiredChars);
+	MultiByteToWideChar(CP_UTF8, 0, utf8Chars, -1, wideChars, requiredChars);
 }
 
-WideToUtf8::WideToUtf8(const wchar_t *wideChars) {
-	int requiredChars = WideCharToMultiByte(CP_UTF8,0,wideChars,-1,utf8Chars,0,NULL,NULL);
+WideToUtf8::WideToUtf8(const wchar_t *wideChars)
+{
+	int requiredChars = WideCharToMultiByte(CP_UTF8, 0, wideChars, -1, utf8Chars, 0, NULL, NULL);
 	utf8Chars = new char[requiredChars];
-	WideCharToMultiByte(CP_UTF8,0,wideChars,-1,utf8Chars,requiredChars,NULL,NULL);
+	WideCharToMultiByte(CP_UTF8, 0, wideChars, -1, utf8Chars, requiredChars, NULL, NULL);
 }
 
-CPToWide::CPToWide(const char *chars, unsigned int cp) {
-   int requiredChars = MultiByteToWideChar(cp,0,chars,-1,wideChars,0);
-   wideChars = new wchar_t[requiredChars];
-   MultiByteToWideChar(cp,0,chars,-1,wideChars,requiredChars);
+CPToWide::CPToWide(const char *chars, unsigned int cp)
+{
+	int requiredChars = MultiByteToWideChar(cp, 0, chars, -1, wideChars, 0);
+	wideChars = new wchar_t[requiredChars];
+	MultiByteToWideChar(cp, 0, chars, -1, wideChars, requiredChars);
 }
 
-WideToCP::WideToCP(const wchar_t *wideChars, unsigned int cp) {
-	int requiredChars = WideCharToMultiByte(cp,0,wideChars,-1,cpchars,0,NULL,NULL);
+WideToCP::WideToCP(const wchar_t *wideChars, unsigned int cp)
+{
+	int requiredChars = WideCharToMultiByte(cp, 0, wideChars, -1, cpchars, 0, NULL, NULL);
 	cpchars = new char[requiredChars];
-	WideCharToMultiByte(cp,0,wideChars,-1,cpchars,requiredChars,NULL,NULL);
+	WideCharToMultiByte(cp, 0, wideChars, -1, cpchars, requiredChars, NULL, NULL);
 }
 
 #ifdef UNICODE
 
-extern "C" FILE *_tfwopen(const char *filename, const char *mode ) {
+extern "C" FILE *_tfwopen(const char *filename, const char *mode)
+{
 	wchar_t mode_w[30];
-	lstrcpyn(mode_w,Utf8ToWide(mode),29);
-	mode_w[29]=L'\0';
-	return _wfopen(Utf8ToWide(filename),mode_w);
+	lstrcpyn(mode_w, Utf8ToWide(mode), 29);
+	mode_w[29] = L'\0';
+	return _wfopen(Utf8ToWide(filename), mode_w);
 }
 
-extern "C" int _twremove(const char *filename ) {
+extern "C" int _twremove(const char *filename)
+{
 	return _wremove(Utf8ToWide(filename));
 }
 
-extern "C" int _twopen(const char *filename, int oflag, int pmode) {
-  return _wopen(Utf8ToWide(filename), oflag, pmode);
+extern "C" int _twopen(const char *filename, int oflag, int pmode)
+{
+	return _wopen(Utf8ToWide(filename), oflag, pmode);
 }
 
 #endif // UNICODE

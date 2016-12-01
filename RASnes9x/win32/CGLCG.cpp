@@ -22,8 +22,12 @@
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2011  BearOso,
+  (c) Copyright 2009 - 2016  BearOso,
                              OV2
+
+  (c) Copyright 2011 - 2016  Hans-Kristian Arntzen,
+                             Daniel De Matteis
+                             (Under no circumstances will commercial rights be given)
 
 
   BS-X C emulator code
@@ -118,6 +122,9 @@
   Sound emulator code used in 1.52+
   (c) Copyright 2004 - 2007  Shay Green (gblargg@gmail.com)
 
+  S-SMP emulator code used in 1.54+
+  (c) Copyright 2016         byuu
+
   SH assembler code partly based on x86 assembler code
   (c) Copyright 2002 - 2004  Marcus Comstedt (marcus@mc.pp.se)
 
@@ -131,7 +138,7 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2011  BearOso
+  (c) Copyright 2004 - 2016  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
@@ -139,11 +146,16 @@
                              Matthew Kendora,
                              Nach,
                              nitsuja
-  (c) Copyright 2009 - 2011  OV2
+  (c) Copyright 2009 - 2016  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
   (c) Copyright 2001 - 2011  zones
+
+  Libretro port
+  (c) Copyright 2011 - 2016  Hans-Kristian Arntzen,
+                             Daniel De Matteis
+                             (Under no circumstances will commercial rights be given)
 
 
   Specific ports contains the works of other authors. See headers in
@@ -178,8 +190,6 @@
 #include "wsnes9x.h"
 #include "win32_display.h"
 #include <png.h>
-
-#pragma warning( disable : 4244 )
 
 #ifndef max
 #define max(a, b) (((a) > (b)) ? (a) : (b))
@@ -286,8 +296,6 @@ void CGLCG::checkForCgError(const char *situation)
 	}
 }
 
-#define IS_SLASH(x) ((x) == TEXT('\\') || (x) == TEXT('/'))
-
 bool CGLCG::LoadShader(const TCHAR *shaderFile)
 {
 	CCGShader cgShader;
@@ -313,13 +321,8 @@ bool CGLCG::LoadShader(const TCHAR *shaderFile)
 	if (shaderFile == NULL || *shaderFile==TEXT('\0'))
 		return true;
 
-	lstrcpy(shaderPath,shaderFile);
-	for(int i=lstrlen(shaderPath); i>=0; i--){
-		if(IS_SLASH(shaderPath[i])){
-			shaderPath[i]=TEXT('\0');
-			break;
-		}
-	}
+	lstrcpy(shaderPath, shaderFile);
+    ReduceToPath(shaderPath);
 
 	SetCurrentDirectory(shaderPath);
 	if(!cgShader.LoadShader(_tToChar(shaderFile)))
@@ -356,6 +359,10 @@ bool CGLCG::LoadShader(const TCHAR *shaderFile)
 		if(!fileContents)
 			return false;
 
+        // individual shader might include files, these should be relative to shader
+        ReduceToPath(tempPath);
+        SetCurrentDirectory(tempPath);
+
 		pass.cgVertexProgram = cgCreateProgram( cgContext, CG_SOURCE, fileContents,
 						vertexProfile, "main_vertex", NULL);
 
@@ -365,6 +372,9 @@ bool CGLCG::LoadShader(const TCHAR *shaderFile)
 							fragmentProfile, "main_fragment", NULL);
 
 		checkForCgError("Compiling fragment program");
+
+        // set path back for next pass
+        SetCurrentDirectory(shaderPath);
 
 		delete [] fileContents;
 		if(!pass.cgVertexProgram || !pass.cgFragmentProgram) {
@@ -411,7 +421,7 @@ bool CGLCG::LoadShader(const TCHAR *shaderFile)
 				GLubyte *texData;
 				if(loadPngImage(tempPath,width,height,hasAlpha,&texData)) {
 					glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
-					glTexImage2D(GL_TEXTURE_2D, 0, hasAlpha ? 4 : 3, width,
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width,
 						height, 0, hasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, texData);
 					free(texData);
 				}
@@ -419,7 +429,7 @@ bool CGLCG::LoadShader(const TCHAR *shaderFile)
 				STGA stga;
 				if(loadTGA(tempPath,stga)) {
 					glPixelStorei(GL_UNPACK_ROW_LENGTH, stga.width);
-					glTexImage2D(GL_TEXTURE_2D, 0, 4, stga.width,
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, stga.width,
 						stga.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, stga.data);
 				}
 			}
