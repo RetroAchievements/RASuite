@@ -25,7 +25,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
+<<<<<<< HEAD
     <CharacterSet>Unicode</CharacterSet>
+=======
+    <CharacterSet>MultiByte</CharacterSet>
+>>>>>>> bab7d5b0f2c2d388c5b2de245d39711d83065db9
     <PlatformToolset>v140_xp</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -45,6 +49,7 @@
     <OutDir>$(ProjectDir)</OutDir>
     <IntDir>$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_d</TargetName>
+    <ExcludePath>$(VC_IncludePath);$(MSBuild_ExecutablePath);$(VC_LibraryPath_x86)</ExcludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)</OutDir>
@@ -67,7 +72,11 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>windowscodecs.lib;winmm.lib;Winhttp.lib;ddraw.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+<<<<<<< HEAD
       <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+=======
+      <AdditionalLibraryDirectories>$(DXSDK_DIR)Lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+>>>>>>> bab7d5b0f2c2d388c5b2de245d39711d83065db9
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <SubSystem>Windows</SubSystem>

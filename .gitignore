@@ -264,16 +264,34 @@
 /RA_Integration/Temp.txt
 DXSDK_March09_x86/
 NVIDIA_Cg_x86/
+<<<<<<< HEAD
 packages/
 .vs/
 Diffs.txt
 LiveTag.txt
 MakeBuildVer.bat
 RASnes9x.VC.VC.opendb
+=======
+todo.txt
+RASnes9x_Dev/snes9xw.VC.VC.opendb
+RASnes9x_Dev/snes9xw.VC.db
+RASnes9x_Dev/snes9xw.sln
+RASnes9x_Dev/Win32/Debug/
+RASnes9x_Dev/ipch/
+RASnes9x_Dev/win32/Win32/Debug/
+RASnes9x_Dev/win32/RASnes9x_Dev.VC.VC.opendb
+RASnes9x_Dev/win32/RASnes9x_Dev.VC.db
+.vs/config/applicationhost.config
+packages/
+Diffs.txt
+LiveTag.txt
+MakeBuildVer.bat
+>>>>>>> bab7d5b0f2c2d388c5b2de245d39711d83065db9
 RASnes9x.VC.db
 RASnes9x_Dev.VC.db
 RASnes9x_Dev.sln
 RASnes9x_Dev.vsext
+<<<<<<< HEAD
 todo.txt
 /RASnes9x_Dev/
 /RASnes9x/win32/Win32/Debug
@@ -287,3 +305,10 @@ todo.txt
 /RASnes9x/unix
 /RASnes9x/libretro
 /RASnes9x/win32/packages.config
+=======
+RASnes9x_Dev/BuildVer.h
+RASnes9x_Dev/Diffs.txt
+RASnes9x_Dev/LiveTag.txt
+RASnes9x_Dev/win32/RASnes9x_Dev.vcxproj.filters
+RASnes9x_Dev.VC.VC.opendb
+>>>>>>> bab7d5b0f2c2d388c5b2de245d39711d83065db9
