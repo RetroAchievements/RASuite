@@ -32,7 +32,7 @@ Below is instructions if you're having trouble getting Windows SDK 7.1A installe
 </ul>
 
 
-<p>The DirectX SDK that comes with the project doesn't have everything (just what was available on RASuite), I suggest getting the latest one since it's backwards compatible. You will need this, but you also need to copy and paste the ddraw files because they've been removed from the most recent SDK.</p>
+<p>This needs the "latest" legacy DirectX SDK</p>
 <ul>
 	<li>Get it from <a href="https://download.microsoft.com/download/A/E/7/AE743F1F-632B-4809-87A9-AA1BB3458E31/DXSDK_Jun10.exe" >Microsoft</a></li>
 	<li>If you have any problems with it, uninstall VC++ 2010</li>
