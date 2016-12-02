@@ -130,7 +130,7 @@ void SPC7110Decomp::mode0(bool init) {
       inverts = (inverts << 1) + context[con].invert;
 
       //update context state
-      if(flag_lps & (unsigned int)toggle_invert(con)) context[con].invert ^= 1;
+      if(flag_lps & toggle_invert(con)) context[con].invert ^= 1;
       if(flag_lps) context[con].index = next_lps(con);
       else if(shift) context[con].index = next_mps(con);
     }
@@ -223,7 +223,7 @@ void SPC7110Decomp::mode1(bool init) {
         inverts = (inverts << 1) + context[con].invert;
 
         //update context state
-        if(flag_lps & (unsigned int)toggle_invert(con)) context[con].invert ^= 1;
+        if(flag_lps & toggle_invert(con)) context[con].invert ^= 1;
         if(flag_lps) context[con].index = next_lps(con);
         else if(shift) context[con].index = next_mps(con);
 
@@ -330,7 +330,7 @@ void SPC7110Decomp::mode2(bool init) {
         inverts = (inverts << 1) + invertbit;
 
         //update context state
-        if(flag_lps & (unsigned int)toggle_invert(con)) context[con].invert ^= 1;
+        if(flag_lps & toggle_invert(con)) context[con].invert ^= 1;
         if(flag_lps) context[con].index = next_lps(con);
         else if(shift) context[con].index = next_mps(con);
 

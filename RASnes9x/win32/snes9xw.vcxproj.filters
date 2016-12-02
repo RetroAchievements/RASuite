@@ -243,6 +243,15 @@
     <ClInclude Include="..\..\RA_Integration\RA_Interface.h">
       <Filter>RA_Implementation</Filter>
     </ClInclude>
+    <ClInclude Include="..\msu1.h">
+      <Filter>Emu</Filter>
+    </ClInclude>
+    <ClInclude Include="..\filter\xbrz.h">
+      <Filter>Filter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\filter\xbrz-config.h">
+      <Filter>Filter</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\bsx.cpp">
@@ -538,6 +547,15 @@
     </ClCompile>
     <ClCompile Include="..\..\RA_Integration\RA_Interface.cpp">
       <Filter>RA_Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\msu1.cpp">
+      <Filter>Emu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\filter\xbrz.cpp">
+      <Filter>Filter</Filter>
+    </ClCompile>
+    <ClCompile Include="dxerr.cpp">
+      <Filter>Emu</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -8,17 +8,16 @@
 // Generated from the TEXTINCLUDE 2 resource.
 //
 #include "windows.h"
-#define IDC_STATIC -1
-
+#define IDC_STATIC (-1)
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.K.) resources
+// English (U.S.) resources
 
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 #ifdef _WIN32
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
 #endif //_WIN32
 
@@ -49,7 +48,6 @@ BEGIN
     "]",            ID_SOUND_SYNC,          ASCII,  ALT, NOINVERT
     VK_RETURN,      ID_WINDOW_FULLSCREEN,   VIRTKEY, ALT, NOINVERT
     VK_BACK,        ID_WINDOW_STRETCH,      VIRTKEY, ALT, NOINVERT
-    VK_ESCAPE,      ID_FILE_PAUSE,          VIRTKEY, NOINVERT
 END
 
 
@@ -718,14 +716,15 @@ IDB_HIDDENFOLDER        BITMAP                  "hiddir.bmp"
 // remains consistent on all systems.
 IDI_ICON1               ICON                    "icon1.ico"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,5,3,0
- PRODUCTVERSION 1,5,3,0
+ FILEVERSION 1,5,4,1
+ PRODUCTVERSION 1,5,4,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -742,12 +741,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "http://www.snes9x.com"
             VALUE "FileDescription", "Snes9X"
-            VALUE "FileVersion", "1.53"
+            VALUE "FileVersion", "1.54.1"
             VALUE "InternalName", "Snes9X"
-            VALUE "LegalCopyright", "Copyright  1996-2011"
+            VALUE "LegalCopyright", "Copyright  1996-2016"
             VALUE "OriginalFilename", "Snes9X.exe"
             VALUE "ProductName", "Snes9X SNES Emulator"
-            VALUE "ProductVersion", "1.53"
+            VALUE "ProductVersion", "1.54.1"
         END
     END
     BLOCK "VarFileInfo"
@@ -772,11 +771,6 @@ END
 BEGIN
     "\r\n"
     "\0"
-END
-
-3 TEXTINCLUDE 
-BEGIN
-    "\r\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -829,6 +823,7 @@ BEGIN
             MENUITEM "S&ave SPC Data",              ID_FILE_SAVE_SPC_DATA
             MENUITEM "Save Screenshot",             ID_SAVESCREENSHOT
             MENUITEM "Sa&ve S-RAM Data",            ID_FILE_SAVE_SRAM_DATA
+	        MENUITEM "Save Memory Pack",            ID_SAVEMEMPACK
         END
         MENUITEM "ROM Information...",          IDM_ROM_INFO
         MENUITEM SEPARATOR
@@ -935,6 +930,13 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Display Configuration...\tAlt+F5", ID_OPTIONS_DISPLAY
     END
+    POPUP "&Cheat"
+    BEGIN
+        MENUITEM "&Game Genie, Pro-Action Replay Codes\tAlt+G", ID_CHEAT_ENTER
+        MENUITEM "&Search for New Cheats",      ID_CHEAT_SEARCH_MODAL
+        MENUITEM "Search for New Cheats (active)\tAlt+A", 40064
+        MENUITEM "&Apply Cheats",               ID_CHEAT_APPLY, CHECKED
+    END
     POPUP "&Netplay"
     BEGIN
         MENUITEM "&Connect to Server...",       ID_NETPLAY_CONNECT
@@ -954,7 +956,7 @@ BEGIN
     END
 END
 
-#endif    // English (U.K.) resources
+#endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
