@@ -22,25 +22,6 @@ void CauseUnpause()
 	GUI.FrameAdvanceJustPressed = 0;
 }
 
-// I have no idea why this is commented out but I need to add it to resolve a linking error -SyrianBallaS
-//	Perform whatever function in the case of needing to rebuild the menu.
-void RebuildMenu()
-{
-	//// get main menu handle
-	//HMENU hMainMenu = GetMenu(hAppWnd);
-	//if(!hMainMenu) return;
-
-	//// get file menu index
-	//int index = GetMenuItemIndex(hMainMenu, "&RetroAchievements");
-	//if(index >= 0)
-	//	DeleteMenu( hMainMenu, index, MF_BYPOSITION );
-
-	////	##RA embed RA
-	//AppendMenu( hMainMenu, MF_POPUP|MF_STRING, (UINT_PTR)RA_CreatePopupMenu(), TEXT("&RetroAchievements") );
-
-	//DrawMenuBar( hAppWnd );
-}
-
 //	Perform whatever function in the case of needing to rebuild the menu.
 void _RebuildMenu()
 {

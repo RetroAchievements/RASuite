@@ -850,6 +850,7 @@ static void CenterCursor()
 
 void S9xRestoreWindowTitle()
 {
+	RA_UpdateAppTitle("");
 	TCHAR buf[100];
 	_stprintf(buf, WINDOW_TITLE, TEXT(VERSION));
 	SetWindowText(GUI.hWnd, buf);
@@ -1088,6 +1089,9 @@ int HandleKeyMessage(WPARAM wParam, LPARAM lParam)
 			Settings.Paused = Settings.Paused ^ true;
 			Settings.FrameAdvance = false;
 			GUI.FrameAdvanceJustPressed = 0;
+
+			RA_SetPaused(Settings.Paused);
+
 			CenterCursor();
 			if (!Settings.Paused)
 				S9xMouseOn();
@@ -2295,9 +2299,10 @@ LRESULT CALLBACK WinProc(
 				Settings.Paused = false;
 			break;
 		case ID_FILE_PAUSE:
-			Settings.Paused = !Settings.Paused;
+			RA_SetPaused(Settings.Paused);
 			Settings.FrameAdvance = false;
 			GUI.FrameAdvanceJustPressed = 0;
+			Settings.Paused = !Settings.Paused;
 			break;
 		case ID_FILE_LOAD0:
 			FreezeUnfreeze(0, FALSE);
@@ -3493,6 +3498,9 @@ int WINAPI WinMain(
 		ToggleFullScreen();
 	}
 
+	//	Attempt login: show login box or try to log in, AFTER the main window is shown.
+	RA_AttemptLogin(true);
+
 	TIMECAPS tc;
 	if (timeGetDevCaps(&tc, sizeof(TIMECAPS)) == TIMERR_NOERROR)
 	{
@@ -3563,6 +3571,20 @@ int WINAPI WinMain(
 
 			S9xSetSoundMute(GUI.Mute || Settings.ForcedPause || (Settings.Paused && (!Settings.FrameAdvance || GUI.FAMute)));
 		}
+
+#pragma region RA
+		RA_HandleHTTPResults();
+
+		if (Settings.StopEmulation || (Settings.Paused && !Settings.FrameAdvance) ||
+			Settings.ForcedPause)
+		{
+			//	##RA
+			ProcessInput();
+			Sleep(10);
+			WinRefreshDisplay();
+			continue;
+		}
+#pragma endregion
 
 #ifdef NETPLAY_SUPPORT
 		if (!Settings.NetPlay || !NetPlay.PendingWait4Sync ||
@@ -3681,7 +3703,18 @@ int WINAPI WinMain(
 
 				S9xMainLoop();
 				GUI.FrameCount++;
+
+#pragma region RA
+				RA_DoAchievementsFrame();
 			}
+			else
+			{
+				//	##RA
+				ProcessInput();
+				WinRefreshDisplay();
+				Sleep(10);
+			}
+#pragma endregion
 
 #ifdef NETPLAY_SUPPORT
 		}
@@ -3746,6 +3779,8 @@ loop_exit:
 	WinDeleteRecentGamesList();
 	DeinitS9x();
 
+	RA_Shutdown(); // ##RA
+
 #ifdef CHECK_MEMORY_LEAKS
 	_CrtDumpMemoryLeaks();
 #endif
@@ -3756,6 +3791,17 @@ void FreezeUnfreeze(int slot, bool8 freeze)
 {
 	const char *filename;
 	char ext[_MAX_EXT + 1];
+
+#pragma region RA_
+	if (RA_HardcoreModeIsActive())
+	{
+		if (MessageBox(nullptr,
+			_T("Hardcore mode is active. If you load/save a state, Hardcore Mode will be disabled. Continue?"),
+			_T("Warning"),
+			MB_YESNO) == IDNO)
+			return;
+	}
+#pragma endregion
 
 #ifdef NETPLAY_SUPPORT
 	if (!freeze && Settings.NetPlay && !Settings.NetPlayServer)
@@ -3798,6 +3844,19 @@ void FreezeUnfreeze(int slot, bool8 freeze)
 		// fix next frame advance after loading non-skipping state from a skipping state
 		skipNextFrameStop = true;
 	}
+
+#pragma region RA_
+	if (freeze)
+	{
+		//	Attempt to save state of core achievement set
+		RA_OnSaveState(filename);
+	}
+	else
+	{
+		//	Attempt to load state of core achievement set
+		RA_OnLoadState(filename);
+	}
+#pragma endregion
 
 	S9xClearPause(PAUSE_FREEZE_FILE);
 }
@@ -4091,6 +4150,38 @@ static void ResetFrameTimer()
 	GUI.hFrameTimer = timeSetEvent((Settings.FrameTime + 500) / 1000, 0, (LPTIMECALLBACK)FrameTimer, 0, TIME_PERIODIC);
 }
 
+#pragma region RA_
+unsigned char ByteReader(size_t nOffs)
+{
+	return Memory.RAM[nOffs % 0x20000];
+}
+
+unsigned char ByteReaderSRAM(size_t nOffs)
+{
+	unsigned int nSRAMBytes = Memory.SRAMSize ? (1 << (Memory.SRAMSize + 3)) * 128 : 0;
+	if (nSRAMBytes > 0x20000)
+		nSRAMBytes = 0x20000;
+
+	return Memory.SRAM[nOffs % nSRAMBytes];
+}
+
+void ByteWriter(size_t nOffs, unsigned int nVal)
+{
+	if (nOffs < 0x20000)
+		Memory.RAM[nOffs] = nVal;
+}
+
+void ByteWriterSRAM(size_t nOffs, unsigned int nVal)
+{
+	unsigned int nSRAMBytes = Memory.SRAMSize ? (1 << (Memory.SRAMSize + 3)) * 128 : 0;
+	if (nSRAMBytes > 0x20000)
+		nSRAMBytes = 0x20000;
+
+	if (nOffs < nSRAMBytes)
+		Memory.SRAM[nOffs] = nVal;
+}
+#pragma endregion
+
 static bool LoadROMPlain(const TCHAR *filename)
 {
 	if (!filename || !*filename)
@@ -4098,6 +4189,17 @@ static bool LoadROMPlain(const TCHAR *filename)
 	SetCurrentDirectory(S9xGetDirectoryT(ROM_DIR));
 	if (Memory.LoadROM(_tToChar(filename)))
 	{
+#pragma region RA_
+		unsigned int nSRAMBytes = Memory.SRAMSize ? (1 << (Memory.SRAMSize + 3)) * 128 : 0;
+		if (nSRAMBytes > 0x20000)
+			nSRAMBytes = 0x20000;
+
+		RA_ClearMemoryBanks();
+		RA_InstallMemoryBank(0, ByteReader, ByteWriter, 0x20000);
+		RA_InstallMemoryBank(1, ByteReaderSRAM, ByteWriterSRAM, nSRAMBytes);
+		RA_OnLoadNewRom(Memory.ROM, Memory.ROMSize);
+#pragma endregion
+
 		S9xStartCheatSearch(&Cheat);
 		ReInitSound();
 		ResetFrameTimer();
@@ -11115,3 +11217,19 @@ void S9xPostRomInit()
 	for (uint32 y = 0; y < (uint32)IPPU.RenderedScreenHeight; y++)
 		memset(GFX.Screen + y * GFX.RealPPL, 0, GFX.RealPPL * 2);
 }
+
+#pragma region RA_
+
+/// <summary>
+/// Rebuilds the menu to add the RetroAchievements section after logging in
+/// </summary>
+void RebuildMenu()
+{
+	GUI.hMenu = LoadMenu(GUI.hInstance, MAKEINTRESOURCE(IDR_MENU_US));
+
+	HMENU hRA = RA_CreatePopupMenu();
+	AppendMenu(GUI.hMenu, MF_POPUP | MF_STRING, (UINT_PTR)hRA, TEXT("RetroAchievements"));
+	SetMenu(GUI.hWnd, GUI.hMenu);
+	S9xSetRecentGames();
+}
+#pragma endregion

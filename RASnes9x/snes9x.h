@@ -196,7 +196,7 @@
 #include "messages.h"
 
 #ifdef ZLIB
-#include "zlib.h"
+#include <zlib.h>
 #define FSTREAM					gzFile
 #define READ_FSTREAM(p, l, s)	gzread(s, p, l)
 #define WRITE_FSTREAM(p, l, s)	gzwrite(s, p, l)
