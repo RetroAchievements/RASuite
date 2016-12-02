@@ -13,14 +13,17 @@ All emulators used for interfacing with RetroAchievements.org
 </ul>
 
 
-<h2>Compiling Snes9x w/o all the Junk </h2>
-<p><i>Note: this is for Snes9x 1.54.1 by itself, I didn't integrate it with RA yet.</i></p>
+<h2>Compiling RASnes9x </h2>
 <em>Also these instructions only work for a Win32 build, any paths, etc need to use x86 or Win32 folders <strong>NOT</strong>x64</em>
-<p>
-	You also need Windows 7.1a SDK, if you don't have get chocolatey from chocolatey.org<br />
-	After it's installed, as an admin type in cinst windows-sdk-7.1 in cmd or powershell and it'll install in the background. Read directly below this for a workaround if it fails.<br />
-</p>
 
+<h3>Requirements</h3>
+<ol>
+	<li>Windows SDK 7.1</li>
+	<li>DirectX SDK (June 2010)</li>
+	<li>NVIDIA Cg Toolkit</li>
+</ol>
+
+Below is instructions if you're having trouble getting Windows SDK 7.1A installed, the first option on Microsoft's website supports almost all archetectures.
 <p><strong>If you have an AMD Archetecture:</strong></p>
 <ul>
 	<li>Download this specfic <a href="http://download.microsoft.com/download/F/1/0/F10113F5-B750-4969-A255-274341AC6BCE/GRMSDKX_EN_DVD.iso">ISO</a></li>
@@ -33,35 +36,9 @@ All emulators used for interfacing with RetroAchievements.org
 <ul>
 	<li>Get it from <a href="https://download.microsoft.com/download/A/E/7/AE743F1F-632B-4809-87A9-AA1BB3458E31/DXSDK_Jun10.exe" >Microsoft</a></li>
 	<li>If you have any problems with it, uninstall VC++ 2010</li>
+	<li>Drag the DXSDK_Missing contents from the packages folder into the installation folder</li>
 </ul>
 
+All Settings have been configured for you, there could be some issues working on a different branch but shouldn't get in the way of testing.
 
-<p>
-	I'm assuming you followed the instructions above.<br />
-	You'll need 3 enviornment variables, do the following in cmd:
-</p>
-<em>Note: You don't need the exact pathnames, you can just copy and paste the files in the appropriate directories specified by the project Property Pages</em>
-<ol>
-	<li>setx ZLIB_DIR %Path_to_dir%\packages\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native</li>
-	<li>setx CG_INC_PATH %Path_to_dir%\packages\NVIDIA_Cg_x86.3.1.13\NVIDIA_Cg_x86</li>
-	<li>setx CG_LIB_PATH %CG_INC_PATH%</li>
-</ol>
-<p>You could use the include/lib folders for the full SDK for %DXSDK_DIR% but I don't guarantee it'll work</p>
-
-<h3>Library Directories</h3>
-<ul>
-	<li>$(DXSDK_DIR)Lib\x86;</li>
-	<li>$(CG_LIB_PATH);</li>
-	<li>$(LibraryPath);</li>
-</ul>
-
-<h3>Include Directories</h3>
-<ul>
-	<li>$(DXSDK_DIR);</li>
-	<li>$(DXSDK_DIR)include;</li>
-	<li>$(ZLIB_DIR)include;</li>
-	<li>$(CG_INC_PATH);</li>
-	<li>$(IncludePath)</li>
-<ul>
-
-Build and Run, for now I decided not have fmod audio support since it's taking too long to download
+Build and Run, for now I decided not have fmod audio support since it's taking too long to download.
