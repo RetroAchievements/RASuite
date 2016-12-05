@@ -24,3 +24,8 @@ RAGens/
 RANes/
 packages/
 .vs/
+*.db
+/RASnes9x/backup/libpng/
+/RASnes9x/backup/zlib/
+*.htm
+*.opendb
