@@ -1,3 +1,9 @@
 [submodule "RA_Integration/rapidjson"]
 	path = RA_Integration/rapidjson
 	url = https://github.com/miloyip/rapidjson
+[submodule "RASnes9x/zlib"]
+	path = RASnes9x/zlib
+	url = https://github.com/SyrianBallaS/zlib.git
+[submodule "RASnes9x/libpng"]
+	path = RASnes9x/libpng
+	url = https://github.com/SyrianBallaS/libpng.git
