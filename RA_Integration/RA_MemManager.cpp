@@ -164,7 +164,7 @@ size_t MemManager::Compare(ComparisonType nCompareType, unsigned int nTestValue,
 		//	If the current address in ram still matches the query, store in result[]
 		if (bValid)
 		{
-			//	Optimisation: just store it back in m_Candidates
+			//	Optimization: just store it back in m_Candidates
 			m_Candidates[nGoodResults].m_nLastKnownValue = nLiveValue;
 			m_Candidates[nGoodResults].m_nAddr = m_Candidates[i].m_nAddr;
 			m_Candidates[nGoodResults].m_bUpperNibble = m_Candidates[i].m_bUpperNibble;

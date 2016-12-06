@@ -424,7 +424,7 @@ bool AchievementSet::FetchFromWebBlocking(GameID nGameID)
 /// <summary>
 /// Changes - SyrianBallaS
 /// Using FileReadStream instead of FileStream
-/// Updated code to accomadate this change
+/// Updated code to accommodate this change
 /// </summary>
 /// <param name="nGameID"></param>
 /// <returns></returns>
@@ -661,7 +661,7 @@ void AchievementSet::LoadProgress(const char* sLoadStateFilename)
 			nID = strtol(pIter, &pIter, 10); pIter++;
 			nNumCond = strtol(pIter, &pIter, 10);	pIter++;
 
-			//	Concurrently build the md5 checkstring
+			//	Concurrently build the md5 check-string
 			sprintf_s(cheevoProgressString, 4096, "%d:%d:", nID, nNumCond);
 
 			ZeroMemory(CondNumHits, 50 * sizeof(unsigned int));
@@ -679,7 +679,7 @@ void AchievementSet::LoadProgress(const char* sLoadStateFilename)
 				CondTargetVal[i] = strtol(pIter, &pIter, 10); pIter++;
 				CondTargetLastVal[i] = strtol(pIter, &pIter, 10); pIter++;
 
-				//	Concurrently build the md5 checkstring
+				//	Concurrently build the md5 check-string
 				sprintf_s(buffer, 4096, "%d:%d:%d:%d:%d:",
 					CondNumHits[i],
 					CondSourceVal[i],
@@ -728,8 +728,8 @@ void AchievementSet::LoadProgress(const char* sLoadStateFilename)
 					}
 					else
 					{
-						ASSERT(!"Achievement progress savestate incompatible (achievement has changed?)");
-						RA_LOG("Achievement progress savestate incompatible (achievement has changed?)");
+						ASSERT(!"Achievement progress save-state incompatible (achievement has changed?)");
+						RA_LOG("Achievement progress save-state incompatible (achievement has changed?)");
 					}
 				}
 				else

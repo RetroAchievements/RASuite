@@ -27,7 +27,7 @@ extern "C" {
 	//	Call for a tidy exit at end of app.
 	API int CCONV _RA_Shutdown();
 
-	//	Allocates and configures a popup menu, to be called, embedded and managed by the app.
+	//	Allocates and configures a pop-up menu, to be called, embedded and managed by the app.
 	API HMENU CCONV _RA_CreatePopupMenu();
 
 	//	Check all achievement sets for changes, and displays a dlg box to warn lost changes.
@@ -132,7 +132,7 @@ extern char* _MallocAndBulkReadFileToBuffer(const char* sFilename, long& nFileSi
 //	Read file until reaching the end of the file, or the specified char.
 extern bool _ReadTil(const char nChar, char buffer[], unsigned int nSize, DWORD* pCharsRead, FILE* pFile);
 
-//	Read a string til the end of the string, or nChar. bTerminate==true replaces that char with \0.
+//	Read a string until the end of the string, or nChar. bTerminate==true replaces that char with \0.
 extern char* _ReadStringTil(char nChar, char*& pOffsetInOut, bool bTerminate);
 
 //	Write out the buffer to a file

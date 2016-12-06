@@ -50,22 +50,22 @@ const char* RequestTypeToPost[] =
 	"score",
 	"news",
 	"patch",
-	"latestclient",
+	"latest-client",
 	"richpresencepatch",
 	"achievementwondata",
-	"lbinfo",
+	"lb-info",
 	"codenotes2",
 	"getfriendlist",
-	"badgeiter",
+	"badge-iter",
 	"unlocks",
-	"hashlibrary",
-	"gameslist",
-	"allprogress",
+	"hash-library",
+	"games-list",
+	"all-progress",
 	"gameid",
 
 	"ping",
-	"postactivity",
-	"awardachievement",
+	"post-activity",
+	"award-achievement",
 	"submitcodenote",
 	"submitlbentry",
 	"uploadachievement",
@@ -638,7 +638,7 @@ bool RAWeb::HTTPResponseExists(RequestType nType, const std::string& sData)
 	return ms_LastHttpResults.PageRequestExists(nType, sData);
 }
 
-//	Adds items to the httprequest queue
+//	Adds items to the http-request queue
 void RAWeb::CreateThreadedHTTPRequest(RequestType nType, const PostArgs& PostData, const std::string& sData)
 {
 	HttpRequestQueue.PushItem(new RequestObject(nType, PostData, sData));
@@ -708,12 +708,12 @@ DWORD RAWeb::HTTPWorkerThread(LPVOID lpParameter)
 
 		if (bDoPingKeepAlive)
 		{
-			//	Post a pingback once every few minutes to keep the server aware of our presence
+			//	Post a ping-back once every few minutes to keep the server aware of our presence
 			if (time(NULL) > nSendNextKeepAliveAt)
 			{
 				nSendNextKeepAliveAt += SERVER_PING_DURATION;
 
-				//	Post a keepalive packet:
+				//	Post a keep-alive packet:
 				if (RAUsers::LocalUser().IsLoggedIn())
 				{
 					PostArgs args;

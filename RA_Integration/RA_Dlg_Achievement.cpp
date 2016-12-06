@@ -114,7 +114,7 @@ LRESULT ProcessCustomDraw(LPARAM lParam)
 // 				{
 // 					//customize subitem appearance for columns 1..n
 // 					//Note: setting for column i
-// 					//carries over to columnn i+1 unless
+// 					//carries over to column i+1 unless
 // 					//      it is explicitly reset
 // 					lplvcd->clrTextBk = RGB(255,0,0);
 // 					lplvcd->clrTextBk = RGB(255,255,255);
@@ -390,7 +390,7 @@ INT_PTR Dlg_Achievements::AchievementsProc(HWND hDlg, UINT nMsg, WPARAM wParam, 
 			break;
 		}
 
-		//	Continue as if a new rom had been loaded
+		//	Continue as if a new ROM had been loaded
 		OnLoad_NewRom(g_pActiveAchievements->GetGameID());
 		CheckDlgButton(hDlg, IDC_RA_CHKACHPROCESSINGACTIVE, g_pActiveAchievements->ProcessingActive());
 

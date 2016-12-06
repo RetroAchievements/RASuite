@@ -177,7 +177,7 @@ INT_PTR Dlg_GameTitle::GameTitleProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM
 			{
 			case CBN_SELCHANGE:
 			{
-				//	If the user has selected a value, copy this text to the bottom textbox.
+				//	If the user has selected a value, copy this text to the bottom text-box.
 				bUpdatingTextboxTitle = true;
 
 				wchar_t sSelectedTitle[512];

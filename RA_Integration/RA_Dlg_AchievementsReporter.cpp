@@ -209,7 +209,7 @@ INT_PTR CALLBACK Dlg_AchievementsReporter::AchievementsReporterProc(HWND hDlg, U
 					char buffer[2048];
 					sprintf_s(buffer, 2048, "Submitted OK!\n"
 						"\n"
-						"Thankyou for reporting that bug(s), and sorry it hasn't worked correctly.\n"
+						"Thank you for reporting that bug(s), and sorry it hasn't worked correctly.\n"
 						"\n"
 						"The development team will investigate this bug as soon as possible\n"
 						"and we will send you a message on RetroAchievements.org\n"

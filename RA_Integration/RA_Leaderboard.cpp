@@ -132,7 +132,7 @@ void ValueSet::ParseMemString(char* pChar)
 	{
 		{
 			while ((*pChar) == ' ' || (*pChar) == '_' || (*pChar) == '|')
-				pChar++; // Skip any chars up til this point :S
+				pChar++; // Skip any chars up until this point :S
 		}
 
 		MemValue newMemVal;
@@ -200,7 +200,7 @@ void RA_Leaderboard::ParseLBData(char* pChar)
 			{
 				{
 					while ((*pChar) == ' ' || (*pChar) == '_' || (*pChar) == '|')
-						pChar++; // Skip any chars up til this point :S
+						pChar++; // Skip any chars up until this point :S
 				}
 
 				Condition nNewCond;
@@ -217,7 +217,7 @@ void RA_Leaderboard::ParseLBData(char* pChar)
 			{
 				{
 					while ((*pChar) == ' ' || (*pChar) == '_' || (*pChar) == '|')
-						pChar++; // Skip any chars up til this point :S
+						pChar++; // Skip any chars up until this point :S
 				}
 
 				Condition nNewCond;
@@ -234,7 +234,7 @@ void RA_Leaderboard::ParseLBData(char* pChar)
 			{
 				{
 					while ((*pChar) == ' ' || (*pChar) == '_' || (*pChar) == '|')
-						pChar++; // Skip any chars up til this point :S
+						pChar++; // Skip any chars up until this point :S
 				}
 
 				Condition nNewCond;
@@ -252,7 +252,7 @@ void RA_Leaderboard::ParseLBData(char* pChar)
 			{
 				{
 					while ((*pChar) == ' ' || (*pChar) == '_' || (*pChar) == '|')
-						pChar++; // Skip any chars up til this point :S
+						pChar++; // Skip any chars up until this point :S
 				}
 
 				MemValue newMemVal;
@@ -270,7 +270,7 @@ void RA_Leaderboard::ParseLBData(char* pChar)
 			{
 				{
 					while ((*pChar) == ' ' || (*pChar) == '_' || (*pChar) == '|')
-						pChar++; // Skip any chars up til this point :S
+						pChar++; // Skip any chars up until this point :S
 				}
 
 				MemValue newMemVal;
@@ -430,7 +430,7 @@ void RA_Leaderboard::Test()
 			g_PopupWindows.LeaderboardPopups().Deactivate(m_nID);
 
 			g_PopupWindows.AchievementPopups().AddMessage(
-				MessagePopup("Leaderboard attempt cancelled!",
+				MessagePopup("Leaderboard attempt canceled!",
 					m_sTitle,
 					PopupLeaderboardCancel,
 					NULL));

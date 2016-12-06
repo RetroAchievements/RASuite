@@ -195,7 +195,7 @@ HRESULT ConvertBitmapSource(RECT rcDest, IWICBitmapSource*& pToRenderBitmapSourc
 			{
 				hr = pConverter->Initialize(static_cast<IWICBitmapSource*>(pScaler),	// Input bitmap to convert
 					GUID_WICPixelFormat32bppBGR,				//	&GUID_WICPixelFormat32bppBGR,
-					WICBitmapDitherTypeNone,					// Specified dither patterm
+					WICBitmapDitherTypeNone,					// Specified dither pattern
 					NULL,										// Specify a particular palette
 					0.f,										// Alpha threshold
 					WICBitmapPaletteTypeCustom);				// Palette translation type

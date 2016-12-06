@@ -201,6 +201,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\project.json" />
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

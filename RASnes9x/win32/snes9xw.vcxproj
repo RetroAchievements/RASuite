@@ -77,6 +77,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(Configuration)\</OutDir>
     <IntDir>$(Configuration)\obj\</IntDir>
+    <IncludePath>$(CG_INC_PATH);$(IncludePath)</IncludePath>
+    <LibraryPath>$(CG_LIB_PATH);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>.\Release_x64\</OutDir>
@@ -152,8 +154,8 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\;$(ProjectDir)..\..\;$(ProjectDir)..\apu\bapu;$(ProjectDir)..\libpng;$(ProjectDir)..\unzip;$(ProjectDir)..\zlib-1.2.8;$(ProjectDir)..\..\common;$(ProjectDir)..\..\FMOD\api\inc;$(ProjectDir)..\..\RA_Integration;C:\Users\Sam\Repos\Gaming\RASuite_fixes\packages\DXSDK_Missing.1.0.0\Include;$(CG_INC_PATH);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;HAVE_LIBPNG;JMA_SUPPORT;ZLIB_WINAPI;UNZIP_SUPPORT;__WIN32__;NETPLAY_SUPPORT;D3D_DEBUG_INFO;RA_SNES9X;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\packages\DXSDK_Missing.1.0.0\Include;$(ProjectDir);$(ProjectDir)..\;$(ProjectDir)..\..\;$(ProjectDir)..\apu\bapu;$(ProjectDir)..\libpng;$(ProjectDir)..\unzip;$(ProjectDir)..\..\common;$(ProjectDir)..\..\FMOD\api\inc;$(ProjectDir)..\..\RA_Integration;$(ProjectDir)..\zlib;$(ProjectDir)..\zlib\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;HAVE_LIBPNG;ZLIB;JMA_SUPPORT;UNZIP_SUPPORT;__WIN32__;NETPLAY_SUPPORT;D3D_DEBUG_INFO;RA_SNES9X;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
       <PrecompiledHeader />
@@ -164,19 +166,19 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
       <BrowseInformation>true</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>Default</CompileAs>
       <ForcedIncludeFiles>_tfwopen.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4800;4477;4018;4838;4101;4102;4244;4290</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>libpngd.lib;comctl32.lib;winmm.lib;opengl32.lib;glu32.lib;wsock32.lib;ddraw.lib;dsound.lib;dxguid.lib;delayimp.lib;vfw32.lib;zlibd.lib;msxml2.lib;shlwapi.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\Sam\Repos\Gaming\RASuite_fixes\RASnes9x\libpng\projects\vc14\Win32_LIB_Debug;C:\Users\Sam\Repos\Gaming\RASuite_fixes\RASnes9x\zlib\contrib\vstudio\vc14\x86\ZlibStatDebug;$(SolutionDir)packages\DXSDK_Missing.1.0.0\Lib\x86;$(CG_LIB_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>comctl32.lib;ddraw.lib;delayimp.lib;dsound.lib;dxguid.lib;glu32.lib;libpngd.lib;msxml2.lib;opengl32.lib;shlwapi.lib;vfw32.lib;winhttp.lib;winmm.lib;wsock32.lib;zlibstatd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\..\packages\DXSDK_Missing.1.0.0\Lib\x86;$(ProjectDir)..\libpng\projects\vc14\Win32_LIB_Debug;$(ProjectDir)..\zlib\contrib\vstudio\vc14\x86\ZlibStatRelease;$(ProjectDir)..\zlib\contrib\vstudio\vc14\x86\ZlibStatDebug;$(ProjectDir)..\libpng\projects\vc14\Win32_LIB_Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EnableUAC>false</EnableUAC>
       <DelayLoadDLLs>fmod.dll;fmodex.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -186,6 +188,7 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
     <PostBuildEvent>
       <Command>robocopy ..\..\RA_Integration $(OutputPath) RA_Integration_d.dll RA_Integration_d.pdb /njh /njs /np /XX
@@ -359,11 +362,17 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
     <CustomBuild Include="..\stream.h" />
     <CustomBuild Include="..\tile.h" />
     <ClInclude Include="..\unzip\crypt.h" />
-    <ClInclude Include="..\unzip\ioapi.h" />
+    <ClInclude Include="..\unzip\ioapi.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="..\unzip\iowin32.h" />
     <ClInclude Include="..\unzip\mztools.h" />
-    <ClInclude Include="..\unzip\unzip.h" />
-    <ClInclude Include="..\unzip\zip.h" />
+    <ClInclude Include="..\unzip\unzip.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\unzip\zip.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="_tfwopen.h" />
     <ClInclude Include="AVIOutput.h" />
     <ClInclude Include="CXML.h" />
@@ -501,11 +510,11 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
     <ClCompile Include="..\statemanager.cpp" />
     <ClCompile Include="..\stream.cpp" />
     <ClCompile Include="..\tile.cpp" />
-    <ClCompile Include="..\unzip\ioapi.c" />
     <ClCompile Include="..\unzip\iowin32.c" />
     <ClCompile Include="..\unzip\mztools.c" />
-    <ClCompile Include="..\unzip\unzip.c" />
-    <ClCompile Include="..\unzip\zip.c" />
+    <ClCompile Include="..\zlib\contrib\minizip\ioapi.c" />
+    <ClCompile Include="..\zlib\contrib\minizip\unzip.c" />
+    <ClCompile Include="..\zlib\contrib\minizip\zip.c" />
     <ClCompile Include="_tfwopen.cpp" />
     <ClCompile Include="AVIOutput.cpp" />
     <ClCompile Include="CXML.cpp" />
@@ -598,6 +607,7 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </CustomBuild>
+    <None Include="packages.config" />
     <None Include="rsrc\nodrop.cur" />
     <None Include="rsrc\rt_manif.bin" />
     <CustomBuild Include="snes9x.cfg">
@@ -677,17 +687,20 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
     <Image Include="rsrc\rodir.bmp" />
     <Image Include="rsrc\ud.bmp" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\libpng\projects\visualc71\libpng.vcxproj">
-      <Project>{0008960e-e0dd-41a6-8265-00b31ddb4c21}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\zlib-1.2.8\contrib\vstudio\vc9\zlibstat.vcxproj">
-      <Project>{745dec58-ebb3-47a9-a9b8-4c6627c01bf8}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\..\packages\zlib.v120.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v120.windesktop.msvcstl.dyn.rt-dyn.targets" Condition="Exists('..\..\packages\zlib.v120.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v120.windesktop.msvcstl.dyn.rt-dyn.targets')" />
+    <Import Project="..\..\packages\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.targets" Condition="Exists('..\..\packages\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.targets')" />
+    <Import Project="..\..\packages\libpng.redist.1.6.26.1\build\native\libpng.redist.targets" Condition="Exists('..\..\packages\libpng.redist.1.6.26.1\build\native\libpng.redist.targets')" />
+    <Import Project="..\..\packages\libpng.1.6.26.1\build\native\libpng.targets" Condition="Exists('..\..\packages\libpng.1.6.26.1\build\native\libpng.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\packages\zlib.v120.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v120.windesktop.msvcstl.dyn.rt-dyn.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\zlib.v120.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v120.windesktop.msvcstl.dyn.rt-dyn.targets'))" />
+    <Error Condition="!Exists('..\..\packages\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.targets'))" />
+    <Error Condition="!Exists('..\..\packages\libpng.redist.1.6.26.1\build\native\libpng.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\libpng.redist.1.6.26.1\build\native\libpng.redist.targets'))" />
+    <Error Condition="!Exists('..\..\packages\libpng.1.6.26.1\build\native\libpng.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\libpng.1.6.26.1\build\native\libpng.targets'))" />
+  </Target>
 </Project>

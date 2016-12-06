@@ -91,7 +91,7 @@ void AchievementOverlay::SelectNextTopLevelPage(bool bPressedRight)
 		break;
 	default:
 
-		//	Not on a toplevel page: cannot do anything!
+		//	Not on a top-level page: cannot do anything!
 		//assert(0);
 		break;
 	}

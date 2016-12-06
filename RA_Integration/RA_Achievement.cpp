@@ -69,7 +69,7 @@ char* Achievement::ParseMemString(char* sMem)
 		{
 			{
 				while ((*pBuffer) == ' ' || (*pBuffer) == '_' || (*pBuffer) == '|' || (*pBuffer) == 'S')
-					pBuffer++; // Skip any chars up til the start of the achievement condition
+					pBuffer++; // Skip any chars up until the start of the achievement condition
 			}
 
 			Condition nNewCond;
@@ -81,7 +81,7 @@ char* Achievement::ParseMemString(char* sMem)
 			AddCondition(nCondGroupID, NewConditionGroup[i]);
 
 		nCondGroupID++;
-	} while (*pBuffer == 'S');	//	Repeat for all subconditions if they exist
+	} while (*pBuffer == 'S');	//	Repeat for all sub-conditions if they exist
 
 	return pBuffer;
 }
@@ -130,7 +130,7 @@ char* Achievement::ParseLine(char* pBuffer)
 	SetActive(false);
 	SetID(nAchievementID);
 
-	//	buffer now contains TITLE : DESCRIPTION : $POINTS : $Author : $DateCreated : $DateModified : upvotes : downvotes : badgefilename
+	//	buffer now contains TITLE : DESCRIPTION : $POINTS : $Author : $DateCreated : $DateModified : up-votes : down-votes : badgefilename
 
 	pTitle = _ReadStringTil(':', pBuffer, true);
 	pDesc = _ReadStringTil(':', pBuffer, true);
@@ -329,7 +329,7 @@ std::string Achievement::CreateMemString() const
 		if (m_vConditions[nGrp].Count() == 0)	//	Ignore empty groups when saving
 			continue;
 
-		if (nGrp > 0)	//	Subcondition start found
+		if (nGrp > 0)	//	Sub-condition start found
 			sstr << "S";
 
 		for (size_t i = 0; i < m_vConditions[nGrp].Count(); ++i)
@@ -475,7 +475,7 @@ void Achievement::Set(const Achievement& rRHS)
 //float Achievement::ProgressGetNextStep( char* sFormat, float fLastKnownProgress )
 //{
 //	const float fStep = ( (float)strtol( sFormat, NULL, 10 ) / 100.0f );
-//	int nIter = 1;	//	Progress of 0% doesn't require a popup...
+//	int nIter = 1;	//	Progress of 0% doesn't require a pop-up...
 //	float fStepAt = fStep * nIter;
 //	while( (fLastKnownProgress >= fStepAt) && (fStepAt < 1.0f) && (nIter < 20) )
 //	{
@@ -525,10 +525,10 @@ void Achievement::Set(const Achievement& rRHS)
 //			else
 //			{
 //				char buffer[256];
-//				sprintf_s( buffer, 256, "Unrecognised operator character at %d",
+//				sprintf_s( buffer, 256, "Unrecognized operator character at %d",
 //					(&pStrIter) - (&pExp) );
 //
-//				ASSERT(!"Unrecognised operator in format expression!");
+//				ASSERT(!"Unrecognized operator in format expression!");
 //				return 0.0f;
 //			}
 //
@@ -591,7 +591,7 @@ void Achievement::Set(const Achievement& rRHS)
 //			fProgressValue -= fNextVal;
 //			break;
 //		default:
-//			ASSERT(!"Unrecognised operator?!");
+//			ASSERT(!"Unrecognized operator?!");
 //			break;
 //		}
 //

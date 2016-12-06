@@ -22,8 +22,8 @@ namespace
 
 //static
 std::deque<std::string> Dlg_GameLibrary::FilesToScan;
-std::map<std::string, std::string> Dlg_GameLibrary::Results;	//	filepath,md5
-std::map<std::string, std::string> Dlg_GameLibrary::VisibleResults;	//	filepath,md5
+std::map<std::string, std::string> Dlg_GameLibrary::Results;	//	file-path,md5
+std::map<std::string, std::string> Dlg_GameLibrary::VisibleResults;	//	file-path,md5
 size_t Dlg_GameLibrary::nNumParsed = 0;
 bool Dlg_GameLibrary::ThreadProcessingAllowed = true;
 bool Dlg_GameLibrary::ThreadProcessingActive = false;
@@ -297,7 +297,7 @@ void Dlg_GameLibrary::ThreadedScanProc()
 			DWORD nSize = ftell(pf);
 			rewind(pf);
 
-			static BYTE* pBuf = nullptr;	//	static (optimisation)
+			static BYTE* pBuf = nullptr;	//	static (optimization)
 			if (pBuf == nullptr)
 				pBuf = new BYTE[6 * 1024 * 1024];
 

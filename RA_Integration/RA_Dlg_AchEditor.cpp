@@ -1092,7 +1092,7 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hDlg, UINT uMsg, WPARA
 			ofn.lpstrDefExt = L"png";
 			ofn.Flags = OFN_FILEMUSTEXIST;
 
-			if (GetOpenFileName(&ofn) == 0)	//	0 == cancelled
+			if (GetOpenFileName(&ofn) == 0)	//	0 == canceled
 				return false;
 
 			if (ofn.lpstrFile != NULL)
@@ -1102,7 +1102,7 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hDlg, UINT uMsg, WPARA
 				{
 					//TBD: ensure that:
 					//	The image is copied to the cache/badge dir
-					//	The image doesn't already exist in teh cache/badge dir (ask overwrite)
+					//	The image doesn't already exist in the cache/badge dir (ask overwrite)
 					//	The image is the correct dimensions or can be scaled
 					//	The image can be uploaded OK
 					//	The image is not copyright
@@ -1179,7 +1179,7 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hDlg, UINT uMsg, WPARA
 			break;
 		}
 
-		//	Switch also on the highword:
+		//	Switch also on the high-word:
 
 		switch (HIWORD(wParam))
 		{

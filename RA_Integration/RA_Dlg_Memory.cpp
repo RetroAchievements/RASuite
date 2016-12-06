@@ -462,7 +462,7 @@ void MemoryViewerControl::OnClick(POINT point)
 
 		while (x > 0)
 		{
-			//	Adjust x by one subset til we find out the correct offset:
+			//	Adjust x by one subset until we find out the correct offset:
 			x -= sub;
 			if (x >= 0)
 				m_nEditAddress += inc;

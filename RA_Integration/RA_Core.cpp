@@ -281,7 +281,7 @@ API int CCONV _RA_Shutdown()
 
 API bool CCONV _RA_ConfirmLoadNewRom(bool bQuittingApp)
 {
-	//	Returns true if we can go ahead and load the new rom.
+	//	Returns true if we can go ahead and load the new ROM.
 	int nResult = IDYES;
 
 	const char* sCurrentAction = bQuittingApp ? "quit now" : "load a new ROM";
@@ -363,7 +363,7 @@ API int CCONV _RA_OnLoadNewRom(const BYTE* pROM, unsigned int nROMSize)
 			nGameID = static_cast<GameID>(doc["GameID"].GetUint());
 			if (nGameID == 0)	//	Unknown
 			{
-				RA_LOG("Could not recognise game with MD5 %s\n", g_sCurrentROMMD5.c_str());
+				RA_LOG("Could not recognize game with MD5 %s\n", g_sCurrentROMMD5.c_str());
 				char buffer[64];
 				ZeroMemory(buffer, 64);
 				RA_GetEstimatedGameTitle(buffer);
@@ -394,7 +394,7 @@ API int CCONV _RA_OnLoadNewRom(const BYTE* pROM, unsigned int nROMSize)
 	{
 		if (RAUsers::LocalUser().IsLoggedIn())
 		{
-			//	Delete Core and Unofficial Achievements so they are redownloaded every time:
+			//	Delete Core and Unofficial Achievements so they are re-downloaded every time:
 			AchievementSet::DeletePatchFile(Core, nGameID);
 			AchievementSet::DeletePatchFile(Unofficial, nGameID);
 			AchievementSet::FetchFromWebBlocking(nGameID);	//##BLOCKING##
@@ -708,7 +708,7 @@ API int CCONV _RA_HandleHTTPResults()
 	return 0;
 }
 
-//	Following this function, an app should call AppendMenu to associate this submenu.
+//	Following this function, an app should call AppendMenu to associate this sub-menu.
 API HMENU CCONV _RA_CreatePopupMenu()
 {
 	HMENU hRA = CreatePopupMenu();
@@ -720,7 +720,7 @@ API HMENU CCONV _RA_CreatePopupMenu()
 
 		UINT nGameFlags = MF_STRING;
 
-		//if( g_pActiveAchievements->GameID() == 0 )	//	Disabled til I can get this right: Snes9x doesn't call this?
+		//if( g_pActiveAchievements->GameID() == 0 )	//	Disabled until I can get this right: Snes9x doesn't call this?
 		//	nGameFlags |= (MF_GRAYED|MF_DISABLED);
 
 		AppendMenu(hRA, nGameFlags, IDM_RA_OPENGAMEPAGE, TEXT("Open this &Game's Page"));
@@ -1044,7 +1044,7 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 
 		if (AchievementSet::GetGameID() != 0)
 		{
-			//	Delete Core and Unofficial Achievements so it is redownloaded every time:
+			//	Delete Core and Unofficial Achievements so it is re-downloaded every time:
 			AchievementSet::DeletePatchFile(Core, AchievementSet::GetGameID());
 			AchievementSet::DeletePatchFile(Unofficial, AchievementSet::GetGameID());
 
@@ -1203,7 +1203,7 @@ API void CCONV _RA_OnLoadState(const char* sFilename)
 	{
 		if (g_bHardcoreModeActive)
 		{
-			MessageBox(nullptr, L"Savestates are not allowed during Hardcore Mode!", L"Warning!", MB_OK | MB_ICONEXCLAMATION);
+			MessageBox(nullptr, L"Save-states are not allowed during Hardcore Mode!", L"Warning!", MB_OK | MB_ICONEXCLAMATION);
 			g_bHardcoreModeActive = false;
 			RA_RebuildMenu();
 			RA_ResetEmulation();
@@ -1368,7 +1368,7 @@ char* _MallocAndBulkReadFileToBuffer(const char* sFilename, long& nFileSizeOut)
 	if (pf == NULL)
 		return NULL;
 
-	//	Calculate filesize
+	//	Calculate file-size
 	fseek(pf, 0L, SEEK_END);
 	nFileSizeOut = ftell(pf);
 	fseek(pf, 0L, SEEK_SET);

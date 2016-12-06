@@ -97,7 +97,7 @@ void LocalRAUser::AttemptLogin(bool bBlocking)
 		{
 			PostArgs args;
 			args['u'] = Username();
-			args['t'] = Token();		//	Plaintext password(!)
+			args['t'] = Token();		//	Plain-text password(!)
 
 			Document doc;
 			if (RAWeb::DoBlockingRequest(RequestLogin, args, doc))

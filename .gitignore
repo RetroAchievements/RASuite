@@ -47,3 +47,11 @@ RANes/
 /RA_Integration/targetver.h
 
 
+/packages/libpng.1.6.26.1/build
+/packages/libpng.redist.1.6.26.1/build
+/packages/rapidjson.1.0.2/build
+/packages/zlib.v120.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8/build/native/zlib.v120.windesktop.msvcstl.dyn.rt-dyn.targets
+/packages/zlib.v120.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8/build/native/zlib.v120.windesktop.msvcstl.dyn.rt-dyn.x64.targets
+/packages/zlib.v120.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8/build/native/zlib.v120.windesktop.msvcstl.dyn.rt-dyn.x86.targets
+/packages/zlib.v140.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8/license
+*.targets
