@@ -22,12 +22,8 @@
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2016  BearOso,
+  (c) Copyright 2009 - 2011  BearOso,
                              OV2
-
-  (c) Copyright 2011 - 2016  Hans-Kristian Arntzen,
-                             Daniel De Matteis
-                             (Under no circumstances will commercial rights be given)
 
 
   BS-X C emulator code
@@ -122,9 +118,6 @@
   Sound emulator code used in 1.52+
   (c) Copyright 2004 - 2007  Shay Green (gblargg@gmail.com)
 
-  S-SMP emulator code used in 1.54+
-  (c) Copyright 2016         byuu
-
   SH assembler code partly based on x86 assembler code
   (c) Copyright 2002 - 2004  Marcus Comstedt (marcus@mc.pp.se)
 
@@ -138,7 +131,7 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2016  BearOso
+  (c) Copyright 2004 - 2011  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
@@ -146,16 +139,11 @@
                              Matthew Kendora,
                              Nach,
                              nitsuja
-  (c) Copyright 2009 - 2016  OV2
+  (c) Copyright 2009 - 2011  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
   (c) Copyright 2001 - 2011  zones
-
-  Libretro port
-  (c) Copyright 2011 - 2016  Hans-Kristian Arntzen,
-                             Daniel De Matteis
-                             (Under no circumstances will commercial rights be given)
 
 
   Specific ports contains the works of other authors. See headers in
@@ -280,6 +268,11 @@ void WinSetDefaultValues ()
 	// CPU options
 	Settings.Paused	= false;
 
+	// ROM image and peripheral	options
+	Settings.MultiPlayer5Master	= false;
+	Settings.SuperScopeMaster =	false;
+	Settings.MouseMaster = false;
+
 #ifdef NETPLAY_SUPPORT
 	Settings.Port =	1996;
 	NetPlay.MaxFrameSkip = 10;
@@ -304,6 +297,8 @@ static bool	try_save(const char	*fname,	ConfigFile &conf){
 	}
 	return false;
 }
+
+static char rom_filename [MAX_PATH] = {0};
 
 static bool S9xSaveConfigFile(ConfigFile &conf){
 
@@ -354,30 +349,18 @@ static inline char *SkipSpaces (char *p)
 	return (p);
 }
 
-const TCHAR*	WinParseCommandLineAndLoadConfigFile (TCHAR *line)
+const char*	WinParseCommandLineAndLoadConfigFile (char *line)
 {
 	// Break the command line up into an array of string pointers, each	pointer
 	// points at a separate	word or	character sequence enclosed	in quotes.
 
-    int count = 0;
-    static TCHAR return_filename[MAX_PATH];
-
-#ifdef UNICODE
-    // split params into argv
-	TCHAR **params = CommandLineToArgvW(line, &count);
-
-    // convert all parameters to utf8
-	char **parameters = new char*[count];
-    for(int i = 0; i < count; i++) {
-        int requiredChars = WideCharToMultiByte(CP_UTF8, 0, params[i], -1, NULL, 0, NULL, NULL);
-	    parameters[i] = new char[requiredChars];
-	    WideCharToMultiByte(CP_UTF8, 0, params[i], -1, parameters[i], requiredChars, NULL, NULL);
-    }
-    LocalFree(params);
-#else
 #define	MAX_PARAMETERS 100
 	char *p	= line;
-	char *parameters[MAX_PARAMETERS];
+	static char	*parameters	[MAX_PARAMETERS];
+	int	count =	0;
+
+	//parameters [count++] = "Snes9X";
+
 	while (count < MAX_PARAMETERS && *p)
 	{
 		p =	SkipSpaces (p);
@@ -409,7 +392,6 @@ const TCHAR*	WinParseCommandLineAndLoadConfigFile (TCHAR *line)
 			}
 	}
 
-#endif
 	configMutex = CreateMutex(NULL, FALSE, TEXT("Snes9xConfigMutex"));
 	int times = 0;
 	DWORD waitVal = WAIT_TIMEOUT;
@@ -450,19 +432,12 @@ const TCHAR*	WinParseCommandLineAndLoadConfigFile (TCHAR *line)
 	CloseHandle(configMutex);
 
 	const char* rf = S9xParseArgs (parameters, count);
+	/*if(rf)
+		strcpy(rom_filename, rf);
+	else
+		rom_filename[0] = '\0';*/
 
-    if(rf) // save rom_filename as TCHAR if available
-        lstrcpy(return_filename, _tFromChar(rf));
-
-#ifdef UNICODE
-    // free parameters
-    for(int i = 0; i < count; i++) {
-        delete [] parameters[i];
-    }
-    delete [] parameters;
-#endif
-
-    return rf ? return_filename : NULL;
+	return rf;
 }
 
 #define S(x) GAMEDEVICE_VK_##x
@@ -887,7 +862,7 @@ void WinRegisterConfigItems()
 	AddBoolC("DisplayFrameCount", Settings.DisplayMovieFrame, true, "true to show the frame count when a movie is playing");
 #undef CATEGORY
 #define CATEGORY "Display\\Win"
-	AddUIntC("OutputMethod", GUI.outputMethod, 1, "0=DirectDraw, 1=Direct3D, 2=OpenGL");
+	AddUIntC("OutputMethod", GUI.outputMethod, 0, "0=DirectDraw, 1=Direct3D, 2=OpenGL");
 	AddUIntC("FilterType", GUI.Scale, 0, filterString);
 	AddUIntC("FilterHiRes", GUI.ScaleHiRes, 0, filterString2);
 	AddBoolC("BlendHiRes", GUI.BlendHiRes, true, "true to horizontally blend Hi-Res images (better transparency effect on filters that do not account for this)");
@@ -985,6 +960,7 @@ void WinRegisterConfigItems()
 	AddBoolC("Cheat", Settings.ApplyCheats, true, "true to allow enabled cheats to be applied");
 	AddInvBoolC("Patch", Settings.NoPatch, true, "true to allow IPS/UPS patches to be applied (\"soft patching\")");
 	AddBoolC("BS", Settings.BS, false, "Broadcast Satellaview emulation");
+	AddStringC("Filename", rom_filename, MAX_PATH, "", "filename of ROM to run when Snes9x opens");
 #undef CATEGORY
 #ifdef NETPLAY_SUPPORT
 #define	CATEGORY "Netplay"

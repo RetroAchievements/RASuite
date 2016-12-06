@@ -8,7 +8,7 @@ snes9x_gtk_CXXFLAGS = -fno-exceptions -fno-rtti
 endif
 noinst_LIBRARIES =
 
-AM_CPPFLAGS = -I../apu/bapu -I$(top_srcdir) -I.. -DSNES9XLOCALEDIR=\""$(snes9xlocaledir)"\"
+INCLUDES = -I../apu/bapu -I$(top_srcdir) -I.. -DSNES9XLOCALEDIR=\""$(snes9xlocaledir)"\"
 
 CLEANFILES = \
     src/gtk_snes9x_ui.cpp \
@@ -49,7 +49,7 @@ snes9x_gtk_SOURCES = \
     src/gtk_s9xwindow.h \
     src/gtk_sound.cpp \
     src/gtk_sound.h \
-    src/gtk_splash.cpp \
+    src/gtk_splash.h \
     src/snes_ntsc_config.h \
     src/snes_ntsc.h \
     src/snes_ntsc_impl.h \
@@ -59,14 +59,6 @@ if HQ2X
 snes9x_gtk_SOURCES += \
     ../filter/hq2x.cpp \
     ../filter/hq2x.h
-endif
-
-if XBRZ
-snes9x_gtk_SOURCES += \
-    src/filter_xbrz.cpp\
-    src/filter_xbrz.h\
-    ../filter/xbrz.cpp \
-    ../filter/xbrz.h
 endif
 
 if PORTAUDIO
@@ -127,8 +119,8 @@ endif
 
 # APU
 snes9x_gtk_SOURCES += \
-    ../apu/apu.cpp
-
+    ../apu/apu.cpp 
+    
 # Byuu's APU
 snes9x_gtk_SOURCES += \
     ../apu/bapu/dsp/sdsp.cpp \
@@ -136,18 +128,13 @@ snes9x_gtk_SOURCES += \
     ../apu/bapu/smp/smp.cpp \
     ../apu/bapu/smp/smp_state.cpp
 
-# MSU1
-snes9x_gtk_SOURCES += \
-    ../msu1.cpp \
-    ../msu1.h
-
 # DSP
 snes9x_gtk_SOURCES += \
     ../dsp.cpp \
     ../dsp1.cpp \
     ../dsp2.cpp \
     ../dsp3.cpp \
-    ../dsp4.cpp
+    ../dsp4.cpp 
 
 # Base
 snes9x_gtk_SOURCES += \
@@ -178,8 +165,7 @@ snes9x_gtk_SOURCES += \
     ../logger.cpp \
     ../snapshot.cpp \
     ../screenshot.cpp \
-    ../movie.cpp \
-    ../statemanager.cpp
+    ../movie.cpp
 
 # ASMCPU Doesn't exist anymore.
 snes9x_gtk_SOURCES += \
@@ -201,16 +187,12 @@ snes9x_gtk_SOURCES += \
     ../server.cpp
 endif
 
-
 # Zip support is nonconfigurable.
 snes9x_gtk_SOURCES += \
-    ../loadzip.cpp
-if ! SYSTEM_ZIP
-snes9x_gtk_SOURCES += \
+    ../loadzip.cpp \
     ../unzip/unzip.c \
     ../unzip/ioapi.c \
     ../unzip/zip.c
-endif
 UNZIPDEFINES=-DUNZIP_SUPPORT
 
 if JMA

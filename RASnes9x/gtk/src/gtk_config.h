@@ -119,7 +119,6 @@ class Snes9xConfig
         /* Operational */
         int           sound_driver;
         int           mute_sound;
-        int           mute_sound_turbo;
         int           sound_buffer_size;
         int           sound_playback_rate;
         int           sound_input_rate;
@@ -133,9 +132,6 @@ class Snes9xConfig
 
         int            pointer_is_visible;
         struct timeval pointer_timestamp;
-        
-        unsigned int   rewind_granularity;
-        unsigned int   rewind_buffer_size;
 
 #ifdef USE_XRANDR
         XRRScreenConfiguration *xrr_config;

@@ -12,7 +12,7 @@ class Resampler : public ring_buffer
         virtual void time_ratio (double) = 0;
         virtual void read (short *, int) = 0;
         virtual int  avail (void)        = 0;
-
+    
         Resampler (int num_samples) : ring_buffer (num_samples << 1)
         {
         }
@@ -33,19 +33,19 @@ class Resampler : public ring_buffer
         }
 
         inline int
-        space_empty (void) const
+        space_empty (void)
         {
             return buffer_size - size;
         }
-
+    
         inline int
-        space_filled (void) const
+        space_filled (void)
         {
             return size;
         }
-
+        
         inline int
-        max_write (void) const
+        max_write (void)
         {
             return space_empty () >> 1;
         }

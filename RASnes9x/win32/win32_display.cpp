@@ -22,12 +22,8 @@
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2016  BearOso,
+  (c) Copyright 2009 - 2011  BearOso,
                              OV2
-
-  (c) Copyright 2011 - 2016  Hans-Kristian Arntzen,
-                             Daniel De Matteis
-                             (Under no circumstances will commercial rights be given)
 
 
   BS-X C emulator code
@@ -122,9 +118,6 @@
   Sound emulator code used in 1.52+
   (c) Copyright 2004 - 2007  Shay Green (gblargg@gmail.com)
 
-  S-SMP emulator code used in 1.54+
-  (c) Copyright 2016         byuu
-
   SH assembler code partly based on x86 assembler code
   (c) Copyright 2002 - 2004  Marcus Comstedt (marcus@mc.pp.se)
 
@@ -138,7 +131,7 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2016  BearOso
+  (c) Copyright 2004 - 2011  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
@@ -146,16 +139,11 @@
                              Matthew Kendora,
                              Nach,
                              nitsuja
-  (c) Copyright 2009 - 2016  OV2
+  (c) Copyright 2009 - 2011  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
   (c) Copyright 2001 - 2011  zones
-
-  Libretro port
-  (c) Copyright 2011 - 2016  Hans-Kristian Arntzen,
-                             Daniel De Matteis
-                             (Under no circumstances will commercial rights be given)
 
 
   Specific ports contains the works of other authors. See headers in
@@ -460,16 +448,6 @@ char *ReadShaderFileContents(const TCHAR *filename)
 
 }
 
-void ReduceToPath(TCHAR *filename)
-{
-    for (int i = lstrlen(filename); i >= 0; i--) {
-        if (IS_SLASH(filename[i])) {
-            filename[i] = TEXT('\0');
-            break;
-        }
-    }
-}
-
 // TODO: abstract the following functions in some way - only necessary for directdraw
 
 /* DirectDraw only begin */
@@ -600,22 +578,21 @@ void ToggleFullScreen ()
 {
     S9xSetPause (PAUSE_TOGGLE_FULL_SCREEN);
 
-    SaveMainWinPos();
-
 	if(GUI.EmulateFullscreen) {
 		HMONITOR hm;
 		MONITORINFO mi;
 		GUI.EmulatedFullscreen = !GUI.EmulatedFullscreen;
 		if(GUI.EmulatedFullscreen) {
+			SaveMainWinPos();
 			if(GetMenu(GUI.hWnd)!=NULL)
 				SetMenu(GUI.hWnd,NULL);
-			SetWindowLongPtr (GUI.hWnd, GWL_STYLE, WS_POPUP|WS_VISIBLE);
+			SetWindowLong (GUI.hWnd, GWL_STYLE, WS_POPUP|WS_VISIBLE);
 			hm = MonitorFromWindow(GUI.hWnd,MONITOR_DEFAULTTONEAREST);
 			mi.cbSize = sizeof(mi);
 			GetMonitorInfo(hm,&mi);
 			SetWindowPos (GUI.hWnd, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top, mi.rcMonitor.right - mi.rcMonitor.left, mi.rcMonitor.bottom - mi.rcMonitor.top, SWP_DRAWFRAME|SWP_FRAMECHANGED);
 		} else {
-			SetWindowLongPtr( GUI.hWnd, GWL_STYLE, WS_POPUPWINDOW|WS_CAPTION|
+			SetWindowLong( GUI.hWnd, GWL_STYLE, WS_POPUPWINDOW|WS_CAPTION|
                    WS_THICKFRAME|WS_VISIBLE|WS_MINIMIZEBOX|WS_MAXIMIZEBOX);
 			SetMenu(GUI.hWnd,GUI.hMenu);
 			SetWindowPos (GUI.hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_DRAWFRAME|SWP_FRAMECHANGED);
@@ -624,15 +601,16 @@ void ToggleFullScreen ()
 	} else {
 		GUI.FullScreen = !GUI.FullScreen;
 		if(GUI.FullScreen) {
+			SaveMainWinPos();
 			if(GetMenu(GUI.hWnd)!=NULL)
 				SetMenu(GUI.hWnd,NULL);
-			SetWindowLongPtr (GUI.hWnd, GWL_STYLE, WS_POPUP|WS_VISIBLE);
+			SetWindowLong (GUI.hWnd, GWL_STYLE, WS_POPUP|WS_VISIBLE);
 			SetWindowPos (GUI.hWnd, HWND_TOPMOST, 0, 0, GUI.FullscreenMode.width, GUI.FullscreenMode.height, SWP_DRAWFRAME|SWP_FRAMECHANGED);
 			if(!S9xDisplayOutput->SetFullscreen(true))
 				GUI.FullScreen = false;
 		}
 		if(!GUI.FullScreen) {
-			SetWindowLongPtr( GUI.hWnd, GWL_STYLE, WS_POPUPWINDOW|WS_CAPTION|
+			SetWindowLong( GUI.hWnd, GWL_STYLE, WS_POPUPWINDOW|WS_CAPTION|
                    WS_THICKFRAME|WS_VISIBLE|WS_MINIMIZEBOX|WS_MAXIMIZEBOX);
 			SetMenu(GUI.hWnd,GUI.hMenu);
 			S9xDisplayOutput->SetFullscreen(false);

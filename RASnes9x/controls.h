@@ -22,12 +22,8 @@
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2016  BearOso,
+  (c) Copyright 2009 - 2011  BearOso,
                              OV2
-
-  (c) Copyright 2011 - 2016  Hans-Kristian Arntzen,
-                             Daniel De Matteis
-                             (Under no circumstances will commercial rights be given)
 
 
   BS-X C emulator code
@@ -122,9 +118,6 @@
   Sound emulator code used in 1.52+
   (c) Copyright 2004 - 2007  Shay Green (gblargg@gmail.com)
 
-  S-SMP emulator code used in 1.54+
-  (c) Copyright 2016         byuu
-
   SH assembler code partly based on x86 assembler code
   (c) Copyright 2002 - 2004  Marcus Comstedt (marcus@mc.pp.se)
 
@@ -138,7 +131,7 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2016  BearOso
+  (c) Copyright 2004 - 2011  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
@@ -146,16 +139,11 @@
                              Matthew Kendora,
                              Nach,
                              nitsuja
-  (c) Copyright 2009 - 2016  OV2
+  (c) Copyright 2009 - 2011  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
   (c) Copyright 2001 - 2011  zones
-
-  Libretro port
-  (c) Copyright 2011 - 2016  Hans-Kristian Arntzen,
-                             Daniel De Matteis
-                             (Under no circumstances will commercial rights be given)
 
 
   Specific ports contains the works of other authors. See headers in
@@ -332,7 +320,7 @@ enum controllers
 };
 
 void S9xSetController (int port, enum controllers controller, int8 id1, int8 id2, int8 id3, int8 id4); // port=0-1
-void S9xGetController (int port, enum controllers *controller, int8 *id1, int8 *id2, int8 *id3, int8 *id4);
+extern void S9xGetController (int port, enum controllers *controller, int8 *id1, int8 *id2, int8 *id3, int8 *id4);
 void S9xReportControllers (void);
 
 // Call this when you're done with S9xSetController, or if you change any of the controller Settings.*Master flags. 
@@ -354,7 +342,7 @@ const char ** S9xGetAllSnes9xCommands (void);
 
 // Generic mapping functions
 
-s9xcommand_t S9xGetMapping (uint32 id);
+extern s9xcommand_t S9xGetMapping (uint32 id);
 void S9xUnmapID (uint32 id);
 
 // Button mapping functions.
@@ -438,7 +426,7 @@ void S9xSetJoypadLatch (bool latch);
 
 // Use when reading $4016/7 (JOYSER0 and JOYSER1).
 
-uint8 S9xReadJOYSERn (int n);
+extern uint8 S9xReadJOYSERn (int n);
 
 // End-Of-Frame processing. Sets gun latch variables and tries to draw crosshairs
 
@@ -462,5 +450,7 @@ struct SControlSnapshot
 
 void S9xControlPreSaveState (struct SControlSnapshot *s);
 void S9xControlPostLoadState (struct SControlSnapshot *s);
+
+extern void DisplayStateChange (const char *, bool8);
 
 #endif

@@ -6,9 +6,6 @@
 #ifdef USE_HQ2X
 #include "filter/hq2x.h"
 #endif
-#ifdef USE_XBRZ
-#include "filter_xbrz.h"
-#endif
 #include "filter/epx.h"
 #include "filter_epx_unsafe.h"
 
@@ -26,10 +23,7 @@
 #define FILTER_HQ2X                 11
 #define FILTER_HQ3X                 12
 #define FILTER_HQ4X                 13
-#define FILTER_2XBRZ                14
-#define FILTER_3XBRZ                15
-#define FILTER_4XBRZ                16
-#define NUM_FILTERS                 17
+#define NUM_FILTERS                 14
 
 #define NTSC_COMPOSITE              0
 #define NTSC_SVIDEO                 1

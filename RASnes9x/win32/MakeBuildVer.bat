@@ -3,9 +3,7 @@
 REM git describe --tags --long > LiveTag.txt
 git describe --tags --match "RASnes9x.*" > LiveTag.txt
 @set /p ACTIVE_TAG=<LiveTag.txt
-
 @set VERSION_NUM=%ACTIVE_TAG:~9,3%
-
 
 git diff HEAD > Diffs.txt
 @set /p RAW_DIFFS_FOUND=<Diffs.txt

@@ -71,12 +71,10 @@ S9xAlsaSoundDriver::open_device (void)
     printf ("ALSA sound driver initializing...\n");
     printf ("    --> (Device: default)...");
 
-    err = snd_pcm_open (&pcm,
-                        "default",
-                        SND_PCM_STREAM_PLAYBACK,
-                        SND_PCM_NONBLOCK);
-
-    if (err < 0)
+    if ((err = snd_pcm_open (&pcm,
+                             "default",
+                             SND_PCM_STREAM_PLAYBACK,
+                             SND_PCM_NONBLOCK) < 0))
     {
         goto fail;
     }

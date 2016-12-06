@@ -1,6 +1,6 @@
 case 0xbc: {
   op_io();
-  regs.B.a = op_inc(regs.B.a);
+  regs.a = op_inc(regs.a);
   break;
 }
 
@@ -12,13 +12,13 @@ case 0x3d: {
 
 case 0xfc: {
   op_io();
-  regs.B.y = op_inc(regs.B.y);
+  regs.y = op_inc(regs.y);
   break;
 }
 
 case 0x9c: {
   op_io();
-  regs.B.a = op_dec(regs.B.a);
+  regs.a = op_dec(regs.a);
   break;
 }
 
@@ -30,31 +30,31 @@ case 0x1d: {
 
 case 0xdc: {
   op_io();
-  regs.B.y = op_dec(regs.B.y);
+  regs.y = op_dec(regs.y);
   break;
 }
 
 case 0x1c: {
   op_io();
-  regs.B.a = op_asl(regs.B.a);
+  regs.a = op_asl(regs.a);
   break;
 }
 
 case 0x5c: {
   op_io();
-  regs.B.a = op_lsr(regs.B.a);
+  regs.a = op_lsr(regs.a);
   break;
 }
 
 case 0x3c: {
   op_io();
-  regs.B.a = op_rol(regs.B.a);
+  regs.a = op_rol(regs.a);
   break;
 }
 
 case 0x7c: {
   op_io();
-  regs.B.a = op_ror(regs.B.a);
+  regs.a = op_ror(regs.a);
     break;
 }
 
@@ -218,10 +218,10 @@ case 0x0e: {
   dp  = op_readpc();
   dp |= op_readpc() << 8;
   rd = op_readaddr(dp);
-  regs.p.n = !!((regs.B.a - rd) & 0x80);
-  regs.p.z = ((regs.B.a - rd) == 0);
+  regs.p.n = !!((regs.a - rd) & 0x80);
+  regs.p.z = ((regs.a - rd) == 0);
   op_readaddr(dp);
-  op_writeaddr(dp, rd | regs.B.a);
+  op_writeaddr(dp, rd | regs.a);
   break;
 }
 
@@ -229,10 +229,10 @@ case 0x4e: {
   dp  = op_readpc();
   dp |= op_readpc() << 8;
   rd = op_readaddr(dp);
-  regs.p.n = !!((regs.B.a - rd) & 0x80);
-  regs.p.z = ((regs.B.a - rd) == 0);
+  regs.p.n = !!((regs.a - rd) & 0x80);
+  regs.p.z = ((regs.a - rd) == 0);
   op_readaddr(dp);
-  op_writeaddr(dp, rd &~ regs.B.a);
+  op_writeaddr(dp, rd &~ regs.a);
   break;
 }
 

@@ -116,16 +116,14 @@ S9xOpenGLDisplayDriver::update (int width, int height)
     void  *pboMemory = NULL;
     int   x, y, w, h;
 
+    if (width <= 0)
+    {
+        gdk_window_hide (gdk_window);
+        return;
+    }
+
     GtkAllocation allocation;
     gtk_widget_get_allocation (drawing_area, &allocation);
-
-#if GTK_CHECK_VERSION(3,10,0)
-    int gdk_scale_factor = gdk_window_get_scale_factor (gdk_window);
-
-    allocation.width *= gdk_scale_factor;
-    allocation.height *= gdk_scale_factor;
-
-#endif
 
     if (output_window_width  != allocation.width ||
         output_window_height != allocation.height)
@@ -320,22 +318,16 @@ S9xOpenGLDisplayDriver::update (int width, int height)
     if (using_shaders)
     {
         GLint location;
-        float inputSize[2];
-        float outputSize[2];
-        float textureSize[2];
 
-        inputSize[0] = width;
-        inputSize[1] = height;
+        float inputSize[2] = { width, height };
         location = glGetUniformLocation (program, "rubyInputSize");
         glUniform2fv (location, 1, inputSize);
 
-        outputSize[0] = w;
-        outputSize[1] = h;
+        float outputSize[2] = {w , h };
         location = glGetUniformLocation (program, "rubyOutputSize");
         glUniform2fv (location, 1, outputSize);
 
-        textureSize[0] = texture_width;
-        textureSize[1] = texture_height;
+        float textureSize[2] = { texture_width, texture_height };
         location = glGetUniformLocation (program, "rubyTextureSize");
         glUniform2fv (location, 1, textureSize);
     }
@@ -724,16 +716,25 @@ S9xOpenGLDisplayDriver::opengl_defaults (void)
 void
 S9xOpenGLDisplayDriver::refresh (int width, int height)
 {
+    if (!config->rom_loaded)
+    {
+        gdk_window_hide (gdk_window);
+    }
+
     return;
 }
 
 void
 S9xOpenGLDisplayDriver::resize_window (int width, int height)
 {
-    g_object_unref (gdk_window);
-    XDestroyWindow (display, xwindow);
-    create_window (width, height);
-    glXMakeCurrent (display, xwindow, glx_context);
+    XWindowChanges changes;
+
+    changes.width = width;
+    changes.height = height;
+    XConfigureWindow (display, xwindow, CWWidth | CWHeight, &changes);
+    XSync (display, False);
+
+    gdk_window_show (gdk_window);
 
     return;
 }
@@ -746,8 +747,6 @@ S9xOpenGLDisplayDriver::create_window (int width, int height)
     window_attr.colormap = xcolormap;
     window_attr.border_pixel = 0;
     window_attr.event_mask = StructureNotifyMask | ExposureMask;
-    window_attr.do_not_propagate_mask = 0;
-    window_attr.save_under = False;
     window_attr.background_pixmap = None;
 
     xwindow = XCreateWindow (display,
@@ -760,7 +759,7 @@ S9xOpenGLDisplayDriver::create_window (int width, int height)
                              vi->depth,
                              InputOutput,
                              vi->visual,
-                             CWColormap | CWBorderPixel | CWBackPixmap | CWEventMask | CWSaveUnder | CWDontPropagate,
+                             CWColormap | CWBorderPixel | CWBackPixmap | CWEventMask,
                              &window_attr);
     XSync (display, False);
 

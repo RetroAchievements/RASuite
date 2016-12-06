@@ -22,12 +22,8 @@
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2016  BearOso,
+  (c) Copyright 2009 - 2011  BearOso,
                              OV2
-
-  (c) Copyright 2011 - 2016  Hans-Kristian Arntzen,
-                             Daniel De Matteis
-                             (Under no circumstances will commercial rights be given)
 
 
   BS-X C emulator code
@@ -122,9 +118,6 @@
   Sound emulator code used in 1.52+
   (c) Copyright 2004 - 2007  Shay Green (gblargg@gmail.com)
 
-  S-SMP emulator code used in 1.54+
-  (c) Copyright 2016         byuu
-
   SH assembler code partly based on x86 assembler code
   (c) Copyright 2002 - 2004  Marcus Comstedt (marcus@mc.pp.se)
 
@@ -138,7 +131,7 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2016  BearOso
+  (c) Copyright 2004 - 2011  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
@@ -146,16 +139,11 @@
                              Matthew Kendora,
                              Nach,
                              nitsuja
-  (c) Copyright 2009 - 2016  OV2
+  (c) Copyright 2009 - 2011  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
   (c) Copyright 2001 - 2011  zones
-
-  Libretro port
-  (c) Copyright 2011 - 2016  Hans-Kristian Arntzen,
-                             Daniel De Matteis
-                             (Under no circumstances will commercial rights be given)
 
 
   Specific ports contains the works of other authors. See headers in
@@ -1136,23 +1124,6 @@ static FreezeData	SnapBSX[] =
 };
 
 #undef STRUCT
-#define STRUCT	struct SMSU1
-
-static FreezeData	SnapMSU1[] =
-{
-	INT_ENTRY(9, MSU1_STATUS),
-	INT_ENTRY(9, MSU1_DATA_SEEK),
-	INT_ENTRY(9, MSU1_DATA_POS),
-	INT_ENTRY(9, MSU1_TRACK_SEEK),
-	INT_ENTRY(9, MSU1_CURRENT_TRACK),
-	INT_ENTRY(9, MSU1_RESUME_TRACK),
-	INT_ENTRY(9, MSU1_VOLUME),
-	INT_ENTRY(9, MSU1_CONTROL),
-	INT_ENTRY(9, MSU1_AUDIO_POS),
-	INT_ENTRY(9, MSU1_RESUME_POS)
-};
-
-#undef STRUCT
 #define STRUCT	struct SnapshotScreenshotInfo
 
 static FreezeData	SnapScreenshot[] =
@@ -1323,6 +1294,8 @@ void S9xFreezeToStream (STREAM stream)
 	char	buffer[1024];
 	uint8	*soundsnapshot = new uint8[SPC_SAVE_STATE_BLOCK_SIZE];
 
+	S9xSetSoundMute(TRUE);
+
 	sprintf(buffer, "%s:%04d\n", SNAPSHOT_MAGIC, SNAPSHOT_VERSION);
 	WRITE_STREAM(buffer, strlen(buffer), stream);
 
@@ -1409,9 +1382,6 @@ void S9xFreezeToStream (STREAM stream)
 	if (Settings.BS)
 		FreezeStruct(stream, "BSX", &BSX, SnapBSX, COUNT(SnapBSX));
 
-	if (Settings.MSU1)
-		FreezeStruct(stream, "MSU", &MSU1, SnapMSU1, COUNT(SnapMSU1));
-
 	if (Settings.SnapshotScreenshots)
 	{
 		SnapshotScreenshotInfo	*ssi = new SnapshotScreenshotInfo;
@@ -1460,6 +1430,8 @@ void S9xFreezeToStream (STREAM stream)
 			delete [] movie_freeze_buf;
 		}
 	}
+
+	S9xSetSoundMute(FALSE);
 
 	delete [] soundsnapshot;
 }
@@ -1510,7 +1482,6 @@ int S9xUnfreezeFromStream (STREAM stream)
 	uint8	*local_srtc          = NULL;
 	uint8	*local_rtc_data      = NULL;
 	uint8	*local_bsx_data      = NULL;
-	uint8	*local_msu1_data     = NULL;
 	uint8	*local_screenshot    = NULL;
 	uint8	*local_movie_data    = NULL;
 
@@ -1616,10 +1587,6 @@ int S9xUnfreezeFromStream (STREAM stream)
 		if (result != SUCCESS && Settings.BS)
 			break;
 
-		result = UnfreezeStructCopy(stream, "MSU", &local_msu1_data, SnapMSU1, COUNT(SnapMSU1), version);
-		if (result != SUCCESS && Settings.MSU1)
-			break;
-
 		result = UnfreezeStructCopy(stream, "SHO", &local_screenshot, SnapScreenshot, COUNT(SnapScreenshot), version);
 
 		SnapshotMovieInfo	mi;
@@ -1660,6 +1627,8 @@ int S9xUnfreezeFromStream (STREAM stream)
 	{
 		uint32 old_flags     = CPU.Flags;
 		uint32 sa1_old_flags = SA1.Flags;
+
+		S9xSetSoundMute(TRUE);
 
 		S9xReset();
 
@@ -1735,9 +1704,6 @@ int S9xUnfreezeFromStream (STREAM stream)
 
 		if (local_bsx_data)
 			UnfreezeStructFromCopy(&BSX, SnapBSX, COUNT(SnapBSX), local_bsx_data, version);
-
-		if (local_msu1_data)
-			UnfreezeStructFromCopy(&MSU1, SnapMSU1, COUNT(SnapMSU1), local_msu1_data, version);
 
 		if (version < SNAPSHOT_VERSION_IRQ)
 		{
@@ -1820,9 +1786,6 @@ int S9xUnfreezeFromStream (STREAM stream)
 		if (local_bsx_data)
 			S9xBSXPostLoadState();
 
-		if (local_msu1_data)
-			S9xMSU1PostLoadState();
-
 		if (local_movie_data)
 		{
 			// restore last displayed pad_read status
@@ -1892,6 +1855,8 @@ int S9xUnfreezeFromStream (STREAM stream)
 			for (uint32 y = 0; y < (uint32) (IMAGE_HEIGHT); y++)
 				memset(GFX.Screen + y * GFX.RealPPL, 0, GFX.RealPPL * 2);
 		}
+
+		S9xSetSoundMute(FALSE);
 	}
 
 	if (local_cpu)				delete [] local_cpu;

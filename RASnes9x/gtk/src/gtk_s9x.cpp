@@ -9,8 +9,6 @@
 #include "gtk_sound.h"
 #include "gtk_display.h"
 
-#include "statemanager.h"
-
 #ifdef NETPLAY_SUPPORT
 #include "gtk_netplay.h"
 #endif
@@ -25,7 +23,6 @@ static gboolean S9xScreenSaverCheckFunc (gpointer data);
 
 Snes9xWindow          *top_level;
 Snes9xConfig          *gui_config;
-StateManager          stateMan;
 static struct timeval next_frame_time = { 0, 0 };
 static struct timeval now;
 static int            needs_fullscreening = FALSE;
@@ -47,7 +44,6 @@ main (int argc, char *argv[])
 
     g_thread_init (NULL);
     gdk_threads_init ();
-    gdk_threads_enter ();
 
     gtk_init (&argc, &argv);
 
@@ -130,7 +126,7 @@ main (int argc, char *argv[])
     gtk_window_present (top_level->get_window ());
 
     gtk_main ();
-    gdk_threads_leave ();
+
     return 0;
 }
 
@@ -222,11 +218,6 @@ S9xOpenROM (const char *rom_filename)
 
     CPU.Flags = flags;
 
-    if (stateMan.init (gui_config->rewind_buffer_size * 1024 * 1024))
-    {
-        printf ("Using rewind buffer of %uMB\n", gui_config->rewind_buffer_size);
-    }
-
     S9xROMLoaded ();
 
     return 0;
@@ -237,6 +228,8 @@ S9xROMLoaded (void)
 {
     gui_config->rom_loaded = TRUE;
     top_level->configure_widgets ();
+
+    top_level->last_width = top_level->last_height = SIZE_FLAG_DIRTY;
 
     if (gui_config->full_screen_on_open)
     {
@@ -363,30 +356,7 @@ S9xIdleFunc (gpointer data)
     if (!S9xNetplayPush ())
     {
 #endif
-
-    if(top_level->user_rewind)
-        top_level->user_rewind = stateMan.pop();
-    else if(IPPU.TotalEmulatedFrames % gui_config->rewind_granularity == 0)
-        stateMan.push();
-
-    static int muted_from_turbo = FALSE;
-    static int mute_saved_state = FALSE;
-
-    if (Settings.TurboMode && !muted_from_turbo && gui_config->mute_sound_turbo)
-    {
-        muted_from_turbo = TRUE;
-        mute_saved_state = Settings.Mute;
-        S9xSetSoundMute (TRUE);
-    }
-
-    if (!Settings.TurboMode && muted_from_turbo)
-    {
-        muted_from_turbo = FALSE;
-        Settings.Mute = mute_saved_state;
-    }
-
     S9xMainLoop ();
-
     S9xMixSound ();
 
 #ifdef NETPLAY_SUPPORT
@@ -457,20 +427,6 @@ S9xParseArg (char **argv, int &i, int argc)
                 gui_config->scale_method = FILTER_HQ4X;
             }
 #endif /* USE_HQ2X */
-#ifdef USE_XBRZ
-            else if (!strcasecmp (argv[i], "2xbrz"))
-            {
-                gui_config->scale_method = FILTER_2XBRZ;
-            }
-            else if (!strcasecmp (argv[i], "3xbrz"))
-            {
-                gui_config->scale_method = FILTER_3XBRZ;
-            }
-            else if (!strcasecmp (argv[i], "4xbrz"))
-            {
-                gui_config->scale_method = FILTER_4XBRZ;
-            }
-#endif /* USE_XBRZ */
             else if (!strcasecmp (argv[i], "epx"))
             {
                 gui_config->scale_method = FILTER_EPX;
@@ -808,7 +764,7 @@ S9xExtraUsage (void)
     printf ("GTK port options:\n"
             "-filter [option]               Use a filter to scale the image.\n"
             "                               [option] is one of: none supereagle 2xsai\n"
-            "                               super2xsai hq2x hq3x hq4x 2xbrz 3xbrz 4xbrz epx ntsc\n"
+            "                               super2xsai hq2x hq3x hq4x epx ntsc\n"
             "\n"
             "-mutesound                     Disables sound output.\n");
     return;

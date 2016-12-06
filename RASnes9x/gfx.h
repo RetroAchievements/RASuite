@@ -2,7 +2,7 @@
   Snes9x - Portable Super Nintendo Entertainment System (TM) emulator.
 
   (c) Copyright 1996 - 2002  Gary Henderson (gary.henderson@ntlworld.com),
-							 Jerremy Koot (jkoot@snes9x.com)
+                             Jerremy Koot (jkoot@snes9x.com)
 
   (c) Copyright 2002 - 2004  Matthew Kendora
 
@@ -13,106 +13,103 @@
   (c) Copyright 2001 - 2006  John Weidman (jweidman@slip.net)
 
   (c) Copyright 2002 - 2006  funkyass (funkyass@spam.shaw.ca),
-							 Kris Bleakley (codeviolation@hotmail.com)
+                             Kris Bleakley (codeviolation@hotmail.com)
 
   (c) Copyright 2002 - 2010  Brad Jorsch (anomie@users.sourceforge.net),
-							 Nach (n-a-c-h@users.sourceforge.net),
+                             Nach (n-a-c-h@users.sourceforge.net),
 
   (c) Copyright 2002 - 2011  zones (kasumitokoduck@yahoo.com)
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2016  BearOso,
-							 OV2
+  (c) Copyright 2009 - 2011  BearOso,
+                             OV2
 
-  (c) Copyright 2011 - 2016  Hans-Kristian Arntzen,
-							 Daniel De Matteis
-							 (Under no circumstances will commercial rights be given)
 
   BS-X C emulator code
   (c) Copyright 2005 - 2006  Dreamer Nom,
-							 zones
+                             zones
 
   C4 x86 assembler and some C emulation code
   (c) Copyright 2000 - 2003  _Demo_ (_demo_@zsnes.com),
-							 Nach,
-							 zsKnight (zsknight@zsnes.com)
+                             Nach,
+                             zsKnight (zsknight@zsnes.com)
 
   C4 C++ code
   (c) Copyright 2003 - 2006  Brad Jorsch,
-							 Nach
+                             Nach
 
   DSP-1 emulator code
   (c) Copyright 1998 - 2006  _Demo_,
-							 Andreas Naive (andreasnaive@gmail.com),
-							 Gary Henderson,
-							 Ivar (ivar@snes9x.com),
-							 John Weidman,
-							 Kris Bleakley,
-							 Matthew Kendora,
-							 Nach,
-							 neviksti (neviksti@hotmail.com)
+                             Andreas Naive (andreasnaive@gmail.com),
+                             Gary Henderson,
+                             Ivar (ivar@snes9x.com),
+                             John Weidman,
+                             Kris Bleakley,
+                             Matthew Kendora,
+                             Nach,
+                             neviksti (neviksti@hotmail.com)
 
   DSP-2 emulator code
   (c) Copyright 2003         John Weidman,
-							 Kris Bleakley,
-							 Lord Nightmare (lord_nightmare@users.sourceforge.net),
-							 Matthew Kendora,
-							 neviksti
+                             Kris Bleakley,
+                             Lord Nightmare (lord_nightmare@users.sourceforge.net),
+                             Matthew Kendora,
+                             neviksti
 
   DSP-3 emulator code
   (c) Copyright 2003 - 2006  John Weidman,
-							 Kris Bleakley,
-							 Lancer,
-							 z80 gaiden
+                             Kris Bleakley,
+                             Lancer,
+                             z80 gaiden
 
   DSP-4 emulator code
   (c) Copyright 2004 - 2006  Dreamer Nom,
-							 John Weidman,
-							 Kris Bleakley,
-							 Nach,
-							 z80 gaiden
+                             John Weidman,
+                             Kris Bleakley,
+                             Nach,
+                             z80 gaiden
 
   OBC1 emulator code
   (c) Copyright 2001 - 2004  zsKnight,
-							 pagefault (pagefault@zsnes.com),
-							 Kris Bleakley
-							 Ported from x86 assembler to C by sanmaiwashi
+                             pagefault (pagefault@zsnes.com),
+                             Kris Bleakley
+                             Ported from x86 assembler to C by sanmaiwashi
 
   SPC7110 and RTC C++ emulator code used in 1.39-1.51
   (c) Copyright 2002         Matthew Kendora with research by
-							 zsKnight,
-							 John Weidman,
-							 Dark Force
+                             zsKnight,
+                             John Weidman,
+                             Dark Force
 
   SPC7110 and RTC C++ emulator code used in 1.52+
   (c) Copyright 2009         byuu,
-							 neviksti
+                             neviksti
 
   S-DD1 C emulator code
   (c) Copyright 2003         Brad Jorsch with research by
-							 Andreas Naive,
-							 John Weidman
+                             Andreas Naive,
+                             John Weidman
 
   S-RTC C emulator code
   (c) Copyright 2001 - 2006  byuu,
-							 John Weidman
+                             John Weidman
 
   ST010 C++ emulator code
   (c) Copyright 2003         Feather,
-							 John Weidman,
-							 Kris Bleakley,
-							 Matthew Kendora
+                             John Weidman,
+                             Kris Bleakley,
+                             Matthew Kendora
 
   Super FX x86 assembler emulator code
   (c) Copyright 1998 - 2003  _Demo_,
-							 pagefault,
-							 zsKnight
+                             pagefault,
+                             zsKnight
 
   Super FX C emulator code
   (c) Copyright 1997 - 1999  Ivar,
-							 Gary Henderson,
-							 John Weidman
+                             Gary Henderson,
+                             John Weidman
 
   Sound emulator code used in 1.5-1.51
   (c) Copyright 1998 - 2003  Brad Martin
@@ -120,9 +117,6 @@
 
   Sound emulator code used in 1.52+
   (c) Copyright 2004 - 2007  Shay Green (gblargg@gmail.com)
-
-  S-SMP emulator code used in 1.54+
-  (c) Copyright 2016         byuu
 
   SH assembler code partly based on x86 assembler code
   (c) Copyright 2002 - 2004  Marcus Comstedt (marcus@mc.pp.se)
@@ -137,27 +131,24 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2016  BearOso
+  (c) Copyright 2004 - 2011  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
-							 funkyass,
-							 Matthew Kendora,
-							 Nach,
-							 nitsuja
-  (c) Copyright 2009 - 2016  OV2
+                             funkyass,
+                             Matthew Kendora,
+                             Nach,
+                             nitsuja
+  (c) Copyright 2009 - 2011  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
   (c) Copyright 2001 - 2011  zones
 
-  Libretro port
-  (c) Copyright 2011 - 2016  Hans-Kristian Arntzen,
-							 Daniel De Matteis
-							 (Under no circumstances will commercial rights be given)
 
   Specific ports contains the works of other authors. See headers in
   individual files.
+
 
   Snes9x homepage: http://www.snes9x.com/
 
@@ -184,10 +175,9 @@
   Nintendo Co., Limited and its subsidiary companies.
  ***********************************************************************************/
 
+
 #ifndef _GFX_H_
 #define _GFX_H_
-
-#include "snes9x.h" // Weird errors
 
 struct SGFX
 {
@@ -233,23 +223,23 @@ struct SGFX
 
 #ifdef GFX_MULTI_FORMAT
 	uint32	PixelFormat;
-	uint32(*BuildPixel) (uint32, uint32, uint32);
-	uint32(*BuildPixel2) (uint32, uint32, uint32);
-	void(*DecomposePixel) (uint32, uint32 &, uint32 &, uint32 &);
+	uint32	(*BuildPixel) (uint32, uint32, uint32);
+	uint32	(*BuildPixel2) (uint32, uint32, uint32);
+	void	(*DecomposePixel) (uint32, uint32 &, uint32 &, uint32 &);
 #endif
 
-	void(*DrawBackdropMath) (uint32, uint32, uint32);
-	void(*DrawBackdropNomath) (uint32, uint32, uint32);
-	void(*DrawTileMath) (uint32, uint32, uint32, uint32);
-	void(*DrawTileNomath) (uint32, uint32, uint32, uint32);
-	void(*DrawClippedTileMath) (uint32, uint32, uint32, uint32, uint32, uint32);
-	void(*DrawClippedTileNomath) (uint32, uint32, uint32, uint32, uint32, uint32);
-	void(*DrawMosaicPixelMath) (uint32, uint32, uint32, uint32, uint32, uint32);
-	void(*DrawMosaicPixelNomath) (uint32, uint32, uint32, uint32, uint32, uint32);
-	void(*DrawMode7BG1Math) (uint32, uint32, int);
-	void(*DrawMode7BG1Nomath) (uint32, uint32, int);
-	void(*DrawMode7BG2Math) (uint32, uint32, int);
-	void(*DrawMode7BG2Nomath) (uint32, uint32, int);
+	void	(*DrawBackdropMath) (uint32, uint32, uint32);
+	void	(*DrawBackdropNomath) (uint32, uint32, uint32);
+	void	(*DrawTileMath) (uint32, uint32, uint32, uint32);
+	void	(*DrawTileNomath) (uint32, uint32, uint32, uint32);
+	void	(*DrawClippedTileMath) (uint32, uint32, uint32, uint32, uint32, uint32);
+	void	(*DrawClippedTileNomath) (uint32, uint32, uint32, uint32, uint32, uint32);
+	void	(*DrawMosaicPixelMath) (uint32, uint32, uint32, uint32, uint32, uint32);
+	void	(*DrawMosaicPixelNomath) (uint32, uint32, uint32, uint32, uint32, uint32);
+	void	(*DrawMode7BG1Math) (uint32, uint32, int);
+	void	(*DrawMode7BG1Nomath) (uint32, uint32, int);
+	void	(*DrawMode7BG2Math) (uint32, uint32, int);
+	void	(*DrawMode7BG2Nomath) (uint32, uint32, int);
 
 	const char	*InfoString;
 	uint32	InfoStringTimeout;
@@ -258,8 +248,8 @@ struct SGFX
 
 struct SBG
 {
-	uint8(*ConvertTile) (uint8 *, uint32, uint32);
-	uint8(*ConvertTileFlip) (uint8 *, uint32, uint32);
+	uint8	(*ConvertTile) (uint8 *, uint32, uint32);
+	uint8	(*ConvertTileFlip) (uint8 *, uint32, uint32);
 
 	uint32	TileSizeH;
 	uint32	TileSizeV;
@@ -329,7 +319,7 @@ extern struct SGFX	GFX;
 	GFX.ZERO[(((C1) | RGB_HI_BITS_MASKx2) - \
 	((C2) & RGB_REMOVE_LOW_BITS_MASK)) >> 1]
 
-inline uint16 COLOR_SUB(uint16 C1, uint16 C2)
+inline uint16 COLOR_SUB (uint16 C1, uint16 C2)
 {
 	uint16	mC1, mC2, v = ALPHA_BITS_MASK;
 
@@ -348,31 +338,30 @@ inline uint16 COLOR_SUB(uint16 C1, uint16 C2)
 	return (v);
 }
 
-void S9xStartScreenRefresh(void);
-void S9xEndScreenRefresh(void);
-void S9xUpdateScreen(void);
-void S9xBuildDirectColourMaps(void);
-void RenderLine(uint8);
-void S9xComputeClipWindows(void);
-void S9xDisplayChar(uint16 *, uint8);
-
+void S9xStartScreenRefresh (void);
+void S9xEndScreenRefresh (void);
+void S9xUpdateScreen (void);
+void S9xBuildDirectColourMaps (void);
+void RenderLine (uint8);
+void S9xComputeClipWindows (void);
+void S9xDisplayChar (uint16 *, uint8);
 // called automatically unless Settings.AutoDisplayMessages is false
-void S9xDisplayMessages(uint16 *, int, int, int, int);
+void S9xDisplayMessages (uint16 *, int, int, int, int);
 #ifdef GFX_MULTI_FORMAT
-bool8 S9xSetRenderPixelFormat(int);
+bool8 S9xSetRenderPixelFormat (int);
 #endif
 
 // external port interface which must be implemented or initialised for each port
-bool8 S9xGraphicsInit(void);
-void S9xGraphicsDeinit(void);
-bool8 S9xInitUpdate(void);
-bool8 S9xDeinitUpdate(int, int);
-bool8 S9xContinueUpdate(int, int);
-void S9xReRefresh(void);
-void S9xSetPalette(void);
-void S9xSyncSpeed(void);
+bool8 S9xGraphicsInit (void);
+void S9xGraphicsDeinit (void);
+bool8 S9xInitUpdate (void);
+bool8 S9xDeinitUpdate (int, int);
+bool8 S9xContinueUpdate (int, int);
+void S9xReRefresh (void);
+void S9xSetPalette (void);
+void S9xSyncSpeed (void);
 
 // called instead of S9xDisplayString if set to non-NULL
-extern void(*S9xCustomDisplayString) (const char *, int, int, bool);
+extern void (*S9xCustomDisplayString) (const char *, int, int, bool);
 
 #endif

@@ -422,7 +422,7 @@ S9xOpenROMDialog (void)
     {
             "*.smc", "*.SMC", "*.fig", "*.FIG", "*.sfc", "*.SFC",
             "*.jma", "*.JMA", "*.zip", "*.ZIP", "*.gd3", "*.GD3",
-            "*.swc", "*.SWC", "*.gz" , "*.GZ", "*.bs", "*.BS",
+            "*.swc", "*.SWC", "*.gz" , "*.GZ",
             NULL
     };
 
@@ -465,11 +465,8 @@ S9xOpenROMDialog (void)
         filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
         directory =
             gtk_file_chooser_get_current_folder (GTK_FILE_CHOOSER (dialog));
-        if (directory)
-        {
-            strncpy (gui_config->last_directory, directory, PATH_MAX);
-            g_free (directory);
-        }
+        strncpy (gui_config->last_directory, directory, PATH_MAX);
+        g_free (directory);
     }
 
     else

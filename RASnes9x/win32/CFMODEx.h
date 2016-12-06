@@ -1,6 +1,6 @@
 #ifndef CFMODEX_H
 #define CFMODEX_H
-#include "../../FMODEx/api/inc/fmod.hpp"
+#include "fmod.hpp"
 #include "IS9xSoundOutput.h"
 
 class CFMODEx: public IS9xSoundOutput

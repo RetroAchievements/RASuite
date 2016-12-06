@@ -22,12 +22,9 @@
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2016  BearOso,
+  (c) Copyright 2009 - 2011  BearOso,
                              OV2
 
-  (c) Copyright 2011 - 2016  Hans-Kristian Arntzen,
-                             Daniel De Matteis
-                             (Under no circumstances will commercial rights be given)
 
   BS-X C emulator code
   (c) Copyright 2005 - 2006  Dreamer Nom,
@@ -121,9 +118,6 @@
   Sound emulator code used in 1.52+
   (c) Copyright 2004 - 2007  Shay Green (gblargg@gmail.com)
 
-  S-SMP emulator code used in 1.54+
-  (c) Copyright 2016         byuu
-
   SH assembler code partly based on x86 assembler code
   (c) Copyright 2002 - 2004  Marcus Comstedt (marcus@mc.pp.se)
 
@@ -137,7 +131,7 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2016  BearOso
+  (c) Copyright 2004 - 2011  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
@@ -145,19 +139,16 @@
                              Matthew Kendora,
                              Nach,
                              nitsuja
-  (c) Copyright 2009 - 2016  OV2
+  (c) Copyright 2009 - 2011  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
   (c) Copyright 2001 - 2011  zones
 
-  Libretro port
-  (c) Copyright 2011 - 2016  Hans-Kristian Arntzen,
-                             Daniel De Matteis
-                             (Under no circumstances will commercial rights be given)
 
   Specific ports contains the works of other authors. See headers in
   individual files.
+
 
   Snes9x homepage: http://www.snes9x.com/
 
@@ -183,6 +174,10 @@
   Super NES and Super Nintendo Entertainment System are trademarks of
   Nintendo Co., Limited and its subsidiary companies.
  ***********************************************************************************/
+
+
+
+
 
 /*****************************************************************************/
 /*  Snes9X: Win32                                                            */
@@ -235,6 +230,7 @@ inline static void Log (const char *str)
       fflush (fs);
       fclose (fs);
     }
+
 }
 
 enum RenderFilter{
@@ -268,12 +264,6 @@ enum RenderFilter{
 
 	FILTER_SIMPLE4X,
 	FILTER_HQ4X,
-
-    FILTER_2XBRZ,
-    FILTER_3XBRZ,
-    FILTER_4XBRZ,
-	FILTER_5XBRZ,
-	FILTER_6XBRZ,
 
 	NUM_FILTERS
 };
@@ -323,7 +313,7 @@ struct sGUI {
 	bool EmulatedFullscreen;
 	bool BilinearFilter;
 	bool LocalVidMem;
-	bool Vsync;
+	bool Vsync;	
 	bool shaderEnabled;
 	TCHAR D3DshaderFileName[MAX_PATH];
 	TCHAR OGLshaderFileName[MAX_PATH];
@@ -374,7 +364,6 @@ struct sGUI {
 	int SoundDriver;
 	int SoundBufferSize;
 	bool Mute;
-
 	// used for sync sound synchronization
 	CRITICAL_SECTION SoundCritSect;
     HANDLE SoundSyncEvent;
@@ -396,10 +385,10 @@ struct sGUI {
 	unsigned short TurboMask;
 	COLORREF InfoColor;
 	bool HideMenu;
-
+	
 	// avi writing
 	struct AVIFile* AVIOut;
-
+	
 	long FrameCount;
     long LastFrameCount;
     unsigned long IdleCount;
@@ -469,10 +458,8 @@ struct SCustomKeys {
 	SCustomKey BGL4;
 	SCustomKey BGL5;
 	SCustomKey ClippingWindows;
-
 //	SCustomKey BGLHack;
 	SCustomKey Transparency;
-
 //  SCustomKey GLCube;
 //	SCustomKey HDMA;
 //	SCustomKey InterpMode7;
@@ -589,7 +576,6 @@ enum
 #define EXT_WIDTH (MAX_SNES_WIDTH + 4)
 #define EXT_PITCH (EXT_WIDTH * 2)
 #define EXT_HEIGHT (MAX_SNES_HEIGHT + 4)
-
 // Offset into buffer to allow a two pixel border around the whole rendered
 // SNES image. This is a speed up hack to allow some of the image processing
 // routines to access black pixel data outside the normal bounds of the buffer.
@@ -600,7 +586,6 @@ enum
 /*****************************************************************************/
 
 void S9xSetWinPixelFormat ();
-
 //int CheckKey( WORD Key, int OldJoypad);
 //void TranslateKey(WORD keyz,char *out);
 
@@ -613,9 +598,10 @@ const TCHAR * S9xGetDirectoryT (enum s9x_getdirtype);
 RECT GetWindowMargins(HWND hwnd, UINT width);
 
 extern bool S9xPollButton(UINT id, bool *pressed);	//##RA
-extern bool S9xGetState(WORD KeyIdent);
-extern void S9xSetRecentGames();
+extern bool S9xGetState (WORD KeyIdent);
+extern void S9xSetRecentGames ();
 extern void RebuildMenu();
 
 #define CHECK_KEY(controller, button) (!S9xGetState(Joypad[controller].button) || (ToggleJoypadStorage[controller].button && !TurboToggleJoypadStorage[controller].button) || (IPPU.TotalEmulatedFrames%2 == ToggleJoypadStorage[controller].button && TurboToggleJoypadStorage[controller].button))
+
 #endif // !defined(SNES9X_H_INCLUDED)
