@@ -9,10 +9,12 @@ Thumbs.db
 *.exe
 *.exp
 *.htm
+*.ipch
 *.idb
 *.lib
 *.log
 *.manifest
+*.nupkg
 *.obj
 *.opendb
 *.pch
@@ -33,6 +35,7 @@ Thumbs.db
 bizhawk/
 RAGens/
 RANes/
+/packages/DXSDK_Missing.1.0.0
 
 #Ignore specific files
 /RA_Integration/LiveTag.txt
@@ -41,7 +44,6 @@ RANes/
 /RASnes9x/win32/BuildVer.h
 /RASnes9x/win32/Diffs.txt
 /RASnes9x/win32/LiveTag.txt
-*.ipch
 /RA_Integration/targetver.h
-*.nupkg
-/packages/DXSDK_Missing.1.0.0
+
+
