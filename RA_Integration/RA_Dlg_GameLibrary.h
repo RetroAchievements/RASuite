@@ -49,7 +49,7 @@ private:
 	void SetupColumns( HWND hList );
 	void ReloadGameListData();
 	void ScanAndAddRomsRecursive( const std::string& sBaseDir );
-	BOOL LaunchSelected();
+	bool LaunchSelected();
 	void RefreshList();
 
 private:

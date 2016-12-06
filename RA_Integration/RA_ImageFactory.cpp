@@ -120,7 +120,7 @@ HRESULT UserImageFactory_CreateDIBSectionFromBitmapSource( IWICBitmapSource *pTo
 	return hr;
 }
 
-BOOL InitializeUserImageFactory( HINSTANCE hInst )
+bool InitializeUserImageFactory( HINSTANCE hInst )
 {
 	HRESULT hr = S_OK;;
 

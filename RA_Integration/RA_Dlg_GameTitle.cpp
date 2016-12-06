@@ -85,7 +85,7 @@ INT_PTR Dlg_GameTitle::GameTitleProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
 			}
 		}
 
-		return TRUE;
+		return true;
 	}
 		break;
 
@@ -135,8 +135,8 @@ INT_PTR Dlg_GameTitle::GameTitleProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
 				g_GameTitleDialog.m_nReturnedGameID = nGameID;
 
 				//	Close this dialog
-				EndDialog( hDlg, TRUE );
-				return TRUE;
+				EndDialog( hDlg, true );
+				return true;
 			}
 			else
 			{
@@ -156,13 +156,13 @@ INT_PTR Dlg_GameTitle::GameTitleProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
 								MB_OK );
 				}
 
-				return TRUE;
+				return true;
 			}
 		}
 
 		case IDCANCEL:
-			EndDialog( hDlg, TRUE );
-			return TRUE;
+			EndDialog( hDlg, true );
+			return true;
 
 		case IDC_RA_GAMETITLE:
 			switch( HIWORD( wParam ) )
@@ -184,13 +184,13 @@ INT_PTR Dlg_GameTitle::GameTitleProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
 			case CBN_SELCHANGE:
 			{
 				//	If the user has selected a value, copy this text to the bottom textbox.
-				bUpdatingTextboxTitle = TRUE;
+				bUpdatingTextboxTitle = true;
 
 				wchar_t sSelectedTitle[ 512 ];
 				GetDlgItemText( hDlg, IDC_RA_KNOWNGAMES, sSelectedTitle, 512 );
 				SetDlgItemText( hDlg, IDC_RA_GAMETITLE, sSelectedTitle );
 
-				bUpdatingTextboxTitle = FALSE;
+				bUpdatingTextboxTitle = false;
 			}
 				break;
 			}
@@ -203,11 +203,11 @@ INT_PTR Dlg_GameTitle::GameTitleProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
 		break;
 
 	case WM_CLOSE:
-		EndDialog( hDlg, FALSE );
-		return TRUE;
+		EndDialog( hDlg, false );
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void Dlg_GameTitle::DoModalDialog( HINSTANCE hInst, HWND hParent, std::string& sMD5InOut, std::string& sEstimatedGameTitleInOut, GameID& nGameIDOut )

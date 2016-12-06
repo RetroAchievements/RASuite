@@ -20,12 +20,12 @@ public:
 public:
 	LeaderboardPopup();
 
-	void Update( ControllerInput input, float fDelta, BOOL bFullScreen, BOOL bPaused );
+	void Update( ControllerInput input, float fDelta, bool bFullScreen, bool bPaused );
 	void Render( HDC hDC, RECT& rcDest );
 
 	void Reset();
-	BOOL Activate( LeaderboardID nLBID );
-	BOOL Deactivate( LeaderboardID nLBID );
+	bool Activate( LeaderboardID nLBID );
+	bool Deactivate( LeaderboardID nLBID );
 
 	void ShowScoreboard( LeaderboardID nLBID );
 

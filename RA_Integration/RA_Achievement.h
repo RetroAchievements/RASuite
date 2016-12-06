@@ -30,21 +30,21 @@ public:
 
 public:
 	void Clear();
-	BOOL Test();
+	bool Test();
 
 	size_t AddCondition( size_t nConditionGroup, const Condition& pNewCond );
-	BOOL RemoveCondition( size_t nConditionGroup, unsigned int nConditionID );
+	bool RemoveCondition( size_t nConditionGroup, unsigned int nConditionID );
 	void RemoveAllConditions( size_t nConditionGroup );
 	
 	void Set( const Achievement& rRHS );
 
-	inline BOOL Active() const											{ return m_bActive; }
-	void SetActive( BOOL bActive );
+	inline bool Active() const											{ return m_bActive; }
+	void SetActive( bool bActive );
 
-	inline BOOL Modified() const										{ return m_bModified; }
-	void SetModified( BOOL bModified );
+	inline bool Modified() const										{ return m_bModified; }
+	void SetModified( bool bModified );
 	
-	BOOL IsCoreAchievement() const										{ return m_nSetType == Core; }
+	bool IsCoreAchievement() const										{ return m_nSetType == Core; }
 
 	void SetID( AchievementID nID );
 	inline AchievementID ID() const										{ return m_nAchievementID; }
@@ -104,7 +104,7 @@ public:
 
 	//	Used for rendering updates when editing achievements. Usually always false.
 	unsigned int GetDirtyFlags() const			{ return m_nDirtyFlags; }
-	BOOL IsDirty() const						{ return (m_nDirtyFlags!=0); }
+	bool IsDirty() const						{ return (m_nDirtyFlags!=0); }
 	void SetDirtyFlag( unsigned int nFlags )	{ m_nDirtyFlags |= nFlags; }
 	void ClearDirtyFlag()						{ m_nDirtyFlags = 0; }
 
@@ -120,11 +120,11 @@ private:
 	std::string m_sBadgeImageURI;
 
 	unsigned int m_nPointValue;
-	BOOL m_bActive;
-	BOOL m_bModified;
+	bool m_bActive;
+	bool m_bModified;
 
 	//	Progress:
-	BOOL m_bProgressEnabled;	//	on/off
+	bool m_bProgressEnabled;	//	on/off
 
 	std::string m_sProgress;	//	How to calculate the progress so far (syntactical)
 	std::string m_sProgressMax;	//	Upper limit of the progress (syntactical? value?)

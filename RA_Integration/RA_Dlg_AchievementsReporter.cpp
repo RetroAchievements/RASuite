@@ -120,7 +120,7 @@ INT_PTR CALLBACK Dlg_AchievementsReporter::AchievementsReporterProc( HWND hDlg, 
 			ListView_SetExtendedListViewStyle( hList, LVS_EX_CHECKBOXES | LVS_EX_HEADERDRAGDROP );
 			SetDlgItemText( hDlg, IDC_RA_BROKENACH_BUGREPORTER, Widen( RAUsers::LocalUser().Username() ).c_str() );
 		}
-		return FALSE;
+		return false;
 
 	case WM_COMMAND:
 		switch( LOWORD( wParam ) )
@@ -135,7 +135,7 @@ INT_PTR CALLBACK Dlg_AchievementsReporter::AchievementsReporterProc( HWND hDlg, 
 			if( ( bProblem1Sel == false ) && ( bProblem2Sel == false ) )
 			{
 				MessageBox( nullptr, L"Please select a problem type.", L"Warning", MB_ICONWARNING );
-				return FALSE;
+				return false;
 			}
 
 			int nProblemType = bProblem1Sel ? 1 : bProblem2Sel ? 2 : 0;	// 0==?
@@ -164,7 +164,7 @@ INT_PTR CALLBACK Dlg_AchievementsReporter::AchievementsReporterProc( HWND hDlg, 
 			if( nReportCount > 5 )
 			{
 				if( MessageBox( nullptr, L"You have over 5 achievements selected. Is this OK?", L"Warning", MB_YESNO ) == IDNO )
-					return FALSE;
+					return false;
 			}
 
 			wchar_t sBugReportCommentWide[ 4096 ];
@@ -192,7 +192,7 @@ INT_PTR CALLBACK Dlg_AchievementsReporter::AchievementsReporterProc( HWND hDlg, 
 					sBugReportComment.c_str() );
 
 			if( MessageBox( nullptr, Widen( sBugReportInFull ).c_str(), L"Summary", MB_YESNO ) == IDNO )
-				return FALSE;
+				return false;
 
 			PostArgs args;
 			args[ 'u' ] = RAUsers::LocalUser().Username();
@@ -219,8 +219,8 @@ INT_PTR CALLBACK Dlg_AchievementsReporter::AchievementsReporterProc( HWND hDlg, 
 							"Thanks again!" );
 
 					MessageBox( hDlg, Widen( buffer ).c_str(), L"Success!", MB_OK );
-					EndDialog( hDlg, TRUE );
-					return TRUE;
+					EndDialog( hDlg, true );
+					return true;
 				}
 				else
 				{
@@ -232,7 +232,7 @@ INT_PTR CALLBACK Dlg_AchievementsReporter::AchievementsReporterProc( HWND hDlg, 
 							"\n"
 							"Error code: %d", doc.GetParseError() );
 					MessageBox( hDlg, Widen( buffer ).c_str(), L"Error from server!", MB_OK );
-					return FALSE;
+					return false;
 				}
 			}
 			else
@@ -243,23 +243,23 @@ INT_PTR CALLBACK Dlg_AchievementsReporter::AchievementsReporterProc( HWND hDlg, 
 							L"Cannot reach server... are you online?\n"
 							L"\n",
 							L"Error!", MB_OK );
-				return FALSE;
+				return false;
 			}
 		}
 		break;
 
 		case IDCANCEL:
-			EndDialog( hDlg, TRUE );
-			return TRUE;
+			EndDialog( hDlg, true );
+			return true;
 		}
-		return FALSE;
+		return false;
 
 	case WM_CLOSE:
-		EndDialog( hDlg, FALSE );
-		return TRUE;
+		EndDialog( hDlg, false );
+		return true;
 
 	default:
-		return FALSE;
+		return false;
 	}
 }
 

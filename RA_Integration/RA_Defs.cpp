@@ -37,7 +37,7 @@ void RADebugLog( const char* format, ... )
 	}
 }
 
-BOOL DirectoryExists( const char* sPath )
+bool DirectoryExists( const char* sPath )
 {
 	DWORD dwAttrib = GetFileAttributes( Widen( sPath ).c_str() );
 	return( dwAttrib != INVALID_FILE_ATTRIBUTES && ( dwAttrib & FILE_ATTRIBUTE_DIRECTORY ) );

@@ -149,7 +149,7 @@ void ValueSet::Clear()
 //////////////////////////////////////////////////////////////////////////
 RA_Leaderboard::RA_Leaderboard( const unsigned nLeaderboardID ) :
 	m_nID( nLeaderboardID ),
-	m_bStarted( FALSE ),
+	m_bStarted( false ),
 	m_format( Format_Value )
 {
 }
@@ -396,19 +396,19 @@ void RA_Leaderboard::Reset()
 
 void RA_Leaderboard::Test()
 {
-	BOOL bUnused;
+	bool bUnused;
 
 	//	Ensure these are always tested once every frame, to ensure delta
 	//	 variables work properly :)
-	BOOL bStartOK  = m_startCond.Test(bUnused, bUnused, FALSE);
-	BOOL bCancelOK = m_cancelCond.Test(bUnused, bUnused, TRUE);
-	BOOL bSubmitOK = m_submitCond.Test(bUnused, bUnused, FALSE);
+	bool bStartOK  = m_startCond.Test(bUnused, bUnused, false);
+	bool bCancelOK = m_cancelCond.Test(bUnused, bUnused, true);
+	bool bSubmitOK = m_submitCond.Test(bUnused, bUnused, false);
 
 	if( !m_bStarted )
 	{
 		if( bStartOK )
 		{
-			m_bStarted = TRUE;
+			m_bStarted = true;
 
 			g_PopupWindows.AchievementPopups().AddMessage( 
 				MessagePopup( "Challenge Available: " + m_sTitle,
@@ -422,7 +422,7 @@ void RA_Leaderboard::Test()
 	{
  		if( bCancelOK )
 		{
-			m_bStarted = FALSE;
+			m_bStarted = false;
 
 			g_PopupWindows.LeaderboardPopups().Deactivate( m_nID );
 			
@@ -436,7 +436,7 @@ void RA_Leaderboard::Test()
 		{
 			g_PopupWindows.LeaderboardPopups().Deactivate( m_nID );
 
-			m_bStarted = FALSE;
+			m_bStarted = false;
 			int nVal = (int)m_value.GetValue();
 
 			if( g_bRAMTamperedWith )

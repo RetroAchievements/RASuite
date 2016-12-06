@@ -48,7 +48,7 @@ void LeaderboardPopup::Reset()
 	m_nState = State_ShowingProgress;
 }
 
-void LeaderboardPopup::Update( ControllerInput input, float fDelta, BOOL bFullScreen, BOOL bPaused )
+void LeaderboardPopup::Update( ControllerInput input, float fDelta, bool bFullScreen, bool bPaused )
 {
 	if( !g_bLeaderboardsActive )	//	If not, simply ignore them.
 		return;
@@ -86,21 +86,21 @@ void LeaderboardPopup::Update( ControllerInput input, float fDelta, BOOL bFullSc
 	}
 }
 
-BOOL LeaderboardPopup::Activate( unsigned int nLBID )
+bool LeaderboardPopup::Activate( unsigned int nLBID )
 {
 	std::vector<unsigned int>::iterator iter = m_vActiveLBIDs.begin();
 	while( iter != m_vActiveLBIDs.end() )
 	{
 		if( (*iter) == nLBID )
-			return FALSE;
+			return false;
 		iter++;
 	}
 
 	m_vActiveLBIDs.push_back( nLBID );
-	return TRUE;
+	return true;
 }
 
-BOOL LeaderboardPopup::Deactivate( unsigned int nLBID )
+bool LeaderboardPopup::Deactivate( unsigned int nLBID )
 {
 	std::vector<unsigned int>::iterator iter = m_vActiveLBIDs.begin();
 	while( iter != m_vActiveLBIDs.end() )
@@ -108,14 +108,14 @@ BOOL LeaderboardPopup::Deactivate( unsigned int nLBID )
 		if( (*iter) == nLBID )
 		{
 			m_vActiveLBIDs.erase( iter );
-			return TRUE;
+			return true;
 		}
 		iter++;
 	}
 
 	RA_LOG( "Could not deactivate leaderboard %d", nLBID );
 
-	return FALSE;
+	return false;
 }
 
 float LeaderboardPopup::GetOffsetPct() const
@@ -166,15 +166,15 @@ void LeaderboardPopup::Render( HDC hDC, RECT& rcDest )
 	SetBkColor( hDC, COL_TEXT_HIGHLIGHT );
 	SetTextColor( hDC, COL_POPUP );
 
-	HFONT hFontTitle = CreateFont( nFontSize1, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+	HFONT hFontTitle = CreateFont( nFontSize1, 0, 0, 0, FW_NORMAL, false, false, false,
 								   DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_CHARACTER_PRECIS, ANTIALIASED_QUALITY,/*NONANTIALIASED_QUALITY,*/
 								   DEFAULT_PITCH, Widen( FONT_TO_USE ).c_str() );
 
-	HFONT hFontDesc = CreateFont( nFontSize2, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+	HFONT hFontDesc = CreateFont( nFontSize2, 0, 0, 0, FW_NORMAL, false, false, false,
 								  DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_CHARACTER_PRECIS, ANTIALIASED_QUALITY,/*NONANTIALIASED_QUALITY,*/
 								  DEFAULT_PITCH, Widen( FONT_TO_USE ).c_str() );
 
-	HFONT hFontText = CreateFont( nFontSize3, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+	HFONT hFontText = CreateFont( nFontSize3, 0, 0, 0, FW_NORMAL, false, false, false,
 								  DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_CHARACTER_PRECIS, ANTIALIASED_QUALITY,/*NONANTIALIASED_QUALITY,*/
 								  DEFAULT_PITCH, Widen( FONT_TO_USE ).c_str() );
 

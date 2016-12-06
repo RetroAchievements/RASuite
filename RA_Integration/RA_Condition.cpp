@@ -92,13 +92,13 @@ void Condition::ParseFromString( char*& pBuffer )
 
 }
 
-BOOL Condition::ResetHits()
+bool Condition::ResetHits()
 { 
 	if( m_nCurrentHits == 0 )
-		return FALSE;
+		return false;
 
 	m_nCurrentHits = 0;
-	return TRUE;
+	return true;
 }
 
 void Condition::ResetDeltas()
@@ -291,7 +291,7 @@ unsigned int ReadHits( char*& pBufferInOut )
 	return nNumHits;
 }
 
-BOOL Condition::Compare()
+bool Condition::Compare()
 {
 	switch( m_nCompareType )
 	{
@@ -312,11 +312,11 @@ BOOL Condition::Compare()
 	}
 }
 
-BOOL ConditionSet::Test( BOOL& bDirtyConditions, BOOL& bResetRead, BOOL bMatchAny )
+bool ConditionSet::Test( bool& bDirtyConditions, bool& bResetRead, bool bMatchAny )
 {
-	BOOL bConditionValid = FALSE;
-	BOOL bSetValid = TRUE;
-	BOOL bPauseActive = FALSE;
+	bool bConditionValid = false;
+	bool bSetValid = true;
+	bool bPauseActive = false;
 	unsigned int i = 0;
 	unsigned int nSrc = 0;
 	unsigned int nTgt = 0;
@@ -335,10 +335,10 @@ BOOL ConditionSet::Test( BOOL& bDirtyConditions, BOOL& bResetRead, BOOL bMatchAn
 			if( pNextCond->Compare() )
 			{
 				pNextCond->OverrideCurrentHits( 1 );
-				bDirtyConditions = TRUE;
+				bDirtyConditions = true;
 
 				//	Early out: this achievement is paused, do not process any further!
-				return FALSE;
+				return false;
 			}
 		}
 	}
@@ -357,7 +357,7 @@ BOOL ConditionSet::Test( BOOL& bDirtyConditions, BOOL& bResetRead, BOOL bMatchAn
 		if( bConditionValid )
 		{
 			pNextCond->IncrHits();
-			bDirtyConditions = TRUE;
+			bDirtyConditions = true;
 
 			//	Process this logic, if this condition is true:
 
@@ -368,7 +368,7 @@ BOOL ConditionSet::Test( BOOL& bDirtyConditions, BOOL& bResetRead, BOOL bMatchAn
 			else if( !pNextCond->IsComplete() )
 			{
 				//	Not entirely valid yet!
-				bConditionValid = FALSE;
+				bConditionValid = false;
 			}
 
 			if( bMatchAny )	//	'or'
@@ -388,8 +388,8 @@ BOOL ConditionSet::Test( BOOL& bDirtyConditions, BOOL& bResetRead, BOOL bMatchAn
 			bConditionValid = pNextCond->Compare();
 			if( bConditionValid )
 			{
-				bResetRead = TRUE;			//	Resets all hits found so far
-				bSetValid = FALSE;			//	Cannot be valid if we've hit a reset condition.
+				bResetRead = true;			//	Resets all hits found so far
+				bSetValid = false;			//	Cannot be valid if we've hit a reset condition.
 				break;						//	No point processing any further reset conditions.
 			}
 		}
@@ -398,9 +398,9 @@ BOOL ConditionSet::Test( BOOL& bDirtyConditions, BOOL& bResetRead, BOOL bMatchAn
 	return bSetValid;
 }
 
-BOOL ConditionSet::Reset( BOOL bIncludingDeltas )
+bool ConditionSet::Reset( bool bIncludingDeltas )
 {
-	BOOL bDirty = FALSE;
+	bool bDirty = false;
 	for( size_t i = 0; i < m_Conditions.size(); ++i )
 	{
 		bDirty |= m_Conditions[i].ResetHits();

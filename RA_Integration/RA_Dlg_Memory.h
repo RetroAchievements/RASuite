@@ -72,7 +72,7 @@ public:
 	void Invalidate();
 	
 	void SetWatchingAddress( unsigned int nAddr );
-	BOOL IsActive() const;
+	bool IsActive() const;
 
 	const CodeNotes& Notes() const				{ return m_CodeNotes; }
 

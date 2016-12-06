@@ -18,6 +18,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlibstat", "RASnes9x\zlib\c
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpng", "RASnes9x\libpng\projects\vc14\libpng.vcxproj", "{E1AF700F-70B4-49BD-907B-307086F9EB88}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BB11B6E9-3BDA-46D2-9151-8F228EE8177B}"
+	ProjectSection(SolutionItems) = preProject
+		RASnes9x.sln.vsspell = RASnes9x.sln.vsspell
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Itanium = Debug|Itanium

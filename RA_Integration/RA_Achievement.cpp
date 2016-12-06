@@ -135,25 +135,25 @@ char* Achievement::ParseLine( char* pBuffer )
 	while( *pBuffer == ' ' || *pBuffer == ':' )
 		pBuffer++; // Skip any whitespace/colons
 
-	SetActive( FALSE );
+	SetActive( false );
 	SetID( nAchievementID );
 
 	//	buffer now contains TITLE : DESCRIPTION : $POINTS : $Author : $DateCreated : $DateModified : upvotes : downvotes : badgefilename
 	
-	pTitle				= _ReadStringTil( ':', pBuffer, TRUE );
-	pDesc				= _ReadStringTil( ':', pBuffer, TRUE );
-	pProgress			= _ReadStringTil( ':', pBuffer, TRUE );
-	pProgressMax		= _ReadStringTil( ':', pBuffer, TRUE );
-	pProgressFmt		= _ReadStringTil( ':', pBuffer, TRUE );
-	pAuthor				= _ReadStringTil( ':', pBuffer, TRUE );
+	pTitle				= _ReadStringTil( ':', pBuffer, true );
+	pDesc				= _ReadStringTil( ':', pBuffer, true );
+	pProgress			= _ReadStringTil( ':', pBuffer, true );
+	pProgressMax		= _ReadStringTil( ':', pBuffer, true );
+	pProgressFmt		= _ReadStringTil( ':', pBuffer, true );
+	pAuthor				= _ReadStringTil( ':', pBuffer, true );
 	
-	nPoints =			(unsigned int)atol(   _ReadStringTil( ':', pBuffer, TRUE ) );
-	nDateCreatedSecs =	(time_t)atol(		  _ReadStringTil( ':', pBuffer, TRUE ) );
-	nDateModifiedSecs =	(time_t)atol(		  _ReadStringTil( ':', pBuffer, TRUE ) );
-	nUpvotes =			(unsigned short)atol( _ReadStringTil( ':', pBuffer, TRUE ) );
-	nDownvotes =		(unsigned short)atol( _ReadStringTil( ':', pBuffer, TRUE ) );
+	nPoints =			(unsigned int)atol(   _ReadStringTil( ':', pBuffer, true ) );
+	nDateCreatedSecs =	(time_t)atol(		  _ReadStringTil( ':', pBuffer, true ) );
+	nDateModifiedSecs =	(time_t)atol(		  _ReadStringTil( ':', pBuffer, true ) );
+	nUpvotes =			(unsigned short)atol( _ReadStringTil( ':', pBuffer, true ) );
+	nDownvotes =		(unsigned short)atol( _ReadStringTil( ':', pBuffer, true ) );
 
-	pBadgeFilename		= _ReadStringTil( ':', pBuffer, TRUE );
+	pBadgeFilename		= _ReadStringTil( ':', pBuffer, true );
 
 	SetPoints( nPoints );
 	SetCreatedDate( nDateCreatedSecs );
@@ -171,19 +171,19 @@ char* Achievement::ParseLine( char* pBuffer )
 	return pBuffer;
 }
 
-BOOL Achievement::Test()
+bool Achievement::Test()
 {
-	BOOL bDirtyConditions = FALSE;
-	BOOL bResetConditions = FALSE;
+	bool bDirtyConditions = false;
+	bool bResetConditions = false;
 
-	BOOL bRetVal = FALSE;
-	BOOL bRetValSubCond = NumConditionGroups() == 1 ? TRUE : FALSE;
+	bool bRetVal = false;
+	bool bRetValSubCond = NumConditionGroups() == 1 ? true : false;
 	for( size_t i = 0; i < NumConditionGroups(); ++i )
 	{
 		if( i == 0 )
-			bRetVal = m_vConditions[i].Test( bDirtyConditions, bResetConditions, FALSE );
+			bRetVal = m_vConditions[i].Test( bDirtyConditions, bResetConditions, false );
 		else	//	OR!
-			bRetValSubCond |= m_vConditions[i].Test( bDirtyConditions, bResetConditions, FALSE );
+			bRetValSubCond |= m_vConditions[i].Test( bDirtyConditions, bResetConditions, false );
 	}
 
 	if( bDirtyConditions )
@@ -214,12 +214,12 @@ void Achievement::Clear()
 	m_sBadgeImageURI.clear();
 
 	m_nPointValue = 0;
-	m_bActive = FALSE;
-	m_bModified = FALSE;
+	m_bActive = false;
+	m_bModified = false;
 	ClearDirtyFlag();
 	ClearBadgeImage();
 
-	m_bProgressEnabled = FALSE;
+	m_bProgressEnabled = false;
 	m_sProgress[0] = '\0';
 	m_sProgressMax[0] = '\0';
 	m_sProgressFmt[0] = '\0';
@@ -247,7 +247,7 @@ void Achievement::SetID( unsigned int nID )
 	SetDirtyFlag( Dirty_ID );
 }
 
-void Achievement::SetActive( BOOL bActive )
+void Achievement::SetActive( bool bActive )
 {
 	if( m_bActive != bActive )
 	{
@@ -268,7 +268,7 @@ void Achievement::SetActive( BOOL bActive )
 //	SetDirtyFlag( Dirty_Votes );
 //}
 
-void Achievement::SetModified( BOOL bModified )
+void Achievement::SetModified( bool bModified )
 {
 	if( m_bModified != bModified )
 	{
@@ -292,7 +292,7 @@ void Achievement::SetBadgeImage( const std::string& sBadgeURI )
 void Achievement::Reset()
 {
 	//	Get all conditions, set hits found=0
-	BOOL bDirty = FALSE;
+	bool bDirty = false;
 	
 	for( size_t i = 0; i < NumConditionGroups(); ++i )
 		bDirty |= m_vConditions[i].Reset( false );
@@ -312,12 +312,12 @@ size_t Achievement::AddCondition( size_t nConditionGroup, const Condition& rNewC
 	return m_vConditions[nConditionGroup].Count();
 }
 
-BOOL Achievement::RemoveCondition( size_t nConditionGroup, unsigned int nID )
+bool Achievement::RemoveCondition( size_t nConditionGroup, unsigned int nID )
 {
 	m_vConditions[nConditionGroup].RemoveAt( nID );
 	SetDirtyFlag( Dirty__All );	//	Not Conditions: 
 
-	return TRUE;
+	return true;
 }
 
 void Achievement::RemoveAllConditions( size_t nConditionGroup )

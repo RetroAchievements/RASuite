@@ -57,15 +57,15 @@ void RA_RichPresenceInterpretter::ParseRichPresenceFile( const std::string& sFil
 			{
 				//	Lookup type
 				char* pBuf = buffer + ( strlen( LookupStr ) );
-				RA_Lookup newLookup( _ReadStringTil( EndLine, pBuf, TRUE ) );
+				RA_Lookup newLookup( _ReadStringTil( EndLine, pBuf, true ) );
 				while( nCharsRead != 0 && ( buffer[0] != EndLine ) )
 				{
 					_ReadTil( EndLine, buffer, 4096, &nCharsRead, pFile );
 					if( nCharsRead > 2 )
 					{
 						char* pBuf = &buffer[0];
-						const char* pValue = _ReadStringTil( '=', pBuf, TRUE );
-						const char* pName = _ReadStringTil( EndLine, pBuf, TRUE );
+						const char* pValue = _ReadStringTil( '=', pBuf, true );
+						const char* pName = _ReadStringTil( EndLine, pBuf, true );
 
 						int nBase = 10;
 						if( pValue[0] == '0' && pValue[1] == 'x' )
@@ -85,15 +85,15 @@ void RA_RichPresenceInterpretter::ParseRichPresenceFile( const std::string& sFil
 			{
 				//	
 				char* pBuf = &buffer[0];
-				const char* pUnused = _ReadStringTil( ':', pBuf, TRUE );
-				std::string sDesc = _ReadStringTil( EndLine, pBuf, TRUE );
+				const char* pUnused = _ReadStringTil( ':', pBuf, true );
+				std::string sDesc = _ReadStringTil( EndLine, pBuf, true );
 
 				_ReadTil( EndLine, buffer, 4096, &nCharsRead, pFile );
 				if( nCharsRead > 0 && strncmp( FormatTypeStr, buffer, strlen( FormatTypeStr ) ) == 0 )
 				{
 					char* pBuf = &buffer[0];
-					const char* pUnused = _ReadStringTil( '=', pBuf, TRUE );
-					const char* pType = _ReadStringTil( EndLine, pBuf, TRUE );
+					const char* pUnused = _ReadStringTil( '=', pBuf, true );
+					const char* pType = _ReadStringTil( EndLine, pBuf, true );
 					
 					RA_Leaderboard::FormatType nType;
 
@@ -131,7 +131,7 @@ void RA_RichPresenceInterpretter::ParseRichPresenceFile( const std::string& sFil
 				_ReadTil( EndLine, buffer, 4096, &nCharsRead, pFile );
 				
 				char* pBuf =  &buffer[0];
-				m_sDisplay = _ReadStringTil( '\n', pBuf, TRUE );	//	Terminates \n instead
+				m_sDisplay = _ReadStringTil( '\n', pBuf, true );	//	Terminates \n instead
 			}
 
 			_ReadTil( EndLine, buffer, 4096, &nCharsRead, pFile );

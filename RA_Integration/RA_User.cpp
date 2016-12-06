@@ -19,7 +19,7 @@ LocalRAUser RAUsers::ms_LocalUser("");
 std::map<std::string, RAUser*> RAUsers::UserDatabase;
 
 //static 
-BOOL RAUsers::DatabaseContainsUser( const std::string& sUser )
+bool RAUsers::DatabaseContainsUser( const std::string& sUser )
 {
 	return( UserDatabase.find( sUser ) != UserDatabase.end() );
 }
@@ -42,7 +42,7 @@ void RAUsers::OnUserPicDownloaded( const RequestObject& obj )
 //static 
 RAUser* RAUsers::GetUser( const std::string& sUser )
 {
-	if( DatabaseContainsUser( sUser ) == FALSE )
+	if( DatabaseContainsUser( sUser ) == false )
 		UserDatabase[ sUser ] = new RAUser( sUser );
 
 	return UserDatabase[ sUser ];
@@ -84,14 +84,14 @@ void RAUser::LoadOrFetchUserImage()
 
 LocalRAUser::LocalRAUser( const std::string& sUser ) : 
 	RAUser( sUser ),
-	m_bIsLoggedIn( FALSE ),
-	m_bStoreToken( FALSE )
+	m_bIsLoggedIn( false ),
+	m_bStoreToken( false )
 {
 }
 
 void LocalRAUser::AttemptLogin( bool bBlocking )
 {
-	m_bIsLoggedIn = FALSE;
+	m_bIsLoggedIn = false;
 
 	if( Username().length() > 0 )
 	{
@@ -137,7 +137,7 @@ void LocalRAUser::AttemptSilentLogin()
 	args['t'] = Token();
 	RAWeb::CreateThreadedHTTPRequest( RequestLogin, args );
 
-	m_bStoreToken = TRUE;	//	Store it! We just used it!
+	m_bStoreToken = true;	//	Store it! We just used it!
 }
 
 void LocalRAUser::HandleSilentLoginResponse( Document& doc )
@@ -148,7 +148,7 @@ void LocalRAUser::HandleSilentLoginResponse( Document& doc )
 		const std::string& sToken = doc[ "Token" ].GetString();
 		const unsigned int nPoints = doc[ "Score" ].GetUint();
 		const unsigned int nUnreadMessages = doc[ "Messages" ].GetUint();
-		ProcessSuccessfulLogin( sUser, sToken, nPoints, nUnreadMessages, TRUE );
+		ProcessSuccessfulLogin( sUser, sToken, nPoints, nUnreadMessages, true );
 	}
 	else
 	{
@@ -156,9 +156,9 @@ void LocalRAUser::HandleSilentLoginResponse( Document& doc )
 	}
 }
 
-void LocalRAUser::ProcessSuccessfulLogin( const std::string& sUser, const std::string& sToken, unsigned int nPoints, unsigned int nMessages, BOOL bRememberLogin )
+void LocalRAUser::ProcessSuccessfulLogin( const std::string& sUser, const std::string& sToken, unsigned int nPoints, unsigned int nMessages, bool bRememberLogin )
 {
-	m_bIsLoggedIn = TRUE;
+	m_bIsLoggedIn = true;
 
 	SetUsername( sUser );
 	SetToken( sToken );
@@ -194,7 +194,7 @@ void LocalRAUser::Logout()
 	RA_RebuildMenu();
 	_RA_UpdateAppTitle( "" );
 
-	m_bIsLoggedIn = FALSE;
+	m_bIsLoggedIn = false;
 
 	MessageBox( nullptr, L"You are now logged out.", L"Info", MB_OK );
 }
@@ -272,7 +272,7 @@ void LocalRAUser::PostActivity( ActivityType nActivityType )
 void LocalRAUser::Clear()
 {
 	SetToken( "" );
-	m_bIsLoggedIn = FALSE;
+	m_bIsLoggedIn = false;
 }
 
 RAUser* LocalRAUser::FindFriend( const std::string& sName )

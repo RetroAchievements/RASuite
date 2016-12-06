@@ -86,7 +86,7 @@ public:
 	const DataStream& GetResponse() const							{ return m_sResponse; }
 	void SetResponse( const DataStream& sResponse )					{ m_sResponse = sResponse; }
 
-	BOOL ParseResponseToJSON( Document& rDocOut );
+	bool ParseResponseToJSON( Document& rDocOut );
 
 private:
 	const RequestType m_nType;
@@ -105,7 +105,7 @@ public:
 	void PushItem( RequestObject* pObj );
 	void Clear();
 	size_t Count() const;
-	BOOL PageRequestExists( RequestType nType, const std::string& sData ) const;
+	bool PageRequestExists( RequestType nType, const std::string& sData ) const;
 
 private:
 	std::deque<RequestObject*> m_aRequests;
@@ -120,16 +120,16 @@ public:
 	static void LogJSON( const Document& doc );
 
 	static void CreateThreadedHTTPRequest( RequestType nType, const PostArgs& PostData = PostArgs(), const std::string& sData = "" );
-	static BOOL HTTPRequestExists( RequestType nType, const std::string& sData );
-	static BOOL HTTPResponseExists( RequestType nType, const std::string& sData );
+	static bool HTTPRequestExists( RequestType nType, const std::string& sData );
+	static bool HTTPResponseExists( RequestType nType, const std::string& sData );
 	
-	static BOOL DoBlockingRequest( RequestType nType, const PostArgs& PostData, Document& JSONResponseOut );
-	static BOOL DoBlockingRequest( RequestType nType, const PostArgs& PostData, DataStream& ResponseOut );
+	static bool DoBlockingRequest( RequestType nType, const PostArgs& PostData, Document& JSONResponseOut );
+	static bool DoBlockingRequest( RequestType nType, const PostArgs& PostData, DataStream& ResponseOut );
 
-	static BOOL DoBlockingHttpGet( const std::string& sRequestedPage, DataStream& ResponseOut, bool bIsImageRequest );
-	static BOOL DoBlockingHttpPost( const std::string& sRequestedPage, const std::string& sPostString, DataStream& ResponseOut );
+	static bool DoBlockingHttpGet( const std::string& sRequestedPage, DataStream& ResponseOut, bool bIsImageRequest );
+	static bool DoBlockingHttpPost( const std::string& sRequestedPage, const std::string& sPostString, DataStream& ResponseOut );
 
-	static BOOL DoBlockingImageUpload( UploadType nType, const std::string& sFilename, Document& ResponseOut );
+	static bool DoBlockingImageUpload( UploadType nType, const std::string& sFilename, Document& ResponseOut );
 
 	static DWORD WINAPI HTTPWorkerThread( LPVOID lpParameter );
 

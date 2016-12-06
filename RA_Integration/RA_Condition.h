@@ -135,10 +135,10 @@ public:
 	void ParseFromString( char*& sBuffer );
 
 	//	Returns a logical comparison between m_CompSource and m_CompTarget, depending on m_nComparison
-	BOOL Compare();
+	bool Compare();
 
 	//	Returns whether a change was made
-	BOOL ResetHits();
+	bool ResetHits();
 
 	//	Resets 'last known' values
 	void ResetDeltas();
@@ -156,14 +156,14 @@ public:
 	inline unsigned int RequiredHits() const		{ return m_nRequiredHits; }
 	inline unsigned int CurrentHits() const			{ return m_nCurrentHits; }
 
-	inline BOOL IsResetCondition() const			{ return( m_nConditionType == ResetIf ); }
-	inline BOOL IsPauseCondition() const			{ return( m_nConditionType == PauseIf ); }
+	inline bool IsResetCondition() const			{ return( m_nConditionType == ResetIf ); }
+	inline bool IsPauseCondition() const			{ return( m_nConditionType == PauseIf ); }
 	inline ConditionType GetConditionType() const	{ return m_nConditionType; }
 	void SetConditionType( ConditionType nNewType )	{ m_nConditionType = nNewType; }
 	
 	void SetRequiredHits( unsigned int nHits )		{ m_nRequiredHits = nHits; }
 	void IncrHits()									{ m_nCurrentHits++; }
-	BOOL IsComplete() const							{ return( m_nCurrentHits >= m_nRequiredHits ); }
+	bool IsComplete() const							{ return( m_nCurrentHits >= m_nRequiredHits ); }
 
 	void OverrideCurrentHits( unsigned int nHits )	{ m_nCurrentHits = nHits; }
 
@@ -188,7 +188,7 @@ class ConditionSet
 {
 public:
 	//	Final param indicates 'or'
-	BOOL Test( BOOL& bDirtyConditions, BOOL& bResetRead, BOOL bMatchAny );
+	bool Test( bool& bDirtyConditions, bool& bResetRead, bool bMatchAny );
 	size_t Count() const		{ return m_Conditions.size(); }
 
 	void Add( const Condition& newCond )		{ m_Conditions.push_back( newCond ); }
@@ -196,7 +196,7 @@ public:
 	const Condition& GetAt( size_t i ) const	{ return m_Conditions[i]; }
 	void Clear()								{ m_Conditions.clear(); }
 	void RemoveAt( size_t i );
-	BOOL Reset( BOOL bIncludingDeltas );	//	Returns dirty
+	bool Reset( bool bIncludingDeltas );	//	Returns dirty
 
 protected:
 	std::vector<Condition> m_Conditions;
@@ -206,6 +206,6 @@ extern ComparisonVariableSize PrefixToComparisonSize( char cPrefix );
 extern const char* ComparisonSizeToPrefix( ComparisonVariableSize nSize );
 extern const char* ComparisonTypeToStr( ComparisonType nType );
 
-//extern BOOL CompareConditionValues( unsigned int nLHS, const enum CompType nCmpType, unsigned int nRHS );
+//extern bool CompareConditionValues( unsigned int nLHS, const enum CompType nCmpType, unsigned int nRHS );
 extern ComparisonType ReadOperator( char*& pBufferInOut );
 extern unsigned int ReadHits( char*& pBufferInOut );

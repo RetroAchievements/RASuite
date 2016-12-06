@@ -234,9 +234,9 @@ int RA_HTTPRequestExists( const char* sPageName )
 }
 
 
-BOOL DoBlockingHttpGet( const char* sRequestedPage, char* pBufferOut, const unsigned int /*nBufferOutSize*/, DWORD* pBytesRead )
+bool DoBlockingHttpGet( const char* sRequestedPage, char* pBufferOut, const unsigned int /*nBufferOutSize*/, DWORD* pBytesRead )
 {
-	BOOL bResults = FALSE, bSuccess = FALSE;
+	bool bResults = false, bSuccess = false;
 	HINTERNET hSession = nullptr, hConnect = nullptr, hRequest = nullptr;
 
 	WCHAR wBuffer[1024];
@@ -312,7 +312,7 @@ BOOL DoBlockingHttpGet( const char* sRequestedPage, char* pBufferOut, const unsi
 							}
 						}
 
-						bSuccess = TRUE;
+						bSuccess = true;
 
 						WinHttpQueryDataAvailable( hRequest, &nBytesToRead );
 					}
@@ -448,7 +448,7 @@ void RA_Init( HWND hMainHWND, int nConsoleID, const char* sClientVersion )
 	DWORD nBytesRead = 0;
 	char buffer[1024];
 	ZeroMemory( buffer, 1024 );
-	if( DoBlockingHttpGet( "LatestIntegration.html", buffer, 1024, &nBytesRead ) == FALSE )
+	if( DoBlockingHttpGet( "LatestIntegration.html", buffer, 1024, &nBytesRead ) == false )
 	{
 		MessageBoxA( NULL, "Cannot access www.retroachievements.org - working offline.", "Warning", MB_OK|MB_ICONEXCLAMATION );
 		return;
@@ -456,7 +456,7 @@ void RA_Init( HWND hMainHWND, int nConsoleID, const char* sClientVersion )
 
 	const unsigned int nLatestDLLVer = strtol( buffer+2, NULL, 10 );
 
-	BOOL bInstalled = FALSE;
+	bool bInstalled = false;
 	int nMBReply = IDNO;
 	do
 	{
@@ -483,7 +483,7 @@ void RA_Init( HWND hMainHWND, int nConsoleID, const char* sClientVersion )
 		}
 		else
 		{
-			bInstalled = TRUE;
+			bInstalled = true;
 			break;
 		}
 

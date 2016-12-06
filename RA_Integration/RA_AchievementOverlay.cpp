@@ -71,7 +71,7 @@ const COLORREF COL_WARNING_BG = RGB(80, 0, 0);
 const unsigned int OVERLAY_WIDTH = 1024;
 const unsigned int OVERLAY_HEIGHT = 1024;
 
-void AchievementOverlay::SelectNextTopLevelPage(BOOL bPressedRight)
+void AchievementOverlay::SelectNextTopLevelPage(bool bPressedRight)
 {
 	switch (m_Pages[m_nPageStackPointer])
 	{
@@ -125,7 +125,7 @@ void AchievementOverlay::Initialize(HINSTANCE hInst)
 	m_nNewsScrollOffset = 0;
 	m_nLeaderboardScrollOffset = 0;
 
-	m_bInputLock = FALSE;
+	m_bInputLock = false;
 	m_nTransitionState = TS_OFF;
 	m_fTransitionTimer = PAGE_TRANSITION_IN;
 
@@ -175,22 +175,22 @@ void AchievementOverlay::AddPage(enum OverlayPage NewPage)
 	m_Pages[m_nPageStackPointer] = NewPage;
 }
 
-//	Returns TRUE if we are ready to exit the overlay.
-BOOL AchievementOverlay::GoBack()
+//	Returns true if we are ready to exit the overlay.
+bool AchievementOverlay::GoBack()
 {
 	if (m_nPageStackPointer == 0)
 	{
 		Deactivate();
-		return TRUE;
+		return true;
 	}
 	else
 	{
 		m_nPageStackPointer--;
-		return FALSE;
+		return false;
 	}
 }
 
-BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFullScreen, BOOL bPaused)
+bool AchievementOverlay::Update(ControllerInput* pInput, float fDelta, bool bFullScreen, bool bPaused)
 {
 	const int nAchCount = (const int)(g_pActiveAchievements->NumAchievements());
 	const int nNumFriends = (const int)(RAUsers::LocalUser().NumFriends());
@@ -203,7 +203,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 
 	ControllerInput& input = *pInput;
 
-	BOOL bCloseOverlay = FALSE;	//	False==close overlay
+	bool bCloseOverlay = false;	//	false==close overlay
 
 	//	FS fix: this thrashes horribly when both are running :S
 	if (bFullScreen)
@@ -235,7 +235,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 			if (bPaused)
 			{
 				//	???
-				//SelectNextTopLevelPage( TRUE );
+				//SelectNextTopLevelPage( true );
 // 				//	Still paused, just transition to another page!
 // 				m_nCurrentPage = (OverlayPage)((int)(m_nCurrentPage)+1);
 // 				if( m_nCurrentPage == OP__MAX )
@@ -252,7 +252,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 	}
 
 	if (m_nTransitionState == TS_OFF)
-		return FALSE;
+		return false;
 
 	//	Inputs! Restrict to ABCULDR+Start
 	if (!m_bInputLock)
@@ -266,7 +266,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 				if ((*pnSelectedItem) < (nAchCount - 1))
 				{
 					(*pnSelectedItem)++;
-					m_bInputLock = TRUE;
+					m_bInputLock = true;
 				}
 			}
 			else if (input.m_bUpPressed)
@@ -274,7 +274,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 				if ((*pnSelectedItem) > 0)
 				{
 					(*pnSelectedItem)--;
-					m_bInputLock = TRUE;
+					m_bInputLock = true;
 				}
 			}
 			else if (input.m_bConfirmPressed)
@@ -305,7 +305,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 				{
 					(*pnSelectedItem)++;
 					g_AchExamine.Initialize(&g_pActiveAchievements->GetAchievement((*pnSelectedItem)));
-					m_bInputLock = TRUE;
+					m_bInputLock = true;
 				}
 			}
 			else if (input.m_bUpPressed)
@@ -314,7 +314,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 				{
 					(*pnSelectedItem)--;
 					g_AchExamine.Initialize(&g_pActiveAchievements->GetAchievement((*pnSelectedItem)));
-					m_bInputLock = TRUE;
+					m_bInputLock = true;
 				}
 			}
 
@@ -332,7 +332,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 				if ((*pnSelectedItem) < (nNumFriends - 1))
 				{
 					(*pnSelectedItem)++;
-					m_bInputLock = TRUE;
+					m_bInputLock = true;
 				}
 			}
 			else if (input.m_bUpPressed)
@@ -340,7 +340,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 				if ((*pnSelectedItem) > 0)
 				{
 					(*pnSelectedItem)--;
-					m_bInputLock = TRUE;
+					m_bInputLock = true;
 				}
 			}
 
@@ -368,7 +368,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 				if ((*pnSelectedItem) < (nAchCount - 1))
 				{
 					(*pnSelectedItem)++;
-					m_bInputLock = TRUE;
+					m_bInputLock = true;
 				}
 			}
 			else if (input.m_bDownPressed)
@@ -376,7 +376,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 				if ((*pnSelectedItem) > 0)
 				{
 					(*pnSelectedItem)--;
-					m_bInputLock = TRUE;
+					m_bInputLock = true;
 				}
 			}
 
@@ -401,7 +401,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 				if ((*pnSelectedItem) < static_cast<int>(m_LatestNews.size()))
 				{
 					(*pnSelectedItem)++;
-					m_bInputLock = TRUE;
+					m_bInputLock = true;
 				}
 			}
 			else if (input.m_bUpPressed)
@@ -409,7 +409,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 				if ((*pnSelectedItem) > 0)
 				{
 					(*pnSelectedItem)--;
-					m_bInputLock = TRUE;
+					m_bInputLock = true;
 				}
 			}
 			break;
@@ -421,7 +421,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 				if ((*pnSelectedItem) < (nNumLBs - 1))
 				{
 					(*pnSelectedItem)++;
-					m_bInputLock = TRUE;
+					m_bInputLock = true;
 				}
 			}
 			else if (input.m_bUpPressed)
@@ -429,7 +429,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 				if ((*pnSelectedItem) > 0)
 				{
 					(*pnSelectedItem)--;
-					m_bInputLock = TRUE;
+					m_bInputLock = true;
 				}
 			}
 			if (input.m_bConfirmPressed)
@@ -460,7 +460,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 				{
 					(*pnSelectedItem)++;
 					g_LBExamine.Initialize(g_LeaderboardManager.GetLB((*pnSelectedItem)).ID());
-					m_bInputLock = TRUE;
+					m_bInputLock = true;
 				}
 			}
 			else if (input.m_bUpPressed)
@@ -469,7 +469,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 				{
 					(*pnSelectedItem)--;
 					g_LBExamine.Initialize(g_LeaderboardManager.GetLB((*pnSelectedItem)).ID());
-					m_bInputLock = TRUE;
+					m_bInputLock = true;
 				}
 			}
 
@@ -487,9 +487,9 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 
 		if (input.m_bCancelPressed)
 		{
-			//	If TRUE: Close overlay
+			//	If true: Close overlay
 			bCloseOverlay = GoBack();
-			m_bInputLock = TRUE;
+			m_bInputLock = true;
 		}
 
 		if (input.m_bLeftPressed || input.m_bRightPressed)
@@ -497,7 +497,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 			if (m_nTransitionState == TS_HOLD)
 			{
 				SelectNextTopLevelPage(input.m_bRightPressed);
-				m_bInputLock = TRUE;
+				m_bInputLock = true;
 			}
 		}
 	}
@@ -506,14 +506,14 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 		if (!input.m_bUpPressed && !input.m_bDownPressed && !input.m_bLeftPressed &&
 			!input.m_bRightPressed && !input.m_bConfirmPressed && !input.m_bCancelPressed)
 		{
-			m_bInputLock = FALSE;
+			m_bInputLock = false;
 		}
 	}
 
 	if (input.m_bQuitPressed)
 	{
 		Deactivate();
-		bCloseOverlay = TRUE;
+		bCloseOverlay = true;
 	}
 
 	return bCloseOverlay;
@@ -583,7 +583,7 @@ void AchievementOverlay::DrawAchievementsPage(HDC hDC, int nDX, int nDY, const R
 			nAchIdx = (*pnScrollOffset) + i;
 			if (nAchIdx < static_cast<int>(nNumberOfAchievements))
 			{
-				BOOL bSelected = ((*pnSelectedItem) - (*pnScrollOffset) == i);
+				bool bSelected = ((*pnSelectedItem) - (*pnScrollOffset) == i);
 				if (bSelected)
 				{
 					//	Draw bounding box around text
@@ -603,7 +603,7 @@ void AchievementOverlay::DrawAchievementsPage(HDC hDC, int nDX, int nDY, const R
 					nDX,												//	X
 					(nAchTopEdge + (i*nAchSpacing)),					//	Y
 					bSelected,											//	Selected
-					TRUE);
+					true);
 			}
 		}
 
@@ -774,8 +774,8 @@ void AchievementOverlay::DrawAchievementExaminePage(HDC hDC, int nDX, int nDY, c
 		pAch,
 		nDX + nAchievementStartX,
 		nAchievementStartY,
-		TRUE,
-		FALSE);
+		true,
+		false);
 
 	if (m_nAchievementsSelectedItem >= (int)nNumAchievements)
 		return;
@@ -956,7 +956,7 @@ void AchievementOverlay::DrawLeaderboardPage(HDC hDC, int nDX, int nDY, const RE
 			std::string sTitle(" " + nextLB.Title() + " ");
 			const std::string& sPayload = nextLB.Description();
 
-			BOOL bSelected = ((*pnSelectedItem) == i);
+			bool bSelected = ((*pnSelectedItem) == i);
 			if (bSelected)
 			{
 				//	Draw bounding box around text
@@ -1147,7 +1147,7 @@ void AchievementOverlay::Render(HDC hDC, RECT* rcDest) const
 	const int nFontSize4 = 16;
 
 	const int nPixelWidth = (*rcDest).right - (*rcDest).left;
-	const BOOL bHiRes = (nPixelWidth >= 320);
+	const bool bHiRes = (nPixelWidth >= 320);
 
 	unsigned int nMinUserFrameWidth = 300;
 	unsigned int nMinUserFrameHeight = 64 + 4 + 4;
@@ -1161,16 +1161,16 @@ void AchievementOverlay::Render(HDC hDC, RECT* rcDest) const
 	const int nWidth = rcTarget.right - rcTarget.left;
 	const int nHeight = rcTarget.bottom - rcTarget.top;
 
-	g_hFontTitle = CreateFont(nFontSize1, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
+	g_hFontTitle = CreateFont(nFontSize1, 0, 0, 0, FW_DONTCARE, false, false, false, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
 		CLIP_CHARACTER_PRECIS, /*NON*/ANTIALIASED_QUALITY, VARIABLE_PITCH, Widen(FONT_TO_USE).c_str());
 
-	g_hFontDesc = CreateFont(nFontSize2, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
+	g_hFontDesc = CreateFont(nFontSize2, 0, 0, 0, FW_DONTCARE, false, false, false, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
 		CLIP_CHARACTER_PRECIS, /*NON*/ANTIALIASED_QUALITY, VARIABLE_PITCH, Widen(FONT_TO_USE).c_str());
 
-	g_hFontDesc2 = CreateFont(nFontSize3, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
+	g_hFontDesc2 = CreateFont(nFontSize3, 0, 0, 0, FW_DONTCARE, false, false, false, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
 		CLIP_CHARACTER_PRECIS, /*NON*/ANTIALIASED_QUALITY, VARIABLE_PITCH, Widen(FONT_TO_USE).c_str());
 
-	g_hFontTiny = CreateFont(nFontSize4, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
+	g_hFontTiny = CreateFont(nFontSize4, 0, 0, 0, FW_DONTCARE, false, false, false, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
 		CLIP_CHARACTER_PRECIS, /*NON*/ANTIALIASED_QUALITY, VARIABLE_PITCH, Widen(FONT_TO_USE).c_str());
 
 	float fPctOffScreen = (m_nTransitionState == TS_IN) ?
@@ -1354,13 +1354,13 @@ void AchievementOverlay::DrawBar(HDC hDC, int nX, int nY, int nW, int nH, int nM
 	DeleteObject(hBarBack);
 }
 
-void AchievementOverlay::DrawAchievement(HDC hDC, const Achievement* pAch, int nX, int nY, BOOL bSelected, BOOL bCanLock) const
+void AchievementOverlay::DrawAchievement(HDC hDC, const Achievement* pAch, int nX, int nY, bool bSelected, bool bCanLock) const
 {
 	const int nAchImageOffset = 28;
 	const int nAchLeftOffset1 = 28 + 64 + 6;
 	const int nAchLeftOffset2 = 28 + 64 + 6 + 4;
 	const int nAchSpacingDesc = 24;
-	BOOL bLocked = FALSE;
+	bool bLocked = false;
 	char buffer[1024];
 
 	if (bCanLock)
@@ -1580,16 +1580,21 @@ void AchievementOverlay::Flip(HWND hWnd)
 	//}
 }
 
+/// <summary>
+/// Changes - SyrianBallaS
+/// Uses a FileReadStream Object instead of FileStream
+/// </summary>
 void AchievementOverlay::InstallNewsArticlesFromFile()
 {
 	m_LatestNews.clear();
 
-	FILE* pf = nullptr;
-	fopen_s(&pf, RA_NEWS_FILENAME, "rb");
+	FILE* pf{ fopen(RA_NEWS_FILENAME, "rb") };
+	char readBuffer[65536];
+	FileReadStream rStream(pf, readBuffer, sizeof(readBuffer));
 	if (pf != nullptr)
 	{
 		Document doc;
-		doc.ParseStream(FileStream(pf));
+		doc.ParseStream(rStream);
 
 		if (doc.HasMember("Success") && doc["Success"].GetBool())
 		{

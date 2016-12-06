@@ -75,7 +75,7 @@ void ProgressPopup::NextMessage()
 	m_hMessageImage[ OVERLAY_MESSAGE_QUEUE_SIZE - 1 ] = NULL;
 }
 
-void ProgressPopup::Update( ControllerInput input, float fDelta, BOOL bFullScreen, BOOL bPaused )
+void ProgressPopup::Update( ControllerInput input, float fDelta, bool bFullScreen, bool bPaused )
 {
 	if( !IsActive() )
 		return;
@@ -144,11 +144,11 @@ void ProgressPopup::Render( HDC hDC, RECT& rcDest )
 	SetBkColor( hDC, RGB( 0, 212, 0 ) );
 	SetTextColor( hDC, RGB( 0, 40, 0 ) );
 
-	HFONT hFontTitle = CreateFont( FONT_SIZE_MAIN, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+	HFONT hFontTitle = CreateFont( FONT_SIZE_MAIN, 0, 0, 0, FW_NORMAL, false, false, false,
 								   DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_CHARACTER_PRECIS, ANTIALIASED_QUALITY,/*NONANTIALIASED_QUALITY,*/
 								   DEFAULT_PITCH, Widen( FONT_TO_USE ).c_str() );
 
-	HFONT hFontDesc = CreateFont( FONT_SIZE_SUBTITLE, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+	HFONT hFontDesc = CreateFont( FONT_SIZE_SUBTITLE, 0, 0, 0, FW_NORMAL, false, false, false,
 								  DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_CHARACTER_PRECIS, ANTIALIASED_QUALITY,/*NONANTIALIASED_QUALITY,*/
 								  DEFAULT_PITCH, Widen( FONT_TO_USE ).c_str() );
 

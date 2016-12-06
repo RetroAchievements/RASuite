@@ -10,13 +10,13 @@
 
 struct ControllerInput
 {
-	BOOL m_bUpPressed;
-	BOOL m_bDownPressed;
-	BOOL m_bLeftPressed;
-	BOOL m_bRightPressed;
-	BOOL m_bConfirmPressed;	//	Usually C or A
-	BOOL m_bCancelPressed;	//	Usually B
-	BOOL m_bQuitPressed;	//	Usually Start
+	bool m_bUpPressed;
+	bool m_bDownPressed;
+	bool m_bLeftPressed;
+	bool m_bRightPressed;
+	bool m_bConfirmPressed;	//	Usually C or A
+	bool m_bCancelPressed;	//	Usually B
+	bool m_bQuitPressed;	//	Usually Start
 };
 
 enum EmulatorID
@@ -147,10 +147,10 @@ extern void	RA_OnPaint( HWND hWnd );
 //	Call this on response to a menu selection for any RA ID:
 extern void RA_InvokeDialog( LPARAM nID );
 
-//	Returns TRUE if HC mode is ongoing
+//	Returns true if HC mode is ongoing
 extern int RA_HardcoreModeIsActive();
 
-//	Returns TRUE if the page requested is currently being parsed.
+//	Returns true if the page requested is currently being parsed.
 extern int RA_HTTPRequestExists( const char* sPageName );
 
 #endif //RA_EXPORTS

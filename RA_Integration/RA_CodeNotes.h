@@ -25,14 +25,14 @@ public:
 public:
 	void Clear();
 
-	BOOL Save( const std::string& sFile );
+	bool Save( const std::string& sFile );
 	size_t Load( const std::string& sFile );
 
-	BOOL ReloadFromWeb( GameID nID );
+	bool ReloadFromWeb( GameID nID );
 	static void OnCodeNotesResponse( Document& doc );
 
 	void Add( const ByteAddress& nAddr, const std::string& sAuthor, const std::string& sNote );
-	BOOL Remove( const ByteAddress& nAddr );
+	bool Remove( const ByteAddress& nAddr );
 	
 	const CodeNoteObj* FindCodeNote( const ByteAddress& nAddr ) const		{ return( m_CodeNotes.find( nAddr ) != m_CodeNotes.end() ) ? &m_CodeNotes.at( nAddr ) : nullptr; }
 
