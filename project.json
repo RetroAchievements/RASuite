@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "DXSDK_Missing": "1.0.0"
+  },
+  "frameworks": {
+    "native": {}
+  },
+  "runtimes": {
+    "win": {}
+  }
+}

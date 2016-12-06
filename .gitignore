@@ -43,3 +43,5 @@ RANes/
 /RASnes9x/win32/LiveTag.txt
 *.ipch
 /RA_Integration/targetver.h
+*.nupkg
+/packages/DXSDK_Missing.1.0.0

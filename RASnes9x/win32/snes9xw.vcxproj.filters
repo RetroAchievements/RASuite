@@ -565,6 +565,7 @@
     <None Include="rsrc\rt_manif.bin">
       <Filter>Resource\Other</Filter>
     </None>
+    <None Include="..\..\project.json" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\jma\license.txt">

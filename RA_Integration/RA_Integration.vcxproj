@@ -64,13 +64,13 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DisableSpecificWarnings>4091;4477</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4091;4477;4800</DisableSpecificWarnings>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>RA_PCH.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <AdditionalDependencies>windowscodecs.lib;winmm.lib;Winhttp.lib;ddraw.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)packages\DXSDK_Missing\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <SubSystem>Windows</SubSystem>
@@ -131,7 +131,6 @@
     <ClCompile Include="RA_MemManager.cpp" />
     <ClCompile Include="RA_PCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">RA_PCH.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="RA_PopupWindows.cpp" />
     <ClCompile Include="RA_ProgressPopup.cpp" />
@@ -174,6 +173,9 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="RA_Shared.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\project.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

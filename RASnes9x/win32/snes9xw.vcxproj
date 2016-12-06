@@ -154,7 +154,7 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\;$(ProjectDir)..\..\;$(ProjectDir)..\apu\bapu;$(ProjectDir)..\libpng;$(ProjectDir)..\unzip;$(ProjectDir)..\zlib;$(ProjectDir)..\..\common;$(ProjectDir)..\..\FMOD\api\inc;$(ProjectDir)..\..\RA_Integration;$(FMOD_API)lowlevel\inc;$(DXSDK_DIR)Include;$(CG_INC_PATH);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\;$(ProjectDir)..\..\;$(ProjectDir)..\apu\bapu;$(ProjectDir)..\libpng;$(ProjectDir)..\unzip;$(ProjectDir)..\zlib;$(ProjectDir)..\..\common;$(ProjectDir)..\..\FMOD\api\inc;$(ProjectDir)..\..\RA_Integration;$(FMOD_API)lowlevel\inc;$(SolutionDir)packages\DXSDK_Missing.1.0.0\Include;$(CG_INC_PATH);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;HAVE_LIBPNG;JMA_SUPPORT;ZLIB_WINAPI;UNZIP_SUPPORT;__WIN32__;NETPLAY_SUPPORT;D3D_DEBUG_INFO;RA_SNES9X;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
@@ -178,7 +178,7 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>libpngd.lib;comctl32.lib;winmm.lib;opengl32.lib;glu32.lib;wsock32.lib;ddraw.lib;dsound.lib;dxguid.lib;delayimp.lib;vfw32.lib;zlibstat.lib;msxml2.lib;shlwapi.lib;winhttp.lib;DxErr.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)..\libpng\projects\visualc71\Win32_LIB_Debug;$(ProjectDir)..\zlib\contrib\vstudio\vc14\x86\ZlibStatDebug;$(FMOD_API)lowlevel\lib;$(DXSDK_DIR)Lib\x86;$(CG_LIB_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\libpng\projects\vc14\Win32_LIB_Debug;$(ProjectDir)..\zlib\contrib\vstudio\vc14\x86\ZlibStatDebug;$(FMOD_API)lowlevel\lib;$(SolutionDir)packages\DXSDK_Missing.1.0.0\Lib\x86;$(CG_LIB_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EnableUAC>false</EnableUAC>
       <DelayLoadDLLs>fmod.dll;fmodex.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -609,6 +609,7 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </CustomBuild>
+    <None Include="..\..\project.json" />
     <None Include="rsrc\nodrop.cur" />
     <None Include="rsrc\rt_manif.bin" />
     <CustomBuild Include="snes9x.cfg">

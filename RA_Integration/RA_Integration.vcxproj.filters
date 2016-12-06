@@ -82,10 +82,10 @@
     <ClCompile Include="RA_Dlg_RomChecksum.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="RA_PCH.cpp">
+    <ClCompile Include="md5.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="md5.cpp">
+    <ClCompile Include="RA_PCH.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -199,5 +199,8 @@
     <ResourceCompile Include="RA_Shared.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\project.json" />
   </ItemGroup>
 </Project>
