@@ -33,7 +33,7 @@ Dlg_Achievements::Dlg_Achievements()
 void Dlg_Achievements::SetupColumns(HWND hList)
 {
 	//	Remove all columns and data.
-	while (ListView_DeleteColumn(hList, 0) == true) {}
+	while (ListView_DeleteColumn(hList, 0) == TRUE) {}
 	ListView_DeleteAllItems(hList);
 
 	for (int i = 0; i < NUM_COLS; ++i)
