@@ -1,4 +1,5 @@
 #pragma once
+#include "RA_PCH.h"
 
 #include "RA_AchievementSet.h"
 #include "RA_Core.h"
@@ -8,8 +9,6 @@
 #include "RA_httpthread.h"
 #include "RA_RichPresence.h"
 #include "RA_md5factory.h"
-
-#include <io.h>		//	_access()
 
 AchievementSet* CoreAchievements = nullptr;
 AchievementSet* UnofficialAchievements = nullptr;

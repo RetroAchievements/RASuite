@@ -1,7 +1,5 @@
+#include "RA_PCH.h"
 #include "RA_Dlg_Login.h"
-
-#include <stdio.h>
-#include <string>
 
 #include "RA_Resource.h"
 #include "RA_User.h"

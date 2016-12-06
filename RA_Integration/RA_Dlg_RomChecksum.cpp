@@ -1,3 +1,4 @@
+#include "RA_PCH.h"
 #include "RA_Dlg_RomChecksum.h"
 
 #include "RA_Resource.h"

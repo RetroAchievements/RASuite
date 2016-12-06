@@ -1,3 +1,4 @@
+#include "RA_PCH.h"
 #include "RA_AchievementOverlay.h"
 
 #include "RA_Interface.h"
@@ -10,8 +11,6 @@
 #include "RA_PopupWindows.h"
 #include "RA_Core.h"
 #include "RA_Leaderboard.h"
-
-#include <time.h>
 
 // #include <sstream>  Needed to prevent buffer overruns and memory leaks
 #pragma warning (disable : 4477 4838)

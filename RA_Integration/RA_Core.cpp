@@ -1,3 +1,4 @@
+#include "RA_PCH.h"
 #include "RA_Core.h"
 
 #include "RA_Achievement.h"
@@ -5,7 +6,6 @@
 #include "RA_AchievementOverlay.h"
 #include "RA_BuildVer.h"
 #include "RA_CodeNotes.h"
-#include "RA_Defs.h"
 #include "RA_httpthread.h"
 #include "RA_ImageFactory.h"
 #include "RA_Interface.h"
@@ -25,10 +25,6 @@
 #include "RA_Dlg_Login.h"
 #include "RA_Dlg_Memory.h"
 #include "RA_Dlg_RomChecksum.h"
-
-#include <locale>
-#include <codecvt>
-#include <direct.h>
 
 std::string g_sKnownRAVersion;
 std::string g_sHomeDir;
