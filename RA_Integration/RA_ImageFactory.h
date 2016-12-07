@@ -22,7 +22,7 @@ public:
 };
 
 
-BOOL InitializeUserImageFactory( HINSTANCE hInst );
+bool InitializeUserImageFactory( HINSTANCE hInst );
 HBITMAP LoadOrFetchBadge( const std::string& sBadgeURI, const RASize& nSZ = RA_BADGE_PX );
 HBITMAP LoadOrFetchUserPic( const std::string& sUser, const RASize& nSZ = RA_USERPIC_PX );
 HBITMAP LoadLocalPNG( const std::string& sPath, const RASize& nSZ );

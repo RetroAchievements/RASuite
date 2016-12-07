@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="md5.c">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="RA_Achievement.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -83,6 +80,12 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="RA_Dlg_RomChecksum.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="md5.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="RA_PCH.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -174,6 +177,12 @@
     <ClInclude Include="RA_Dlg_RomChecksum.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="RA_PCH.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -190,5 +199,8 @@
     <ResourceCompile Include="RA_Shared.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

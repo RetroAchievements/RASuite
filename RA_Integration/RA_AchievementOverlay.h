@@ -115,9 +115,9 @@ public:
 	void Deactivate();
 
 	void Render( HDC hDC, RECT* rcDest ) const;
-	BOOL Update( ControllerInput* input, float fDelta, BOOL bFullScreen, BOOL bPaused );
+	bool Update( ControllerInput* input, float fDelta, bool bFullScreen, bool bPaused );
 
-	BOOL IsActive() const	{ return( m_nTransitionState!=TS_OFF ); }
+	bool IsActive() const	{ return( m_nTransitionState!=TS_OFF ); }
 
 	const int* GetActiveScrollOffset() const;
 	const int* GetActiveSelectedItem() const;
@@ -135,13 +135,13 @@ public:
 
 	void DrawBar( HDC hDC, int nX, int nY, int nW, int nH, int nMax, int nSel ) const;
 	void DrawUserFrame( HDC hDC, RAUser* pUser, int nX, int nY, int nW, int nH ) const;
-	void DrawAchievement( HDC hDC, const Achievement* Ach, int nX, int nY, BOOL bSelected, BOOL bCanLock ) const;
+	void DrawAchievement( HDC hDC, const Achievement* Ach, int nX, int nY, bool bSelected, bool bCanLock ) const;
 
 	OverlayPage CurrentPage()		{ return m_Pages[ m_nPageStackPointer ]; }
 	void AddPage( OverlayPage NewPage );
-	BOOL GoBack();
+	bool GoBack();
 
-	void SelectNextTopLevelPage( BOOL bPressedRight );
+	void SelectNextTopLevelPage( bool bPressedRight );
 	
 	void InitDirectX();
 	void ResetDirectX();
@@ -180,7 +180,7 @@ private:
 	mutable int m_nNumFriendsBeingRendered;
 	mutable int m_nNumLeaderboardsBeingRendered;
 
-	BOOL					m_bInputLock;	//	Waiting for pad release
+	bool					m_bInputLock;	//	Waiting for pad release
 	std::vector<NewsItem>	m_LatestNews;
 	TransitionState			m_nTransitionState;
 	float					m_fTransitionTimer;

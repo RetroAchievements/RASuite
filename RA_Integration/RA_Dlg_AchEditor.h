@@ -39,7 +39,7 @@ public:
 	INT_PTR AchievementEditorProc(HWND, UINT, WPARAM, LPARAM);
 public:
 	void OnLoad_NewRom();
-	void LoadAchievement( Achievement* pCheevo, BOOL bAttemptKeepScrollbar );
+	void LoadAchievement( Achievement* pCheevo, bool bAttemptKeepScrollbar );
 
 	inline void SetICEControl( HWND hIce )							{ m_hICEControl = hIce; }
 	inline char* LbxDataAt( unsigned int nRow, unsigned int nCol )	{ return m_lbxData[nRow][nCol]; }
@@ -50,8 +50,8 @@ public:
 	HWND GetHWND() const											{ return m_hAchievementEditorDlg; }
 
 	Achievement* ActiveAchievement() const							{ return m_pSelectedAchievement; }
-	BOOL IsPopulatingAchievementEditorData() const					{ return m_bPopulatingAchievementEditorData; }
-	void SetIgnoreEdits( BOOL bIgnore )								{ m_bPopulatingAchievementEditorData = bIgnore; }
+	bool IsPopulatingAchievementEditorData() const					{ return m_bPopulatingAchievementEditorData; }
+	void SetIgnoreEdits( bool bIgnore )								{ m_bPopulatingAchievementEditorData = bIgnore; }
 
 	void UpdateBadge( const std::string& sNewName );							//	Call to set/update data
 	void UpdateSelectedBadgeImage( const std::string& sBackupBadgeToUse = "" );	//	Call to just update the badge image/bitmap
@@ -79,7 +79,7 @@ private:
 	int m_nNumOccupiedRows;
 
 	Achievement* m_pSelectedAchievement;
-	BOOL m_bPopulatingAchievementEditorData;
+	bool m_bPopulatingAchievementEditorData;
 	HBITMAP m_hAchievementBadge;
 
 	BadgeNames m_BadgeNames;

@@ -398,19 +398,10 @@
     <ClCompile Include="..\tile.cpp">
       <Filter>Emu</Filter>
     </ClCompile>
-    <ClCompile Include="..\unzip\ioapi.c">
-      <Filter>UnZip</Filter>
-    </ClCompile>
     <ClCompile Include="..\unzip\iowin32.c">
       <Filter>UnZip</Filter>
     </ClCompile>
     <ClCompile Include="..\unzip\mztools.c">
-      <Filter>UnZip</Filter>
-    </ClCompile>
-    <ClCompile Include="..\unzip\unzip.c">
-      <Filter>UnZip</Filter>
-    </ClCompile>
-    <ClCompile Include="..\unzip\zip.c">
       <Filter>UnZip</Filter>
     </ClCompile>
     <ClCompile Include="_tfwopen.cpp">
@@ -539,6 +530,15 @@
     <ClCompile Include="..\..\RA_Integration\RA_Interface.cpp">
       <Filter>RA_Implementation</Filter>
     </ClCompile>
+    <ClCompile Include="..\unzip\ioapi.c">
+      <Filter>UnZip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\unzip\unzip.c">
+      <Filter>UnZip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\unzip\zip.c">
+      <Filter>UnZip</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="rsrc\nodrop.cur">
@@ -547,6 +547,7 @@
     <None Include="rsrc\rt_manif.bin">
       <Filter>Resource\Other</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\jma\license.txt">

@@ -1,36 +1,37 @@
+#include "RA_PCH.h"
 #include "RA_RichPresence.h"
 #include "RA_Core.h"
 
 RA_RichPresenceInterpretter g_RichPresenceInterpretter;
 
-RA_Lookup::RA_Lookup( const std::string& sDesc )
- :	m_sLookupDescription( sDesc )
+RA_Lookup::RA_Lookup(const std::string& sDesc)
+	: m_sLookupDescription(sDesc)
 {
 }
 
-const std::string& RA_Lookup::Lookup( DataPos nValue ) const
+const std::string& RA_Lookup::Lookup(DataPos nValue) const
 {
-	if( m_lookupData.find( nValue ) != m_lookupData.end() )
-		return m_lookupData.find( nValue )->second;
+	if (m_lookupData.find(nValue) != m_lookupData.end())
+		return m_lookupData.find(nValue)->second;
 
 	static const std::string sUnknown = "Unknown";
 	return sUnknown;
 }
 
-RA_Formattable::RA_Formattable( const std::string& sDesc, RA_Leaderboard::FormatType nType )
- :	m_sLookupDescription( sDesc ),
-	m_nFormatType( nType )
+RA_Formattable::RA_Formattable(const std::string& sDesc, RA_Leaderboard::FormatType nType)
+	: m_sLookupDescription(sDesc),
+	m_nFormatType(nType)
 {
 }
 
-std::string RA_Formattable::Lookup( DataPos nValue ) const
+std::string RA_Formattable::Lookup(DataPos nValue) const
 {
-	char buffer[ 1024 ];
-	RA_Leaderboard::FormatScore( m_nFormatType, nValue, buffer, 1024 );
+	char buffer[1024];
+	RA_Leaderboard::FormatScore(m_nFormatType, nValue, buffer, 1024);
 	return buffer;
 }
 
-void RA_RichPresenceInterpretter::ParseRichPresenceFile( const std::string& sFilename )
+void RA_RichPresenceInterpretter::ParseRichPresenceFile(const std::string& sFilename)
 {
 	m_formats.clear();
 	m_lookups.clear();
@@ -44,76 +45,75 @@ void RA_RichPresenceInterpretter::ParseRichPresenceFile( const std::string& sFil
 	const char* DisplayableStr = "Display:";
 
 	FILE* pFile = NULL;
-	fopen_s( &pFile, sFilename.c_str(), "r" );
-	if( pFile != NULL )
+	fopen_s(&pFile, sFilename.c_str(), "r");
+	if (pFile != NULL)
 	{
 		DWORD nCharsRead = 0;
 		char buffer[4096];
 
-		_ReadTil( EndLine, buffer, 4096, &nCharsRead, pFile );
-		while( nCharsRead != 0 )
+		_ReadTil(EndLine, buffer, 4096, &nCharsRead, pFile);
+		while (nCharsRead != 0)
 		{
-			if( strncmp( LookupStr, buffer, strlen( LookupStr ) ) == 0 )
+			if (strncmp(LookupStr, buffer, strlen(LookupStr)) == 0)
 			{
 				//	Lookup type
-				char* pBuf = buffer + ( strlen( LookupStr ) );
-				RA_Lookup newLookup( _ReadStringTil( EndLine, pBuf, TRUE ) );
-				while( nCharsRead != 0 && ( buffer[0] != EndLine ) )
+				char* pBuf = buffer + (strlen(LookupStr));
+				RA_Lookup newLookup(_ReadStringTil(EndLine, pBuf, true));
+				while (nCharsRead != 0 && (buffer[0] != EndLine))
 				{
-					_ReadTil( EndLine, buffer, 4096, &nCharsRead, pFile );
-					if( nCharsRead > 2 )
+					_ReadTil(EndLine, buffer, 4096, &nCharsRead, pFile);
+					if (nCharsRead > 2)
 					{
 						char* pBuf = &buffer[0];
-						const char* pValue = _ReadStringTil( '=', pBuf, TRUE );
-						const char* pName = _ReadStringTil( EndLine, pBuf, TRUE );
+						const char* pValue = _ReadStringTil('=', pBuf, true);
+						const char* pName = _ReadStringTil(EndLine, pBuf, true);
 
 						int nBase = 10;
-						if( pValue[0] == '0' && pValue[1] == 'x' )
+						if (pValue[0] == '0' && pValue[1] == 'x')
 							nBase = 16;
 
-						DataPos nVal = static_cast<DataPos>( strtol( pValue, NULL, nBase ) );
+						DataPos nVal = static_cast<DataPos>(strtol(pValue, NULL, nBase));
 
-						newLookup.AddLookupData( nVal, pName );
+						newLookup.AddLookupData(nVal, pName);
 					}
 				}
 
-				RA_LOG( "RP: Adding Lookup %s\n", newLookup.Description().c_str() );
-				m_lookups.push_back( newLookup );
-
+				RA_LOG("RP: Adding Lookup %s\n", newLookup.Description().c_str());
+				m_lookups.push_back(newLookup);
 			}
-			else if( strncmp( FormatStr, buffer, strlen( FormatStr ) ) == 0 )
+			else if (strncmp(FormatStr, buffer, strlen(FormatStr)) == 0)
 			{
-				//	
+				//
 				char* pBuf = &buffer[0];
-				const char* pUnused = _ReadStringTil( ':', pBuf, TRUE );
-				std::string sDesc = _ReadStringTil( EndLine, pBuf, TRUE );
+				const char* pUnused = _ReadStringTil(':', pBuf, true);
+				std::string sDesc = _ReadStringTil(EndLine, pBuf, true);
 
-				_ReadTil( EndLine, buffer, 4096, &nCharsRead, pFile );
-				if( nCharsRead > 0 && strncmp( FormatTypeStr, buffer, strlen( FormatTypeStr ) ) == 0 )
+				_ReadTil(EndLine, buffer, 4096, &nCharsRead, pFile);
+				if (nCharsRead > 0 && strncmp(FormatTypeStr, buffer, strlen(FormatTypeStr)) == 0)
 				{
 					char* pBuf = &buffer[0];
-					const char* pUnused = _ReadStringTil( '=', pBuf, TRUE );
-					const char* pType = _ReadStringTil( EndLine, pBuf, TRUE );
-					
+					const char* pUnused = _ReadStringTil('=', pBuf, true);
+					const char* pType = _ReadStringTil(EndLine, pBuf, true);
+
 					RA_Leaderboard::FormatType nType;
 
-					if( strcmp( pType, "SCORE" ) == 0 || strcmp( pType, "POINTS" ) == 0 )
+					if (strcmp(pType, "SCORE") == 0 || strcmp(pType, "POINTS") == 0)
 					{
 						nType = RA_Leaderboard::Format_Score;
 					}
-					else if( strcmp( pType, "TIME" ) == 0 || strcmp( pType, "FRAMES" ) == 0 )
+					else if (strcmp(pType, "TIME") == 0 || strcmp(pType, "FRAMES") == 0)
 					{
 						nType = RA_Leaderboard::Format_TimeFrames;
 					}
-					else if( strcmp( pType, "SECS" ) == 0 )
+					else if (strcmp(pType, "SECS") == 0)
 					{
 						nType = RA_Leaderboard::Format_TimeSecs;
 					}
-					else if( strcmp( pType, "MILLISECS" ) == 0 )
+					else if (strcmp(pType, "MILLISECS") == 0)
 					{
 						nType = RA_Leaderboard::Format_TimeMillisecs;
 					}
-					else if( strcmp( pType, "VALUE" ) == 0 )
+					else if (strcmp(pType, "VALUE") == 0)
 					{
 						nType = RA_Leaderboard::Format_Value;
 					}
@@ -122,59 +122,59 @@ void RA_RichPresenceInterpretter::ParseRichPresenceFile( const std::string& sFil
 						nType = RA_Leaderboard::Format_Other;
 					}
 
-					RA_LOG( "RP: Adding Formatter %s (%s)\n", sDesc.c_str(), pType );
-					m_formats.push_back( RA_Formattable( sDesc, nType ) );
+					RA_LOG("RP: Adding Formatter %s (%s)\n", sDesc.c_str(), pType);
+					m_formats.push_back(RA_Formattable(sDesc, nType));
 				}
 			}
-			else if( strncmp( DisplayableStr, buffer, strlen( DisplayableStr ) ) == 0 )
+			else if (strncmp(DisplayableStr, buffer, strlen(DisplayableStr)) == 0)
 			{
-				_ReadTil( EndLine, buffer, 4096, &nCharsRead, pFile );
-				
-				char* pBuf =  &buffer[0];
-				m_sDisplay = _ReadStringTil( '\n', pBuf, TRUE );	//	Terminates \n instead
+				_ReadTil(EndLine, buffer, 4096, &nCharsRead, pFile);
+
+				char* pBuf = &buffer[0];
+				m_sDisplay = _ReadStringTil('\n', pBuf, true);	//	Terminates \n instead
 			}
 
-			_ReadTil( EndLine, buffer, 4096, &nCharsRead, pFile );
+			_ReadTil(EndLine, buffer, 4096, &nCharsRead, pFile);
 		}
 
-		fclose( pFile );
+		fclose(pFile);
 	}
 }
 
-const std::string& RA_RichPresenceInterpretter::Lookup( const std::string& sName, const std::string& sMemString ) const
+const std::string& RA_RichPresenceInterpretter::Lookup(const std::string& sName, const std::string& sMemString) const
 {
 	static std::string sReturnVal;
 	sReturnVal.clear();
 
 	//	check lookups
-	for( size_t i = 0; i < m_lookups.size(); ++i )
+	for (size_t i = 0; i < m_lookups.size(); ++i)
 	{
-		if( m_lookups.at( i ).Description().compare( sName ) == 0 )
+		if (m_lookups.at(i).Description().compare(sName) == 0)
 		{
 			//	This lookup! (ugh must be non-const)
 			char buffer[1024];
-			sprintf_s( buffer, 1024, (char*)sMemString.c_str() );
+			sprintf_s(buffer, 1024, (char*)sMemString.c_str());
 
 			ValueSet nValue;
-			nValue.ParseMemString( buffer );
-			sReturnVal = m_lookups.at( i ).Lookup( static_cast<DataPos>( nValue.GetValue() ) );
+			nValue.ParseMemString(buffer);
+			sReturnVal = m_lookups.at(i).Lookup(static_cast<DataPos>(nValue.GetValue()));
 
 			return sReturnVal;
 		}
 	}
 
 	//	check formatters
-	for( size_t i = 0; i < m_formats.size(); ++i )
+	for (size_t i = 0; i < m_formats.size(); ++i)
 	{
-		if( m_formats.at( i ).Description().compare( sName ) == 0 )
+		if (m_formats.at(i).Description().compare(sName) == 0)
 		{
 			//	This lookup! (ugh must be non-const)
 			char buffer[1024];
-			sprintf_s( buffer, 1024, (char*)sMemString.c_str() );
+			sprintf_s(buffer, 1024, (char*)sMemString.c_str());
 
 			ValueSet nValue;
-			nValue.ParseMemString( buffer );
-			sReturnVal = m_formats.at( i ).Lookup( static_cast<DataPos>( nValue.GetValue() ) );
+			nValue.ParseMemString(buffer);
+			sReturnVal = m_formats.at(i).Lookup(static_cast<DataPos>(nValue.GetValue()));
 
 			return sReturnVal;
 		}
@@ -194,32 +194,32 @@ const std::string& RA_RichPresenceInterpretter::GetRichPresenceString()
 	std::string sLookupName;
 	std::string sLookupValue;
 
-	for( size_t i = 0; i < m_sDisplay.size(); ++i )
+	for (size_t i = 0; i < m_sDisplay.size(); ++i)
 	{
-		char c = m_sDisplay.at( i );
+		char c = m_sDisplay.at(i);
 
-		if( bParsingLookupContent )
+		if (bParsingLookupContent)
 		{
-			if( c == ')' )
+			if (c == ')')
 			{
 				//	End of content
-				bParsingLookupContent = false;	
+				bParsingLookupContent = false;
 
 				//	Lookup!
 
-				sReturnVal.append( Lookup( sLookupName, sLookupValue ) );
+				sReturnVal.append(Lookup(sLookupName, sLookupValue));
 
 				sLookupName.clear();
 				sLookupValue.clear();
 			}
 			else
 			{
-				sLookupValue.push_back( c );
+				sLookupValue.push_back(c);
 			}
 		}
-		else if( bParsingLookupName )
+		else if (bParsingLookupName)
 		{
-			if( c == '(' )
+			if (c == '(')
 			{
 				//	Now parsing lookup content
 				bParsingLookupContent = true;
@@ -228,20 +228,20 @@ const std::string& RA_RichPresenceInterpretter::GetRichPresenceString()
 			else
 			{
 				//	Continue to parse lookup name
-				sLookupName.push_back( c );
+				sLookupName.push_back(c);
 			}
 		}
 		else
 		{
 			//	Not parsing a lookup at all.
-			if( c == '@' )
+			if (c == '@')
 			{
 				bParsingLookupName = true;
 			}
 			else
 			{
 				//	Standard text.
-				sReturnVal.push_back( c );
+				sReturnVal.push_back(c);
 			}
 		}
 	}
@@ -250,12 +250,12 @@ const std::string& RA_RichPresenceInterpretter::GetRichPresenceString()
 }
 
 //	static
-void RA_RichPresenceInterpretter::PersistAndParseScript( GameID nGameID, const std::string& str )
+void RA_RichPresenceInterpretter::PersistAndParseScript(GameID nGameID, const std::string& str)
 {
 	//	Read to file:
-	SetCurrentDirectory( Widen( g_sHomeDir ).c_str() );
-	_WriteBufferToFile( RA_DIR_DATA + std::to_string( nGameID ) + "-Rich.txt", str );
-						
+	SetCurrentDirectory(Widen(g_sHomeDir).c_str());
+	_WriteBufferToFile(RA_DIR_DATA + std::to_string(nGameID) + "-Rich.txt", str);
+
 	//	Then install it
-	g_RichPresenceInterpretter.ParseRichPresenceFile( RA_DIR_DATA + std::to_string( nGameID ) + "-Rich.txt" );
+	g_RichPresenceInterpretter.ParseRichPresenceFile(RA_DIR_DATA + std::to_string(nGameID) + "-Rich.txt");
 }
