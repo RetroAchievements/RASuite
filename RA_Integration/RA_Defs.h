@@ -23,15 +23,15 @@
 
 //	RA-Only
 #pragma region RapidJSON Directives
-#include "rapidjson/include/rapidjson/document.h"
-#include "rapidjson/include/rapidjson/reader.h"
-#include "rapidjson/include/rapidjson/writer.h"
-#include "rapidjson/include/rapidjson/filereadstream.h"
-#include "rapidjson/include/rapidjson/filewritestream.h"
-#include "rapidjson/include/rapidjson/stringbuffer.h"
+#include "rapidjson/document.h"
+#include "rapidjson/reader.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/filereadstream.h"
+#include "rapidjson/filewritestream.h"
+#include "rapidjson/stringbuffer.h"
 #pragma endregion
 
-#include "rapidjson/include/rapidjson/error/en.h"
+#include "rapidjson/error/en.h"
 using namespace rapidjson;
 extern GetParseErrorFunc GetJSONParseErrorStr;
 

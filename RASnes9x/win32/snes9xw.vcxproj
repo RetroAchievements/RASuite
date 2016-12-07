@@ -154,7 +154,7 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\packages\DXSDK_Missing.1.0.0\Include;$(ProjectDir);$(ProjectDir)..\;$(ProjectDir)..\..\;$(ProjectDir)..\apu\bapu;$(ProjectDir)..\libpng;$(ProjectDir)..\unzip;$(ProjectDir)..\..\common;$(ProjectDir)..\..\FMOD\api\inc;$(ProjectDir)..\..\RA_Integration;$(ProjectDir)..\zlib;$(ProjectDir)..\zlib\contrib\minizip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\packages\DXSDK_Missing.1.0.0\Include;$(ProjectDir);$(ProjectDir)..\;$(ProjectDir)..\..\;$(ProjectDir)..\apu\bapu;$(ProjectDir)..\libpng;$(ProjectDir)..\unzip;$(ProjectDir)..\..\common;$(ProjectDir)..\..\FMOD\api\inc;$(ProjectDir)..\..\RA_Integration;$(SolutionDir)packages\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\include;$(SolutionDir)packages\libpng.1.6.26.1\build\native\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;HAVE_LIBPNG;ZLIB;JMA_SUPPORT;UNZIP_SUPPORT;__WIN32__;NETPLAY_SUPPORT;D3D_DEBUG_INFO;RA_SNES9X;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
@@ -177,8 +177,8 @@ if %ERRORLEVEL% LEQ 3 exit 0</Command>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>comctl32.lib;ddraw.lib;delayimp.lib;dsound.lib;dxguid.lib;glu32.lib;libpngd.lib;msxml2.lib;opengl32.lib;shlwapi.lib;vfw32.lib;winhttp.lib;winmm.lib;wsock32.lib;zlibstatd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)..\..\packages\DXSDK_Missing.1.0.0\Lib\x86;$(ProjectDir)..\libpng\projects\vc14\Win32_LIB_Debug;$(ProjectDir)..\zlib\contrib\vstudio\vc14\x86\ZlibStatRelease;$(ProjectDir)..\zlib\contrib\vstudio\vc14\x86\ZlibStatDebug;$(ProjectDir)..\libpng\projects\vc14\Win32_LIB_Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>comctl32.lib;ddraw.lib;delayimp.lib;dsound.lib;dxguid.lib;glu32.lib;libpng16.lib;msxml2.lib;opengl32.lib;shlwapi.lib;vfw32.lib;winhttp.lib;winmm.lib;wsock32.lib;zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)packages\DXSDK_Missing.1.0.0\Lib\x86;$(SolutionDir)packages\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\lib\native\v140\windesktop\msvcstl\dyn\rt-dyn\Win32\Debug;$(SolutionDir)packages\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\lib\native\v140\windesktop\msvcstl\dyn\rt-dyn\Win32\Release;$(SolutionDir)packages\libpng.1.6.26.1\build\native\lib\Win32\v140\dynamic\Debug;$(SolutionDir)packages\libpng.1.6.26.1\build\native\lib\Win32\v140\dynamic\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EnableUAC>false</EnableUAC>
       <DelayLoadDLLs>fmod.dll;fmodex.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
