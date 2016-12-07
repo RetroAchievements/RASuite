@@ -530,13 +530,13 @@
     <ClCompile Include="..\..\RA_Integration\RA_Interface.cpp">
       <Filter>RA_Implementation</Filter>
     </ClCompile>
-    <ClCompile Include="..\zlib\contrib\minizip\unzip.c">
+    <ClCompile Include="..\unzip\ioapi.c">
       <Filter>UnZip</Filter>
     </ClCompile>
-    <ClCompile Include="..\zlib\contrib\minizip\zip.c">
+    <ClCompile Include="..\unzip\unzip.c">
       <Filter>UnZip</Filter>
     </ClCompile>
-    <ClCompile Include="..\zlib\contrib\minizip\ioapi.c">
+    <ClCompile Include="..\unzip\zip.c">
       <Filter>UnZip</Filter>
     </ClCompile>
   </ItemGroup>

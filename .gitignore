@@ -29,13 +29,11 @@ Thumbs.db
 
 #Ignore specific folders
 .vs/
-/RA_Integration/Debug
-/RASnes9x/backup/libpng/
-/RASnes9x/backup/zlib/
+RA_Integration/Debug
 bizhawk/
 RAGens/
 RANes/
-/packages/DXSDK_Missing.1.0.0
+packages/
 
 #Ignore specific files
 /RA_Integration/LiveTag.txt
@@ -47,11 +45,4 @@ RANes/
 /RA_Integration/targetver.h
 
 
-/packages/libpng.1.6.26.1/build
-/packages/libpng.redist.1.6.26.1/build
-/packages/rapidjson.1.0.2/build
-/packages/zlib.v120.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8/build/native/zlib.v120.windesktop.msvcstl.dyn.rt-dyn.targets
-/packages/zlib.v120.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8/build/native/zlib.v120.windesktop.msvcstl.dyn.rt-dyn.x64.targets
-/packages/zlib.v120.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8/build/native/zlib.v120.windesktop.msvcstl.dyn.rt-dyn.x86.targets
-/packages/zlib.v140.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8/license
-*.targets
+
