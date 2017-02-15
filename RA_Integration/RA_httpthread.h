@@ -69,6 +69,7 @@ extern const char* RequestTypeToString[];
 typedef std::map<char, std::string> PostArgs;
 
 extern std::string PostArgsToString( const PostArgs& args );
+extern std::string UrlEncodeString(const std::string &src);
 
 class RequestObject
 {

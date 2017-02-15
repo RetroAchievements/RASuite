@@ -254,7 +254,12 @@ BOOL RAWeb::DoBlockingRequest( RequestType nType, const PostArgs& PostData, Data
 {
 	PostArgs args = PostData;				//	Take a copy
 	args['r'] = RequestTypeToPost[ nType ];	//	Embed request type
-	
+
+	if (args['r'] == RequestTypeToPost[RequestType::RequestLogin])
+	{
+		args['p'] = UrlEncodeString(args['p']);
+	}
+
 	switch( nType )
 	{
 	case RequestUserPic:
@@ -875,4 +880,30 @@ std::string PostArgsToString( const PostArgs& args )
 	std::replace( str.begin(), str.end(), ' ', '+' );
 
 	return str;
+}
+
+char to_hex(char code) {
+	static char hex[] = "0123456789ABCDEF";
+	return hex[code & 15];
+}
+
+std::string UrlEncodeString(const std::string &src)
+{
+    std::string buf = "";
+	for (std::string::const_iterator i = src.begin(), n = src.end(); i != n; ++i)
+	{
+		std::string::value_type c = (*i);
+
+		if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~')
+		{
+			buf += c;
+			continue;
+		}
+
+		buf += '%';
+		buf += to_hex(c >> 4);
+		buf += to_hex(c & 15);
+	}
+
+	return buf;
 }
