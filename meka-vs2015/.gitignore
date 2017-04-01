@@ -1,0 +1,29 @@
+# User data
+meka/Debug
+meka/Music
+meka/Saves
+meka/Screenshots
+
+# Developer data
+meka/objs
+meka/meka.dsk
+meka/meka.fdb
+meka/mekaw.cfg
+meka/mekaw.exe
+meka/mekaw.ilk
+meka/smsid.exe
+meka/smsid.ilk
+meka/srcs/projects/msvc/Meka.ncb
+meka/libs/allegro
+meka/libs/allegro_deps
+allegro.log
+*.opensdf
+*.sdf
+*.suo
+*.ipch
+*.vcproj.*.user
+*.vcxproj.user
+meka/srcs/obj
+meka/Dist
+*.opendb
+meka/srcs/projects/msvc/packages
