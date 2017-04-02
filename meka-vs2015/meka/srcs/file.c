@@ -558,6 +558,9 @@ static int      Load_ROM_Init_Memory ()
     return (0);
 }
 
+
+#include "RA_Interface.h"
+
 // LOAD A ROM INTO MEMORY, RESET SYSTEM AND VARIOUS STUFF.. -------------------
 int             Load_ROM_Main ()
 {
@@ -592,6 +595,29 @@ int             Load_ROM_Main ()
 
     // Now done in Load_ROM_xxx()
     // g_machine.driver_id = drv_get_from_ext (file.temp);
+
+	//RA
+	if (g_machine.driver_id == DRV_SMS & err == MEKA_ERR_OK) {
+
+		//Multithreaded code so need to set proper director or RA will leave log files etc lying all over the filesystem
+
+		char meka_currDir[2048];
+		GetCurrentDirectory(2048, meka_currDir);
+		SetCurrentDirectory(RA_rootDir);
+		
+		
+		//Just giving RA the 8k of z80 RAM
+		//Meka allocates this in a segment of the RAM variable in a confusing way using the Map_8k_RAM function
+		//Have determined that, while in SMS mode, the 8k of z80 ram is contained in the first 8k of RAM (pointed to by Mem_Pages[0] ?)(Am not confident that this ram is being allocated correctly actually)
+		//Be wary of this 
+		//Note: Instead of starting at 0xc000, master system memory will start at 0x0000
+		//See: Machine_Set_Mapping() g_machine.mapper=default? 
+		//RA_OnLoadNewRom(ROM, tsms.Size_ROM, RAM, 0x10000, NULL, 0);  //previously gave the whole 64k RAM file
+		RA_OnLoadNewRom(ROM, tsms.Size_ROM, RAM, 0x2000, NULL, 0);
+
+
+		SetCurrentDirectory(meka_currDir); //give back directory state to meka.
+	}
 
     return (meka_errno = err);
 }

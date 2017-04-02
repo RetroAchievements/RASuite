@@ -50,35 +50,9 @@
       <UniqueIdentifier>{a733b7ed-c60b-481a-b5d2-841729f0bd9f}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\..\..\changes.txt">
-      <Filter>Docs</Filter>
-    </Text>
-    <Text Include="..\..\..\compat.txt">
-      <Filter>Docs</Filter>
-    </Text>
-    <Text Include="..\..\..\debugger.txt">
-      <Filter>Docs</Filter>
-    </Text>
-    <Text Include="..\..\..\history.txt">
-      <Filter>Docs</Filter>
-    </Text>
-    <Text Include="..\..\..\meka.txt">
-      <Filter>Docs</Filter>
-    </Text>
-    <Text Include="..\..\..\multi.txt">
-      <Filter>Docs</Filter>
-    </Text>
-    <Text Include="..\..\..\sources.txt">
-      <Filter>Docs</Filter>
-    </Text>
-    <Text Include="..\..\..\tech.txt">
-      <Filter>Docs</Filter>
-    </Text>
-    <Text Include="..\..\..\todo.txt">
-      <Filter>Docs</Filter>
-    </Text>
+    <Filter Include="RA_Implementation">
+      <UniqueIdentifier>{560eb8ea-ed51-403a-ae95-6d3794dde6b2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\meka.blt">
@@ -444,6 +418,12 @@
     <ClCompile Include="..\..\debugger.c">
       <Filter>Srcs\Debugger</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\RA_Implementation.cpp">
+      <Filter>RA_Implementation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\RA_Integration\RA_Interface.cpp">
+      <Filter>RA_Implementation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\allegro4to5.h">
@@ -805,6 +785,12 @@
     </ClInclude>
     <ClInclude Include="..\..\debugger.h">
       <Filter>Srcs\Debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\RA_Implementation.h">
+      <Filter>RA_Implementation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\RA_Integration\RA_Interface.h">
+      <Filter>RA_Implementation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

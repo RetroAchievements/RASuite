@@ -511,4 +511,8 @@ void    ConsolePrint        (const char *msg);
 void    ConsoleEnablePause  (void);
 bool    ConsoleWaitForAnswer(bool allow_run);
 
+#ifdef ARCH_WIN32
+//RetroAchievments
+HWND	ConsoleHWND			(void);  //Just going to use the console window to attach the RA menu to.
+#endif
 //-----------------------------------------------------------------------------

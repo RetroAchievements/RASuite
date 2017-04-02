@@ -23,6 +23,14 @@ int     CPU_ForceNMI;   // Set to force a NMI (currently only supported by the S
 // Note: only MARAT_Z80 is functional/compiles now.
 //-----------------------------------------------------------------------------
 
+
+//RA
+#include "RA_Resource.h" 
+#include "RA_Interface.h"
+#include "RA_Implementation.h"
+
+char meka_currDir[2048];
+
 // Z80 scanline handler
 word    Loop_SMS (void)
 {
@@ -60,6 +68,18 @@ word    Loop_SMS (void)
             //if (g_driver->vdp == VDP_TMS)
             //   Check_Sprites_Collision_Modes_1_2_3();
             // Msg(MSGT_DEBUG, "Loop_SMS: Video_RefreshScreen()");
+
+			//RA
+			//This looks to be as good a place as any to add the RA call, but we're pretty deep in.
+			{
+				//char meka_currDir[2048];
+				GetCurrentDirectory(2048, meka_currDir); // "where'd you get the multithreaded code, Ted?"
+
+				RA_DoAchievementsFrame();
+				RA_HandleHTTPResults();
+
+				SetCurrentDirectory(meka_currDir); // "Cowboys Ted! They're a bunch of cowboys!"
+			}
             Video_RefreshScreen();
             if ((opt.Force_Quit) || (CPU_Loop_Stop))
                 Macro_Stop_CPU;

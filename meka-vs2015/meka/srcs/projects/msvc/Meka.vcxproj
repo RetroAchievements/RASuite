@@ -13,12 +13,12 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E4B91824-CCCF-4BA5-9CC1-52E75CDA8EE3}</ProjectGuid>
     <RootNamespace>Meka</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>7.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <UseOfAtl>false</UseOfAtl>
     <CharacterSet>MultiByte</CharacterSet>
@@ -26,7 +26,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -79,7 +79,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../..;../../../libs/allegro/include/;../../../libs/allegro_deps/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../../../RA_Integration/;../..;../../../libs/allegro/include/;../../../libs/allegro_deps/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;DEBUGMODE;_WINDOWS;X86_ASM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>false</StringPooling>
       <MinimalRebuild>true</MinimalRebuild>
@@ -117,12 +117,15 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);winhttp.lib;</AdditionalDependencies>
     </Link>
     <CustomBuildStep />
     <Manifest>
       <EnableDpiAwareness>true</EnableDpiAwareness>
     </Manifest>
+    <PostBuildEvent>
+      <Command>copy "$(ProjectDir)\..\..\..\..\..\RA_Integration\RA_Integration_d.dll" "$(ProjectDir)..\..\..\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
@@ -134,7 +137,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../..;../../../libs/allegro/include/;../../../libs/allegro_deps/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../../../RA_Integration/;../..;../../../libs/allegro/include/;../../../libs/allegro_deps/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;X86_ASM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
@@ -175,22 +178,11 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);winhttp.lib;</AdditionalDependencies>
     </Link>
     <CustomBuildStep />
     <Manifest />
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <Text Include="..\..\..\changes.txt" />
-    <Text Include="..\..\..\compat.txt" />
-    <Text Include="..\..\..\debugger.txt" />
-    <Text Include="..\..\..\history.txt" />
-    <Text Include="..\..\..\meka.txt" />
-    <Text Include="..\..\..\multi.txt" />
-    <Text Include="..\..\..\sources.txt" />
-    <Text Include="..\..\..\tech.txt" />
-    <Text Include="..\..\..\todo.txt" />
-  </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\meka.blt" />
     <None Include="..\..\..\meka.dsk" />
@@ -225,6 +217,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\RA_Integration\RA_Interface.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\..\allegro4to5.c" />
     <ClCompile Include="..\..\app_about.c" />
     <ClCompile Include="..\..\app_cheatfinder.c" />
@@ -299,6 +295,10 @@
     <ClCompile Include="..\..\patch.c" />
     <ClCompile Include="..\..\periph.c" />
     <ClCompile Include="..\..\rapidfir.c" />
+    <ClCompile Include="..\..\RA_Implementation.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\..\saves.c" />
     <ClCompile Include="..\..\sdsc.c" />
     <ClCompile Include="..\..\setup.c" />
@@ -350,6 +350,7 @@
     <ClCompile Include="..\..\z80marat\Z80DebugHelpers.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\RA_Integration\RA_Interface.h" />
     <ClInclude Include="..\..\allegro4to5.h" />
     <ClInclude Include="..\..\app_about.h" />
     <ClInclude Include="..\..\app_cheatfinder.h" />
@@ -424,6 +425,7 @@
     <ClInclude Include="..\..\patch.h" />
     <ClInclude Include="..\..\periph.h" />
     <ClInclude Include="..\..\rapidfir.h" />
+    <ClInclude Include="..\..\RA_Implementation.h" />
     <ClInclude Include="..\..\saves.h" />
     <ClInclude Include="..\..\sdsc.h" />
     <ClInclude Include="..\..\setup.h" />
@@ -476,6 +478,11 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="mekaw.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\RA_Integration\RA_Integration.vcxproj">
+      <Project>{825cb292-f069-4b27-82cf-3417746acdf3}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

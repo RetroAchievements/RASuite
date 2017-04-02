@@ -18,6 +18,11 @@
 #include "vdp.h"
 #include "video.h"
 
+//RA
+#include "RA_Interface.h"
+
+void RenderAchievementOverlays();
+
 //-----------------------------------------------------------------------------
 // Data
 //-----------------------------------------------------------------------------
@@ -35,6 +40,7 @@ t_video_driver	g_video_drivers[] =
 };
 
 t_video_driver*	g_video_driver_default = &g_video_drivers[0];
+
 
 //-----------------------------------------------------------------------------
 // Functions
@@ -406,6 +412,7 @@ void	Video_UpdateEvents()
 // This is called when line == tsms.VDP_Line_End
 void    Video_RefreshScreen()
 {
+
 	PROFILE_STEP("Video_RefreshScreen()");
 
 	Screenbuffer_ReleaseLock();
@@ -443,6 +450,7 @@ void    Video_RefreshScreen()
 
 			Blit_GUI();
 			PROFILE_STEP("Blit_GUI()");
+
         }
 
         if (g_env.state == MEKA_STATE_GAME)
@@ -461,6 +469,7 @@ void    Video_RefreshScreen()
 
             // Blit emulated screen in fullscreen mode
             Blit_Fullscreen();
+
         }
 
         // Palette update after redraw
@@ -491,13 +500,108 @@ void    Video_RefreshScreen()
                 Screen_Restore_from_Next_Buffer();
         #endif
     }
+	
+	RenderAchievementOverlays(); //Simply cannot render on top of allegro without introducing flicker.
+	//Must render on Console window instead, sorry.
 
     // Ask frame-skipper whether next frame should be drawn or not
     fskipper.Show_Current_Frame = Frame_Skipper();
 	PROFILE_STEP("Frame_Skipper()");
 
+
 	Screenbuffer_AcquireLock();
 	PROFILE_STEP("Screenbuffer_AcquireLock()");
+
+
+}
+
+
+void RenderAchievementOverlays() {
+	//#RA:
+	//So alegro is finished flipping screenbuffers?
+	//So we can draw the overlays now, right?
+	//WARNING: Ugly Hack
+
+	HWND MekaWND;
+	HDC  hDC; //Direct context (HAVE to release after use)
+
+	//Really need a proper Win32 Window to draw the overlay on
+	MekaWND = al_get_win_window_handle(g_display); //This works, but Too much flicker.
+	//MekaWND = ConsoleHWND(); // This works, but redraw is awful.
+	hDC = GetDC(MekaWND);
+
+	static int nOldTime = GetTickCount(); //Time in ms I presume
+
+	int nDelta = GetTickCount() - nOldTime;
+	nOldTime = GetTickCount();
+
+
+	RECT rcSize;
+	//int display_width = al_get_display_width(g_display);
+	//int display_height = al_get_display_height(g_display);
+
+	//SetRect(&rcSize, 0, 0, display_width, display_height);
+	GetClientRect(MekaWND, &rcSize);
+	
+	ControllerInput input; // This has to be passed to the overlay
+	input.m_bUpPressed = 0;
+	input.m_bDownPressed = 0;
+	input.m_bLeftPressed = 0;
+	input.m_bRightPressed = 0;
+	input.m_bCancelPressed = 0;
+	input.m_bConfirmPressed = 0;
+	input.m_bQuitPressed = 0;
+
+	bool meka_paused = (g_machine_flags & MACHINE_PAUSED);
+	bool meka_fullscreen = FALSE; // just going to set this
+
+	/* No
+	
+								//Need to prevent flicker with a custom double buffer on top of allegro's buffers.
+								//This hack just became a massive pain
+								  // Create an off-screen DC for double-buffering
+								  static HDC			hdcMem = NULL;
+								  static HBITMAP      hbmMem = NULL;
+								  static HANDLE		hbmOld = NULL; //Really need this?
+								  static HBRUSH		hbrBkGnd;
+								  static COLORREF		blk = GetSysColor(COLOR_BACKGROUND);
+
+								  if (!hdcMem) {
+								  // Create an off-screen DC for double-buffering
+								  hdcMem = CreateCompatibleDC(hDC);
+								  hbmMem = CreateCompatibleBitmap(hDC, display_width, display_height); //allegro had better not change the display size, etc (Meka doesn't seem to do this)
+								  hbrBkGnd = CreateSolidBrush(blk);
+								  hbmOld = SelectObject(hdcMem, hbmMem);
+
+								  SetBkColor(hdcMem, blk);
+								  }
+
+
+								  //Paint to offscreen direct context buffer with transparency
+								  //SetBkColor(hdcMem, GetSysColor(COLOR_WINDOW));
+								  SetBkColor(hdcMem, blk);
+								  FillRect(hdcMem, &rcSize, hbrBkGnd);
+								  //SetBkColor(hdcMem, GetSysColor(COLOR_WINDOW));
+								  SetBkColor(hdcMem, blk);
+								  SetBkMode(hdcMem, TRANSPARENT);
+
+
+								  //RA_UpdateRenderOverlay(hDC, &input, ((float)nDelta / 1000.0f), &rcSize, meka_fullscreen, meka_paused);
+								  //RA_UpdateRenderOverlay(hdcMem, &input, ((float)nDelta / 1000.0f), &rcSize, meka_fullscreen, meka_paused);
+
+								  //
+								  // Blt the changes to the screen DC.
+								  //BitBlt(hDC, rcSize.left, rcSize.top, 	rcSize.right - rcSize.left, rcSize.bottom - rcSize.top, hdcMem,	0, 0, SRCCOPY);
+								  //BitBlt(hDC, 0, 0, display_width, display_height, hdcMem, 0, 0, SRCCOPY); // "A funeral! You let Dougal do a funeral!!"
+								  End No */							  
+								  //char meka_currDir[2048];
+	char meka_currDir[2048];
+	GetCurrentDirectory(2048, meka_currDir); // "where'd you get the multithreaded code, Ted?"
+	RA_UpdateRenderOverlay(hDC, &input, ((float)nDelta / 1000.0f), &rcSize, meka_fullscreen, meka_paused);
+	SetCurrentDirectory(meka_currDir); // "Cowboys Ted! They're a bunch of cowboys!"
+	ReleaseDC(MekaWND, hDC);
+
+
 }
 
 t_video_driver*	VideoDriver_FindByName(const char* name)

@@ -32,12 +32,34 @@ int g_machine_pause_requests = 0;
 // Functions
 //-----------------------------------------------------------------------------
 
+
+//##RA
+#include "RA_Interface.h"
+
+void	Machine_UnPause() { //RA needs an explicit unpause function
+
+	if (g_machine_flags & MACHINE_PAUSED) { //Is paused
+		Machine_Pause(); //Unpause it
+	}
+
+}
+
 void    Machine_Pause()
 {
     g_machine_flags ^= MACHINE_PAUSED;
     CPU_Loop_Stop = TRUE;
     if (g_machine_pause_requests > 0)
         g_machine_pause_requests--;
+
+	//RA
+	if (g_driver->id == DRV_SMS) { // only SMS machine handled for now.
+		{
+			char meka_currDir[2048];
+			GetCurrentDirectory(2048, meka_currDir); // "where'd you get the multithreaded code, Ted?"
+			RA_SetPaused(( g_machine_flags & MACHINE_PAUSED) != 0);
+			SetCurrentDirectory(meka_currDir); // "Cowboys Ted! They're a bunch of cowboys!"
+		}
+	}
 
     // Verbose
     if (g_machine_flags & MACHINE_PAUSED)

@@ -781,6 +781,15 @@ void    Messages_Close()
     list_free_no_elem(&Messages.Langs);
 }
 
+
+#ifdef ARCH_WIN32
+//RetroAchievments
+HWND ConsoleHWND(void) {
+
+	return ConsoleWin32.hwnd;
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // ConsoleInit (void)
 // Initialize text output console.
@@ -1054,7 +1063,7 @@ static DWORD WINAPI ConsoleWin32_Thread(LPVOID data)
         return (DWORD)-1;
     }
     c->hwnd_edit = GetDlgItem(c->hwnd, IDC_CONSOLE_TEXT);
-
+	
     // Show window
     ConsoleWin32_Show(c);
 
@@ -1126,8 +1135,18 @@ static int CALLBACK ConsoleWin32_DialogProc(HWND hDlg, UINT message, WPARAM wPar
                 }
             }
 
-            // ...
-            return 0;
+			#include "RA_Resource.h"
+			#include "RA_Interface.h"
+			//	##RA
+			if (LOWORD(wParam) >= IDM_RA_MENUSTART &&
+				LOWORD(wParam) < IDM_RA_MENUEND)
+			{
+				RA_InvokeDialog(LOWORD(wParam));
+				return 0;
+			}
+			// ...
+			return 0;
+
         }
     case WM_CLOSE:
         {
@@ -1237,6 +1256,7 @@ static void        ConsoleWin32_Print(t_console_win32 *c, char *s)
     SendMessage(c->hwnd_edit, EM_REPLACESEL, FALSE, (LPARAM)text);
     free(text);
 }
+
 
 #endif // ARCH_WIN32
 

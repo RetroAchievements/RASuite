@@ -43,6 +43,16 @@
 /RA_Integration/*.user
 /RA_Integration/*.idb
 
+/meka-vs2015/meka/RA_Integration*.dll
+/meka-vs2015/meka/RA_Keys*.dll
+/meka-vs2015/meka/*.pdb
+/meka-vs2015/meka/*.cfg
+/meka-vs2015/meka/*.obj
+/meka-vs2015/meka/*.bsc
+/meka-vs2015/meka/srcs/projects/msvc/*.VC.db
+/meka-vs2015/meka/RACache/*
+
+
 /RAGens/win32/Backup
 /RAGens/win32/*.opensdf
 /RAGens/win32/*.sdf

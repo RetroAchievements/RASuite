@@ -140,6 +140,17 @@ API BOOL CCONV _RA_InitI( HWND hMainHWND, /*enum EmulatorID*/int nEmulatorID, co
 		g_sClientDownloadURL	= "RAPCE.zip";
 		g_sClientEXEName		= "RAPCE.exe";
 		break;
+
+	case RA_Meka:
+		g_ConsoleID = 11; // True only for SMS games. Current model here only supports one Console per emulator
+		g_sGetLatestClientPage = "LatestRAMekaVersion.html"; //doesn't actually exist
+		g_sClientVersion = sClientVer;
+		g_sClientName = "RAMeka";
+		g_sClientDownloadURL = "RAMeka.zip";
+		g_sClientEXEName = "RAMeka.exe";
+		break; // code is a formality. Will presently need checks not to perform any of this 
+
+
 	default:
 		break;
 	}

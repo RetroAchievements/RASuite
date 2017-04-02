@@ -22,6 +22,7 @@ enum EmulatorID
 	RA_Nester,
 	RA_FCEUX,
 	RA_PCE,
+	RA_Meka = 11,  // not sure if EmulatorID is sometimes being used in place of ConsoleID sometimes so playing this safe
 
 	RA__MAX
 };

@@ -16,6 +16,9 @@
 #include "sound/fmunit.h"
 #include "sound/psg.h"
 
+//##RA
+#include "RA_Interface.h"
+
 //-----------------------------------------------------------------------------
 // Functions
 //-----------------------------------------------------------------------------
@@ -155,7 +158,19 @@ void        SaveState_Save()
         fclose (f);
     }
 
+
+	
+
     StrPath_RemoveDirectory (buf);
+
+	//#RA
+	{
+		char meka_currDir[2048];
+		GetCurrentDirectory(2048, meka_currDir);
+		SetCurrentDirectory(RA_rootDir);
+		RA_OnSaveState(buf);
+		SetCurrentDirectory(meka_currDir);
+	}
     switch (result)
     {
     case 1: Msg(MSGT_USER, Msg_Get(MSG_Save_Success), buf);
@@ -204,7 +219,19 @@ void        SaveState_Load()
         fclose (f);
     }
 
+
+
     StrPath_RemoveDirectory (buf);
+
+	//#RA
+	{
+		char meka_currDir[2048];
+		GetCurrentDirectory(2048, meka_currDir);
+		//SetCurrentDirectory(RA_rootDir);
+		RA_OnLoadState(buf);
+		//SetCurrentDirectory(meka_currDir);
+	}
+
     switch (result)
     {
     case 1: Msg(MSGT_USER, Msg_Get(MSG_Load_Success), buf);
@@ -321,6 +348,7 @@ int     Save_Game_MSV (FILE *f)
  
     // Write "EOF" characters
     fwrite ("EOF", 3, 1, f);
+
 
     return (1);
 }

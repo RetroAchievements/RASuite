@@ -15,7 +15,7 @@
 #else
 
 //NB. These must NOT be accessible from the emulator!
-#define RA_INTEGRATION_VERSION	"0.051"
+#define RA_INTEGRATION_VERSION	"0.0510535"  // sms 535 (sue me)
 
 #endif	//RA_EXPORTS
 
@@ -32,7 +32,7 @@
 #define RA_SERVER_POLL_DURATION 1*60
 
 #if defined _DEBUG
-#define RA_HOST "localhost"
+#define RA_HOST "retroachievements.org" //no good for most!
 #else
 #define RA_HOST "retroachievements.org"
 #endif

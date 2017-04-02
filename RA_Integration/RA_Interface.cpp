@@ -366,6 +366,7 @@ const char* CCONV _RA_InstallIntegration()
 	
 #ifndef NDEBUG
 	g_hRADLL = LoadLibrary( TEXT( "RA_Integration_d.dll" ) );
+	//g_hRADLL = LoadLibrary(TEXT("RA_Integration.dll")); // Have to work from downloaded RA_Integration.dll for this build.
 #else
 	g_hRADLL = LoadLibrary( TEXT( "RA_Integration.dll" ) );
 #endif
