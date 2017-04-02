@@ -150,8 +150,7 @@ void LocalRAUser::AttemptLogin()
 	g_LocalUser.m_bIsLoggedIn = FALSE;
 
 
-	if( FALSE && //AttemptSilentLogin always fails or never worked, so make this always fail and prompt for signin.
-		g_LocalUser.m_sUsername != NULL && g_LocalUser.m_sUsername[0] != '\0' )
+	if(g_LocalUser.m_sUsername != NULL && g_LocalUser.m_sToken[0] != '\0' )
 	{
 		//AttemptSilentLogin(); // I hate c++
 		g_LocalUser.AttemptSilentLogin();
@@ -175,9 +174,13 @@ void LocalRAUser::AttemptSilentLogin()
 	sprintf_s(sRequest, 512, "u=%s&t=%s", g_LocalUser.m_sUsername, g_LocalUser.m_sToken);
 	
 	//	Attempt a sign in as well, in order to fetch score and latest messages etc
-	CreateHTTPRequestThread("requestlogin.php", sRequest, HTTPRequest_Post, 1 , NULL );
+	BOOL bValid = TRUE;
+	bValid = CreateHTTPRequestThread("requestlogin.php", sRequest, HTTPRequest_Post, 1 , NULL );
 
 	m_bStoreToken = TRUE;	//	Store it! We just fetched it!
+
+	if (bValid)
+		Login(g_LocalUser.m_sUsername, g_LocalUser.m_sToken, TRUE, g_LocalUser.m_nLatestScore, 0);
 }
 
 //	Store user/pass, issue login commands
