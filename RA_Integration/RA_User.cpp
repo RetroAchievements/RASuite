@@ -179,7 +179,8 @@ void LocalRAUser::AttemptSilentLogin()
 
 	m_bStoreToken = TRUE;	//	Store it! We just fetched it!
 
-	Login(g_LocalUser.m_sUsername, g_LocalUser.m_sToken, TRUE, g_LocalUser.m_nLatestScore, 0);
+	if (bValid)
+		Login(g_LocalUser.m_sUsername, g_LocalUser.m_sToken, TRUE, g_LocalUser.m_nLatestScore, 0);
 }
 
 //	Store user/pass, issue login commands
