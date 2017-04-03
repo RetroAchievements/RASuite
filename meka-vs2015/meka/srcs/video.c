@@ -542,15 +542,19 @@ void RenderAchievementOverlays() {
 
 	//SetRect(&rcSize, 0, 0, display_width, display_height);
 	GetClientRect(MekaWND, &rcSize);
-	
+
+
 	ControllerInput input; // This has to be passed to the overlay
-	input.m_bUpPressed = 0;
-	input.m_bDownPressed = 0;
-	input.m_bLeftPressed = 0;
-	input.m_bRightPressed = 0;
-	input.m_bCancelPressed = 0;
-	input.m_bConfirmPressed = 0;
-	input.m_bQuitPressed = 0;
+
+	//Just taking input from standard keyboard because Meka controller input is super wierd
+	//Note: Not eating allegro key inputs (FALSE)
+	input.m_bUpPressed			= Inputs_KeyPressed(ALLEGRO_KEY_UP		, FALSE);
+	input.m_bDownPressed		= Inputs_KeyPressed(ALLEGRO_KEY_DOWN	, FALSE);
+	input.m_bLeftPressed		= Inputs_KeyPressed(ALLEGRO_KEY_LEFT	, FALSE);
+	input.m_bRightPressed		= Inputs_KeyPressed(ALLEGRO_KEY_RIGHT	, FALSE);
+	input.m_bCancelPressed		= Inputs_KeyPressed(ALLEGRO_KEY_B		, FALSE); //
+	input.m_bConfirmPressed		= Inputs_KeyPressed(ALLEGRO_KEY_A		, FALSE); // I think these match the interface
+	input.m_bQuitPressed		= Inputs_KeyPressed(ALLEGRO_KEY_ENTER	, FALSE);
 
 	bool meka_paused = (g_machine_flags & MACHINE_PAUSED);
 	bool meka_fullscreen = FALSE; // just going to set this
@@ -594,7 +598,7 @@ void RenderAchievementOverlays() {
 								  //BitBlt(hDC, rcSize.left, rcSize.top, 	rcSize.right - rcSize.left, rcSize.bottom - rcSize.top, hdcMem,	0, 0, SRCCOPY);
 								  //BitBlt(hDC, 0, 0, display_width, display_height, hdcMem, 0, 0, SRCCOPY); // "A funeral! You let Dougal do a funeral!!"
 								  End No */							  
-								  //char meka_currDir[2048];
+
 	char meka_currDir[2048];
 	GetCurrentDirectory(2048, meka_currDir); // "where'd you get the multithreaded code, Ted?"
 	RA_UpdateRenderOverlay(hDC, &input, ((float)nDelta / 1000.0f), &rcSize, meka_fullscreen, meka_paused);
