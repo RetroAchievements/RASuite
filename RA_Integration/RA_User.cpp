@@ -182,9 +182,7 @@ void LocalRAUser::AttemptSilentLogin()
 	if (bValid &&
 		strncmp(sResponse, "OK:", 3) == 0)
 	{
-		bool bRememberLogin = TRUE;
-
-		//	Store valid user!
+		//	Store valid user
 		char* pBuffer = psResponse + 3;
 		char* pTok = strtok_s(pBuffer, ":", &pBuffer);
 		unsigned int nPoints = strtol(pBuffer, &pBuffer, 10);
@@ -193,7 +191,7 @@ void LocalRAUser::AttemptSilentLogin()
 
 		sprintf_s(bufferFeedback, "Logged in as %s.", g_LocalUser.m_sUsername);
 
-		Login(g_LocalUser.m_sUsername, g_LocalUser.m_sToken, bRememberLogin, nPoints, nMessages);
+		Login(g_LocalUser.m_sUsername, g_LocalUser.m_sToken, TRUE, nPoints, nMessages);
 
 		g_PopupWindows.AchievementPopups().SuppressNextDeltaUpdate();
 	}
