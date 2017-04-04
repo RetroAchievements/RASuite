@@ -166,21 +166,37 @@ void LocalRAUser::AttemptLogin()
 
 void LocalRAUser::AttemptSilentLogin()
 {
-	//	Don't login here: cause a login when requestlogin.php returns!
-	//g_LocalUser.Login( bufferUser, bufferToken, true );
-
-	char sRequest[512];
-	//sprintf_s( sRequest, 512, "u=%s&t=%s", m_sUsername, m_sToken ); I reall hate c++
-	sprintf_s(sRequest, 512, "u=%s&t=%s", g_LocalUser.m_sUsername, g_LocalUser.m_sToken);
-	
-	//	Attempt a sign in as well, in order to fetch score and latest messages etc
 	BOOL bValid = TRUE;
-	bValid = CreateHTTPRequestThread("requestlogin.php", sRequest, HTTPRequest_Post, 1 , NULL );
+	char sRequest[512];
+	sprintf_s(sRequest, 512, "u=%s&t=%s", g_LocalUser.m_sUsername, g_LocalUser.m_sToken);
 
-	m_bStoreToken = TRUE;	//	Store it! We just fetched it!
+	char sResponse[4096];
+	ZeroMemory(sResponse, 4096);
+	char* psResponse = sResponse;
+	DWORD nBytesRead = 0;
 
-	if (bValid)
-		Login(g_LocalUser.m_sUsername, g_LocalUser.m_sToken, TRUE, g_LocalUser.m_nLatestScore, 0);
+	char bufferFeedback[4096];
+
+	bValid = DoBlockingHttpPost("requestlogin.php", sRequest, psResponse, 4096, &nBytesRead);
+
+	if (bValid &&
+		strncmp(sResponse, "OK:", 3) == 0)
+	{
+		bool bRememberLogin = TRUE;
+
+		//	Store valid user!
+		char* pBuffer = psResponse + 3;
+		char* pTok = strtok_s(pBuffer, ":", &pBuffer);
+		unsigned int nPoints = strtol(pBuffer, &pBuffer, 10);
+		pBuffer++;
+		unsigned int nMessages = strtol(pBuffer, &pBuffer, 10);
+
+		sprintf_s(bufferFeedback, "Logged in as %s.", g_LocalUser.m_sUsername);
+
+		Login(g_LocalUser.m_sUsername, g_LocalUser.m_sToken, bRememberLogin, nPoints, nMessages);
+
+		g_PopupWindows.AchievementPopups().SuppressNextDeltaUpdate();
+	}
 }
 
 //	Store user/pass, issue login commands
