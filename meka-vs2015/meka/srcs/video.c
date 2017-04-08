@@ -481,6 +481,9 @@ void    Video_RefreshScreen()
 
         }
 
+
+		RenderAchievementOverlays(); // al_flip_display() occurs here now
+
         // Palette update after redraw
         Palette_UpdateAfterRedraw();
 
@@ -510,7 +513,6 @@ void    Video_RefreshScreen()
         #endif
     }
 	
-	RenderAchievementOverlays(); // al_flip_display() occurs here now
 
     // Ask frame-skipper whether next frame should be drawn or not
     fskipper.Show_Current_Frame = Frame_Skipper();

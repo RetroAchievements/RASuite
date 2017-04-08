@@ -305,7 +305,6 @@ void    Blit_Fullscreen_TV_Mode_Double (void)
 	Blit_Fullscreen_Misc();
 	Blit_Fullscreen_CopyStretch(Blit_Buffer_Double);
 }
-void RenderAchievementOverlays();
 
 // Blit screenbuffer to video memory in fullscreen mode
 void    Blit_Fullscreen(void)
