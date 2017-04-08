@@ -346,7 +346,7 @@ void    Blit_GUI(void)
 	al_set_target_bitmap(backbuffer);
 	al_draw_bitmap(gui_buffer, 0, 0, 0x0000);
 	PROFILE_STEP("al_draw_bitmap()");
-	RenderAchievementOverlays();
+	//RenderAchievementOverlays();
 	al_flip_display();
 	PROFILE_STEP("al_flip_display");
 
