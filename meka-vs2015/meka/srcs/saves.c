@@ -131,6 +131,13 @@ void        Load_Game_Fixup(void)
 // Save current state / dispatch to format saving code
 void        SaveState_Save()
 {
+
+	if (RA_HardcoreModeIsActive())  //Ask for confirmation if RA_Harcore is set
+	{
+		if (MessageBox(NULL, "Hardcore mode is active. If you load/save a state, Hardcore Mode will be disabled. Continue?", "Warning", MB_YESNO) == IDNO)
+			return;
+	}
+
     // Do not allow saving if machine is not running
     if ((g_machine_flags & MACHINE_RUN) != MACHINE_RUN)
     {
@@ -183,6 +190,13 @@ void        SaveState_Save()
 // Load state from current slot
 void        SaveState_Load()
 {
+
+	if (RA_HardcoreModeIsActive()) //Ask for confirmation if RA_Harcore is set
+	{
+		if (MessageBox(NULL, "Hardcore mode is active. If you load/save a state, Hardcore Mode will be disabled. Continue?", "Warning", MB_YESNO) == IDNO)
+			return;
+	}
+
     // Do not allow loading if machine is not running
     if ((g_machine_flags & MACHINE_RUN) != MACHINE_RUN)
     {
