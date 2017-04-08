@@ -505,6 +505,9 @@ int main(int argc, char **argv)
     ConsolePrintf ("%s\n--\n", Msg_Get(MSG_Init_Completed));
 
 
+	HWND MekaWND = al_get_win_window_handle(g_display);
+
+
 
 	// Save configuration file early on (so that bad drivers, will still create a default .cfg file etc.)
 	if (!g_configuration.loaded_configuration_file)
