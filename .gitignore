@@ -51,6 +51,7 @@
 /meka-vs2015/meka/*.bsc
 /meka-vs2015/meka/srcs/projects/msvc/*.VC.db
 /meka-vs2015/meka/RACache/*
+/meka-vs2015/meka/meka.inp
 
 
 /RAGens/win32/Backup

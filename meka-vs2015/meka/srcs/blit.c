@@ -322,7 +322,10 @@ void    Blit_Fullscreen(void)
 		Blit_Fullscreen_Message(fs_out, g_gui_status.timeleft);
 		g_gui_status.timeleft --;
 	}
+
+	//#RA
 	RenderAchievementOverlays();
+
 	al_flip_display();
 }
 
@@ -346,7 +349,10 @@ void    Blit_GUI(void)
 	al_set_target_bitmap(backbuffer);
 	al_draw_bitmap(gui_buffer, 0, 0, 0x0000);
 	PROFILE_STEP("al_draw_bitmap()");
+
+	//#RA
 	RenderAchievementOverlays();
+
 	al_flip_display();
 	PROFILE_STEP("al_flip_display");
 
