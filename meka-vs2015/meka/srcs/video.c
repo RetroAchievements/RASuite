@@ -21,7 +21,13 @@
 //RA
 #include "RA_Interface.h"
 
+int overlay_render_method = OVERLAY_RENDER_ALLEGRO;// default. Set here but read in by config.c 
+
 void RenderAchievementOverlays();
+void RenderAchievementOverlays_ALLEGRO_OVERLAY();
+void RenderAchievementOverlays_WIN_LAYER();
+void UpdateOverlay(HDC, RECT);
+LRESULT CALLBACK RAWndProc(HWND, UINT, WPARAM, LPARAM);
 
 //-----------------------------------------------------------------------------
 // Data
@@ -41,6 +47,9 @@ t_video_driver	g_video_drivers[] =
 
 t_video_driver*	g_video_driver_default = &g_video_drivers[0];
 
+//RA - Making these global for easier usage;
+HWND layeredWnd;
+HWND MekaWND;
 
 //-----------------------------------------------------------------------------
 // Functions
@@ -152,8 +161,7 @@ static int Video_ChangeVideoMode(t_video_driver* driver, int w, int h, bool full
 	else
 		display_flags |= ALLEGRO_WINDOWED;
 	al_set_new_display_flags(display_flags);
-//	al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST); //Actually VSYNC
-	al_set_new_display_option(ALLEGRO_VSYNC, 1, ALLEGRO_SUGGEST);
+	al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST);
 	al_set_new_display_refresh_rate(g_configuration.video_mode_gui_refresh_rate);
 	g_display = al_create_display(w, h);
 
@@ -451,6 +459,7 @@ void    Video_RefreshScreen()
 
 			Blit_GUI();
 			PROFILE_STEP("Blit_GUI()");
+
         }
 
         if (g_env.state == MEKA_STATE_GAME)
@@ -471,7 +480,7 @@ void    Video_RefreshScreen()
             Blit_Fullscreen();
 
         }
-		
+
         // Palette update after redraw
         Palette_UpdateAfterRedraw();
 
@@ -501,6 +510,8 @@ void    Video_RefreshScreen()
         #endif
     }
 	
+	RenderAchievementOverlays(); // al_flip_display() occurs here now
+
     // Ask frame-skipper whether next frame should be drawn or not
     fskipper.Show_Current_Frame = Frame_Skipper();
 	PROFILE_STEP("Frame_Skipper()");
@@ -512,10 +523,121 @@ void    Video_RefreshScreen()
 
 }
 
+
 //#RA:
 #define BYTES_PER_PIXEL(bpp)     (((int)(bpp) + 7) / 8)
 
-void RenderAchievementOverlays_ALLEGRO_HACK() {
+void RenderAchievementOverlays() {
+
+	if (overlay_render_method == OVERLAY_RENDER_WIN_LAYER) {
+		al_flip_display();
+		RenderAchievementOverlays_WIN_LAYER();
+	}
+	else { //render allegro by default
+		RenderAchievementOverlays_ALLEGRO_OVERLAY();
+		al_flip_display();
+		//PROFILE_STEP("al_flip_display");
+	}
+
+}
+
+void RenderAchievementOverlays_WIN_LAYER() {
+	//#RA:
+	//So alegro is finished flipping screenbuffers?
+	//So we can draw the overlays now, right?
+	//WARNING: Ugly Hack
+	MekaWND = al_get_win_window_handle(g_display); //This works, but Too much flicker.
+
+	RECT rect;
+	GetClientRect(MekaWND, &rect);
+
+	// Initialize layered window
+	if (layeredWnd == NULL)
+	{
+		//Set up window class
+		WNDCLASSEX wndEx;
+		memset(&wndEx, 0, sizeof(wndEx));
+		wndEx.cbSize = sizeof(wndEx);
+		wndEx.lpszClassName = "RA_WND_CLASS";
+		wndEx.lpfnWndProc = RAWndProc;
+		wndEx.hInstance = (HINSTANCE)GetWindowLong(MekaWND, GWL_HINSTANCE);
+		int result = RegisterClassEx(&wndEx);
+
+		// Create Window. WS_POPUP style is important so window displays without any borders or toolbar;
+		layeredWnd = CreateWindowEx(
+			(WS_EX_NOACTIVATE | WS_EX_TRANSPARENT | WS_EX_LAYERED),
+			wndEx.lpszClassName, 
+			"RAWnd", 
+			(WS_POPUP),
+			CW_USEDEFAULT, CW_USEDEFAULT, rect.right, rect.bottom, 
+			MekaWND, NULL, wndEx.hInstance, NULL);
+
+		//SetParent(MekaWND, layeredWnd);
+		
+		ShowWindow(layeredWnd, SW_SHOWNOACTIVATE);
+	}
+	
+	else
+	{
+		// Set up buffer and back buffer
+		HDC hdc = GetDC(MekaWND);
+		HDC hdcMem = CreateCompatibleDC(hdc);
+		PAINTSTRUCT ps;
+		HBITMAP hBmp = CreateCompatibleBitmap(hdc, rect.right, rect.bottom);
+		HBITMAP hBmpOld = (HBITMAP)SelectObject(hdcMem, hBmp);
+
+		// Blits the MekaWND to the back buffer.
+		BitBlt(hdcMem, 0, 0, rect.right, rect.bottom, hdc, 0, 0, SRCCOPY);
+
+		// Update RA stuff
+		UpdateOverlay(hdcMem, rect);
+
+		// Actually draw to the back buffer
+		// Not familiar with BLENDFUNCTION, may not be needed.
+		BLENDFUNCTION blend = { 0 };
+		blend.BlendOp = AC_SRC_OVER;
+		blend.SourceConstantAlpha = 255;
+		blend.AlphaFormat = AC_SRC_OVER;
+		POINT ptSrc = { 0, 0 };
+		SIZE sizeWnd = { rect.right, rect.bottom };
+		UpdateLayeredWindow(layeredWnd, hdc, NULL, &sizeWnd, hdcMem, &ptSrc, 0, &blend, ULW_ALPHA);
+
+		// Get position of the client rect. (NOT the window rect)
+		ClientToScreen(MekaWND, reinterpret_cast<POINT*>(&rect.left));
+		ClientToScreen(MekaWND, reinterpret_cast<POINT*>(&rect.right));
+
+		// Move layered window over MekaWND.
+		SetWindowPos(layeredWnd, 0, rect.left, rect.top, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE);
+		SetWindowPos(MekaWND, layeredWnd, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); // Don't think this line is necessary on most OS, but just safety net.
+
+		SelectObject(hdcMem, hBmpOld);
+		DeleteObject(hBmp);
+		DeleteDC(hdcMem);
+		ReleaseDC(MekaWND, hdc);
+	}
+
+	char meka_currDir[2048];
+	GetCurrentDirectory(2048, meka_currDir); // "where'd you get the multithreaded code, Ted?"
+	SetCurrentDirectory(meka_currDir); // "Cowboys Ted! They're a bunch of cowboys!"
+}
+
+
+LRESULT CALLBACK RAWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (Msg)
+	{
+	case WM_SIZE:
+		return SIZE_RESTORED;
+	case WM_NCHITTEST:
+		return HTNOWHERE;
+
+	default:
+		return DefWindowProc(hWnd, Msg, wParam, lParam);
+	}
+}
+
+
+void RenderAchievementOverlays_ALLEGRO_OVERLAY() {
 
 	static int display_width = -1;
 	static int display_height = -1;
@@ -529,19 +651,19 @@ void RenderAchievementOverlays_ALLEGRO_HACK() {
 
 	static HDC			hdcMem = NULL;
 	static HBITMAP      hbmMem = NULL;
-	static HANDLE		hbmOld = NULL; 
+	static HANDLE		hbmOld = NULL;
 	static HBRUSH		hbrBkGnd;
-												
+
 	static BITMAPV5HEADER bmh;
 	static BYTE *pBits = NULL; // WINAPI pixel array. Needs to be initalised or debugger complains.
 	static ALLEGRO_BITMAP *bitmap = NULL;
-    static ALLEGRO_LOCKED_REGION *lock = NULL;
-	
+	static ALLEGRO_LOCKED_REGION *lock = NULL;
+
 	//The color value which is set to transparent when we blit into allegro. All elements of the overlay which are this color will be made transparent.
 	//Note: Currently set to modified magic magenta. 
-	static DWORD mask = 0x00fe01fd; 															  
+	static DWORD mask = 0x00fe01fd;
 	static DWORD win_mask = (mask << 16) & 0x00ff0000   //BYTE order shenanigans
-			| (mask >> 16) & 0x000000ff | mask & 0x0000ff00; 
+		| (mask >> 16) & 0x000000ff | mask & 0x0000ff00;
 
 	if (!hdcMem) {  //WARNING: Not currently checking or destroying this anywhere so if Meka goes to ACTUAL Alt+Enter Fullscreen mode we are hosed
 
@@ -555,7 +677,7 @@ void RenderAchievementOverlays_ALLEGRO_HACK() {
 		bmh.bV5Compression = BI_RGB;
 		/*bmh.bV5AlphaMask = 0xFF000000;		bmh.bV5RedMask = 0x00FF0000;		bmh.bV5GreenMask = 0x0000FF00;		bmh.bV5BlueMask = 0x000000FF;*/ // Probably don't need these really
 
-		// Create an off-screen WINAPI bitmap for RA_dll to draw to
+																																						// Create an off-screen WINAPI bitmap for RA_dll to draw to
 		hdcMem = CreateCompatibleDC(hDC);
 		hbmMem = CreateDIBSection(hDC, (BITMAPINFO *)&bmh, DIB_RGB_COLORS, (void**)&pBits, NULL, 0);
 		hbrBkGnd = CreateSolidBrush((DWORD)win_mask); //magic magenta mask
@@ -569,31 +691,10 @@ void RenderAchievementOverlays_ALLEGRO_HACK() {
 	} //End bitmaps creation code (Only run once at the moment)
 
 
-
-	
-	static int nOldTime = GetTickCount(); //Time in ms I presume
-
-	int nDelta = GetTickCount() - nOldTime;
-	nOldTime = GetTickCount();
-
-	ControllerInput input; // This has to be passed to the overlay
-						   //Just taking input from standard keyboard because Meka controller input is super wierd //Note: Not eating allegro key inputs (FALSE)
-	input.m_bUpPressed = Inputs_KeyPressed(ALLEGRO_KEY_UP, FALSE);
-	input.m_bDownPressed = Inputs_KeyPressed(ALLEGRO_KEY_DOWN, FALSE);
-	input.m_bLeftPressed = Inputs_KeyPressed(ALLEGRO_KEY_LEFT, FALSE);
-	input.m_bRightPressed = Inputs_KeyPressed(ALLEGRO_KEY_RIGHT, FALSE);
-	input.m_bCancelPressed = Inputs_KeyPressed(ALLEGRO_KEY_B, FALSE); //
-	input.m_bConfirmPressed = Inputs_KeyPressed(ALLEGRO_KEY_A, FALSE); // I think these match the interface
-	input.m_bQuitPressed = Inputs_KeyPressed(ALLEGRO_KEY_ENTER, FALSE);
-
-	bool meka_paused = (g_machine_flags & MACHINE_PAUSED);
-	bool meka_fullscreen = FALSE; // just going to set this
-
-
-	//First let RA Draw the pixels to the WINAPI buffer
+    //First let RA Draw the pixels to the WINAPI buffer
 	FillRect(hdcMem, &rcSize, hbrBkGnd);
-	RA_UpdateRenderOverlay(hdcMem, &input, ((float)nDelta / 1000.0f), &rcSize, meka_fullscreen, meka_paused);
-
+	//RA_UpdateRenderOverlay(hdcMem, &input, ((float)nDelta / 1000.0f), &rcSize, meka_fullscreen, meka_paused);
+	UpdateOverlay(hdcMem, rcSize);
 
 
 	/* Now we do something very stupid and hacky
@@ -626,16 +727,16 @@ void RenderAchievementOverlays_ALLEGRO_HACK() {
 	"A funeral! You let Dougal do a funeral!!"
 	*/
 	{
-//		int x, y;// , y;
+		//		int x, y;// , y;
 		int pitch;
 		int w = display_width;
 		int h = display_height;
 		uint8_t *dst;
 		static DWORD *pPixels = (DWORD*) &(*pBits); //Represent BYTE array as array of 4 byte RGBA DWORD array
 
-		//The alpha value of all the bits had better be zero after WINAPI is done or ... nothing will happen here.
+													//The alpha value of all the bits had better be zero after WINAPI is done or ... nothing will happen here.
 		for (int pixel = 0; pixel < w*h; pixel++) {
-				if (pPixels[pixel] != mask)   //there is probably some gosu way of doing this in one SIMD operation but I don't know.
+			if (pPixels[pixel] != mask)   //there is probably some gosu way of doing this in one SIMD operation but I don't know.
 				pPixels[pixel] += 0xff000000;
 			//Is the system little endian or big endian? If colors are being inverted you know what is wrong now.
 		}
@@ -643,7 +744,7 @@ void RenderAchievementOverlays_ALLEGRO_HACK() {
 		pitch = w * BYTES_PER_PIXEL(bpp);
 		pitch = (pitch + 3) & ~3;  /* align on dword */
 
-		//must use ARGB format here. For the life of me I don't understand why this isn't RGBA. or ABGR. I think windows is internally returning 0xAARRGGBB corresponding to BGR. Never mind it works 
+								   //must use ARGB format here. For the life of me I don't understand why this isn't RGBA. or ABGR. I think windows is internally returning 0xAARRGGBB corresponding to BGR. Never mind it works 
 		lock = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_WRITEONLY);
 		dst = (uint8_t *)lock->data;
 
@@ -655,9 +756,9 @@ void RenderAchievementOverlays_ALLEGRO_HACK() {
 
 
 
-	//[02:26] <+SiegeLord> Allegro assumes pre - multiplied alpha channel
-	//[02:27] <+SiegeLord> While what you have uses the non - pre multiplied alpha channel
-	//So we need to switch blender types for drawing transparent bitmaps
+								//[02:26] <+SiegeLord> Allegro assumes pre - multiplied alpha channel
+								//[02:27] <+SiegeLord> While what you have uses the non - pre multiplied alpha channel
+								//So we need to switch blender types for drawing transparent bitmaps
 	int old_op; int old_src; int old_dst;
 	al_get_blender(&old_op, &old_src, &old_dst); // get current state of blender
 	al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
@@ -669,8 +770,31 @@ void RenderAchievementOverlays_ALLEGRO_HACK() {
 	ReleaseDC(MekaWND, hDC);
 }
 
-void RenderAchievementOverlays() {
-	RenderAchievementOverlays_ALLEGRO_HACK();
+
+void UpdateOverlay(HDC hdc, RECT rect)
+{
+	static int nOldTime = GetTickCount(); //Time in ms I presume
+
+	int nDelta;
+	nDelta = GetTickCount() - nOldTime;
+	nOldTime = GetTickCount();
+
+	ControllerInput input; // This has to be passed to the overlay
+
+						   //Just taking input from standard keyboard because Meka controller input is super wierd
+						   //Note: Not eating allegro key inputs (FALSE)
+	input.m_bUpPressed = Inputs_KeyPressed(ALLEGRO_KEY_UP, FALSE);
+	input.m_bDownPressed = Inputs_KeyPressed(ALLEGRO_KEY_DOWN, FALSE);
+	input.m_bLeftPressed = Inputs_KeyPressed(ALLEGRO_KEY_LEFT, FALSE);
+	input.m_bRightPressed = Inputs_KeyPressed(ALLEGRO_KEY_RIGHT, FALSE);
+	input.m_bCancelPressed = Inputs_KeyPressed(ALLEGRO_KEY_B, FALSE); //
+	input.m_bConfirmPressed = Inputs_KeyPressed(ALLEGRO_KEY_A, FALSE); // I think these match the interface
+	input.m_bQuitPressed = Inputs_KeyPressed(ALLEGRO_KEY_ENTER, FALSE);
+
+	bool meka_paused; meka_paused = (g_machine_flags & MACHINE_PAUSED);
+	bool meka_fullscreen; meka_fullscreen = FALSE; // just going to set this
+
+	RA_UpdateRenderOverlay(hdc, &input, ((float)nDelta / 1000.0f), &rect, meka_fullscreen, meka_paused);
 }
 
 

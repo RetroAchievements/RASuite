@@ -67,5 +67,14 @@ void	Screen_Restore_from_Next_Buffer (void);
 
 t_video_driver*	VideoDriver_FindByName(const char* name);
 
+
+//#RA overlay code
+enum {
+	OVERLAY_RENDER_ALLEGRO = 0,
+	OVERLAY_RENDER_WIN_LAYER = 1
+};
+
+extern int overlay_render_method;
+
 //-----------------------------------------------------------------------------
 

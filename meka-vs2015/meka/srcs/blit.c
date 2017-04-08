@@ -123,6 +123,16 @@ static void Blit_Fullscreen_Misc(void)
         al_clear_to_color(BORDER_COLOR);
 	}
 
+	if (overlay_render_method == OVERLAY_RENDER_ALLEGRO && g_env.state == MEKA_STATE_GAME) {
+		//Arguably we don't need to clear the whole screen here as the overlay code doesn't require this much attention
+		//Could clear fractions of the display backbuffer instead, or only do this every so many frames
+		//We're emulating retro (60Hz) for millisecond matter here. May need ot look into this again (When git and VS aren't eating my code)
+		al_set_target_bitmap(al_get_backbuffer(g_display));
+		al_clear_to_color(BORDER_COLOR);
+
+	}
+
+
     // Update 3-D Glasses
     if (Glasses.Enabled)
         Glasses_Update();
@@ -323,10 +333,8 @@ void    Blit_Fullscreen(void)
 		g_gui_status.timeleft --;
 	}
 
-	//#RA
-	RenderAchievementOverlays();
+	//al_flip_display(); Not flipping here anymore, still need to render overlays
 
-	al_flip_display();
 }
 
 
@@ -350,11 +358,8 @@ void    Blit_GUI(void)
 	al_draw_bitmap(gui_buffer, 0, 0, 0x0000);
 	PROFILE_STEP("al_draw_bitmap()");
 
-	//#RA
-	RenderAchievementOverlays();
-
-	al_flip_display();
-	PROFILE_STEP("al_flip_display");
+	//al_flip_display(); Not flipping here anymore, still need to render overlays
+	//PROFILE_STEP("al_flip_display");
 
     // Update 3-D Glasses (if no VSync)
     if (!g_configuration.video_mode_gui_vsync)
