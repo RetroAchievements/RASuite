@@ -22,6 +22,8 @@
 #include "RA_Interface.h"
 
 void RenderAchievementOverlays();
+void UpdateOverlay(HDC, RECT);
+LRESULT CALLBACK RAWndProc(HWND, UINT, WPARAM, LPARAM);
 
 //-----------------------------------------------------------------------------
 // Data
@@ -41,6 +43,9 @@ t_video_driver	g_video_drivers[] =
 
 t_video_driver*	g_video_driver_default = &g_video_drivers[0];
 
+//RA - Making these global for easier usage;
+HWND layeredWnd;
+HWND MekaWND;
 
 //-----------------------------------------------------------------------------
 // Functions
@@ -153,7 +158,6 @@ static int Video_ChangeVideoMode(t_video_driver* driver, int w, int h, bool full
 		display_flags |= ALLEGRO_WINDOWED;
 	al_set_new_display_flags(display_flags);
 	al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST);
-//	al_set_new_display_option(ALLEGRO_VSYNC, 1, ALLEGRO_SUGGEST);
 	al_set_new_display_refresh_rate(g_configuration.video_mode_gui_refresh_rate);
 	g_display = al_create_display(w, h);
 
@@ -451,7 +455,7 @@ void    Video_RefreshScreen()
 
 			Blit_GUI();
 			PROFILE_STEP("Blit_GUI()");
-			RenderAchievementOverlays();
+
         }
 
         if (g_env.state == MEKA_STATE_GAME)
@@ -472,7 +476,7 @@ void    Video_RefreshScreen()
             Blit_Fullscreen();
 
         }
-		
+
         // Palette update after redraw
         Palette_UpdateAfterRedraw();
 
@@ -502,9 +506,8 @@ void    Video_RefreshScreen()
         #endif
     }
 	
-	//Screenbuffer_AcquireLock();
-	//RenderAchievementOverlays(); //Simply cannot render on top of allegro without introducing flicker.
-	//Screenbuffer_ReleaseLock();
+	RenderAchievementOverlays(); //Simply cannot render on top of allegro without introducing flicker.
+	//Must render on Console window instead, sorry.
 
     // Ask frame-skipper whether next frame should be drawn or not
     fskipper.Show_Current_Frame = Frame_Skipper();
@@ -518,42 +521,113 @@ void    Video_RefreshScreen()
 }
 
 
-ALLEGRO_BITMAP *convert_hbitmap_to_bitmap(HBITMAP bitmap);
-ALLEGRO_BITMAP *get_bitmap_from_dib(int bpp, int w, int h, BYTE *pixels);
-#define BYTES_PER_PIXEL(bpp)     (((int)(bpp) + 7) / 8)
-
 void RenderAchievementOverlays() {
 	//#RA:
 	//So alegro is finished flipping screenbuffers?
 	//So we can draw the overlays now, right?
 	//WARNING: Ugly Hack
-
-	HWND MekaWND;
-	HDC  hDC; //Direct context (HAVE to release after use)
-
-	//Really need a proper Win32 Window to draw the overlay on
 	MekaWND = al_get_win_window_handle(g_display); //This works, but Too much flicker.
-	//MekaWND = ConsoleHWND(); // This works, but redraw is awful.
-	hDC = GetDC(MekaWND);
 
+	RECT rect;
+	GetClientRect(MekaWND, &rect);
+
+	// Initialize layered window
+	if (layeredWnd == NULL)
+	{
+		//Set up window class
+		WNDCLASSEX wndEx;
+		memset(&wndEx, 0, sizeof(wndEx));
+		wndEx.cbSize = sizeof(wndEx);
+		wndEx.lpszClassName = "RA_WND_CLASS";
+		wndEx.lpfnWndProc = RAWndProc;
+		wndEx.hInstance = (HINSTANCE)GetWindowLong(MekaWND, GWL_HINSTANCE);
+		int result = RegisterClassEx(&wndEx);
+
+		// Create Window. WS_POPUP style is important so window displays without any borders or toolbar;
+		layeredWnd = CreateWindowEx(
+			(WS_EX_NOACTIVATE | WS_EX_TRANSPARENT | WS_EX_LAYERED),
+			wndEx.lpszClassName, 
+			"RAWnd", 
+			(WS_POPUP),
+			CW_USEDEFAULT, CW_USEDEFAULT, rect.right, rect.bottom, 
+			MekaWND, NULL, wndEx.hInstance, NULL);
+
+		//SetParent(MekaWND, layeredWnd);
+		
+		ShowWindow(layeredWnd, SW_SHOWNOACTIVATE);
+	}
+	
+	else
+	{
+		// Set up buffer and back buffer
+		HDC hdc = GetDC(MekaWND);
+		HDC hdcMem = CreateCompatibleDC(hdc);
+		PAINTSTRUCT ps;
+		HBITMAP hBmp = CreateCompatibleBitmap(hdc, rect.right, rect.bottom);
+		HBITMAP hBmpOld = (HBITMAP)SelectObject(hdcMem, hBmp);
+
+		// Blits the MekaWND to the back buffer.
+		BitBlt(hdcMem, 0, 0, rect.right, rect.bottom, hdc, 0, 0, SRCCOPY);
+
+		// Update RA stuff
+		UpdateOverlay(hdcMem, rect);
+
+		// Actually draw to the back buffer
+		// Not familiar with BLENDFUNCTION, may not be needed.
+		BLENDFUNCTION blend = { 0 };
+		blend.BlendOp = AC_SRC_OVER;
+		blend.SourceConstantAlpha = 255;
+		blend.AlphaFormat = AC_SRC_OVER;
+		POINT ptSrc = { 0, 0 };
+		SIZE sizeWnd = { rect.right, rect.bottom };
+		UpdateLayeredWindow(layeredWnd, hdc, NULL, &sizeWnd, hdcMem, &ptSrc, 0, &blend, ULW_ALPHA);
+
+		// Get position of the client rect. (NOT the window rect)
+		ClientToScreen(MekaWND, reinterpret_cast<POINT*>(&rect.left));
+		ClientToScreen(MekaWND, reinterpret_cast<POINT*>(&rect.right));
+
+		// Move layered window over MekaWND.
+		SetWindowPos(layeredWnd, 0, rect.left, rect.top, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE);
+		SetWindowPos(MekaWND, layeredWnd, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); // Don't think this line is necessary on most OS, but just safety net.
+
+		SelectObject(hdcMem, hBmpOld);
+		DeleteObject(hBmp);
+		DeleteDC(hdcMem);
+		ReleaseDC(MekaWND, hdc);
+	}
+
+	char meka_currDir[2048];
+	GetCurrentDirectory(2048, meka_currDir); // "where'd you get the multithreaded code, Ted?"
+	SetCurrentDirectory(meka_currDir); // "Cowboys Ted! They're a bunch of cowboys!"
+}
+
+
+LRESULT CALLBACK RAWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (Msg)
+	{
+	case WM_SIZE:
+		return SIZE_RESTORED;
+	case WM_NCHITTEST:
+		return HTNOWHERE;
+
+	default:
+		return DefWindowProc(hWnd, Msg, wParam, lParam);
+	}
+}
+
+void UpdateOverlay(HDC hdc, RECT rect)
+{
 	static int nOldTime = GetTickCount(); //Time in ms I presume
 
-	int nDelta = GetTickCount() - nOldTime;
+	int nDelta;
+	nDelta = GetTickCount() - nOldTime;
 	nOldTime = GetTickCount();
-
-
-	RECT rcSize;
-	//int display_width = al_get_display_width(g_display);
-	//int display_height = al_get_display_height(g_display);
-
-	//SetRect(&rcSize, 0, 0, display_width, display_height);
-	GetClientRect(MekaWND, &rcSize);
-
 
 	ControllerInput input; // This has to be passed to the overlay
 
-	//Just taking input from standard keyboard because Meka controller input is super wierd
-	//Note: Not eating allegro key inputs (FALSE)
+						   //Just taking input from standard keyboard because Meka controller input is super wierd
+						   //Note: Not eating allegro key inputs (FALSE)
 	input.m_bUpPressed = Inputs_KeyPressed(ALLEGRO_KEY_UP, FALSE);
 	input.m_bDownPressed = Inputs_KeyPressed(ALLEGRO_KEY_DOWN, FALSE);
 	input.m_bLeftPressed = Inputs_KeyPressed(ALLEGRO_KEY_LEFT, FALSE);
@@ -562,272 +636,10 @@ void RenderAchievementOverlays() {
 	input.m_bConfirmPressed = Inputs_KeyPressed(ALLEGRO_KEY_A, FALSE); // I think these match the interface
 	input.m_bQuitPressed = Inputs_KeyPressed(ALLEGRO_KEY_ENTER, FALSE);
 
-	bool meka_paused = (g_machine_flags & MACHINE_PAUSED);
-	bool meka_fullscreen = FALSE; // just going to set this
+	bool meka_paused; meka_paused = (g_machine_flags & MACHINE_PAUSED);
+	bool meka_fullscreen; meka_fullscreen = FALSE; // just going to set this
 
-
-/* No 	*/
-								//Need to prevent flicker with a custom double buffer on top of allegro's buffers.
-								//This hack just became a massive pain
-								  // Create an off-screen DC for double-buffering
-								static HDC			hdcMem = NULL;
-								static HBITMAP      hbmMem = NULL;
-								static HANDLE		hbmOld = NULL; //Really need this?
-								static HBRUSH		hbrBkGnd;
-								static COLORREF		blk = GetSysColor(COLOR_WINDOW);// GetSysColor(COLOR_BACKGROUND);
-																					//static COLORREF		wht = ((DWORD)0x00ffffff); //GetSysColor(COLOR_WINDOW);// GetSysColor(COLOR_BACKGROUND);
-
-
-								static int display_width = -1; 
-								static int display_height = -1; 
-
-
-								
-								static int bpp = 32; // Bits per pixel
-								static int stride = -1;
-
-								static BITMAPV5HEADER bmh;
-
-								static BYTE *pBits = NULL; // needs to be initalised or debugger complains.
-
-
-
-
-								static ALLEGRO_BITMAP *bitmap = NULL;
-								//int c = al_get_bitmap_format(bitmap);
-								//lock = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_WRITEONLY);
-								static ALLEGRO_LOCKED_REGION *lock = NULL;
-								//lock = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_WRITEONLY);
-
-
-								if (!hdcMem) {
-
-
-									display_width = al_get_display_width(g_display);
-									display_height = al_get_display_height(g_display);
-
-									stride = (display_width * (bpp / 8));
-
-									memset(&bmh, 0, sizeof(BITMAPV5HEADER));
-									bmh.bV5Size = sizeof(BITMAPV5HEADER);
-									bmh.bV5Width = display_width;
-									bmh.bV5Height = display_height;
-									bmh.bV5Planes = 1;
-									bmh.bV5BitCount = 32;
-									bmh.bV5Compression = BI_RGB;
-									bmh.bV5AlphaMask = 0xFF000000;
-									bmh.bV5RedMask = 0x00FF0000;
-									bmh.bV5GreenMask = 0x0000FF00;
-									bmh.bV5BlueMask = 0x000000FF;
-
-
-									// Create an off-screen DC for double-buffering
-									hdcMem = CreateCompatibleDC(hDC);
-									hbmMem = CreateDIBSection(hDC, (BITMAPINFO *)&bmh, DIB_RGB_COLORS, (void**)&pBits, NULL, 0);
-
-									int a = al_get_new_bitmap_format();
-									int dpf = al_get_display_format(g_display);
-									//int b = ALLEGRO_PIXEL_FORMAT_ARGB_8888;
-
-									//al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
-									//hbmMem = CreateCompatibleBitmap(hDC, display_width, display_height); //allegro had better not change the display size, etc (Meka doesn't seem to do this)
-									//hbmMem = Bitmap(display_width, display_height, Format32bppPArgb);
-
-									//hbrBkGnd = CreateSolidBrush((DWORD)0x00fe01fd); //magic magenta mask
-									hbrBkGnd = CreateSolidBrush((DWORD)0x00ff00ff); //magic magenta mask
-									hbmOld = SelectObject(hdcMem, hbmMem);
-									SetBkColor(hdcMem, blk);
-									al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
-									bitmap = al_create_bitmap(display_width, display_height);
-
-
-
-
-								}
-								pBits[0] = 0x11;
-								pBits[1] = 0x32;
-								pBits[2] = 0x13;
-								pBits[3] = 0xfd;
-								//lock = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_XRGB_8888, ALLEGRO_LOCK_WRITEONLY);
-
-								//al_unlock_bitmap(bitmap);
-
-								//Paint to offscreen direct context buffer with transparency
-								//SetBkColor(hdcMem, GetSysColor(COLOR_WINDOW));
-								//SetBkColor(hdcMem, blk);
-								//FillRect(hdcMem, &rcSize, hbrBkGnd);
-								//SetBkColor(hdcMem, GetSysColor(COLOR_WINDOW));
-								//SetBkColor(hdcMem, blk);
-								//SetBkMode(hdcMem, TRANSPARENT);
-
-								{
-									FillRect(hdcMem, &rcSize, hbrBkGnd);
-									//RA_UpdateRenderOverlay(hDC, &input, ((float)nDelta / 1000.0f), &rcSize, meka_fullscreen, meka_paused);
-									RA_UpdateRenderOverlay(hdcMem, &input, ((float)nDelta / 1000.0f), &rcSize, meka_fullscreen, meka_paused);
-								}
-								int aghfyf = 3;
-
-	//								  al_destroy_bitmap(bitmap);
-
-	/*
-
-														   `  ```
-													   ` `````--:-.`
-													`..`-::::+oossso:``
-												  ...:+/oyyssyhhyhhhyo//-``
-												--.:oshhhdddhhhhhhhhhhyyyso+/:.
-											  ```:+yshhdhdddddhhhhhhhdhhhhhhyso+`
-											``./oyyyhhhhdddddhhhyyhhhdddhhdddhhys.
-										   .--syhhhhhdhdddddhhhhyhhhdddddddddddddy.
-										   `:shhhdhhddddhhhhhhhhyhhhhhdddddmdddddd/
-										  :.osyhhhddhhddddhhhdddhhhhddddddmmdmmmmmh/
-										 .-/oosyhhhhhhhhhyyyhdddddddmmdmmmmmdmmmmmdd:
-										 `.+oosyyhhhhhhhhyyhddddmmmmmmmmmmmmmNmNmmmdy
-										  -+ooosyhhhhhhddhhhddddmmmmmdddddmmNNmNmmmmd`
-										 .:+oosyyhdhhddmdddddmdddmmmmmmhhddNNNmmNNNNNs`
-										 /ssyhdmmmdddhhyyyyhdmddmmmddmmmhddmNNNNNNNNNNo
-										  ---.yNNNNmmmdhyysshdddddhysydhshdmmNNNNNNNNNh +Nmhs:`
-											   smmNmhdhhysssyyyyyhhyyhhyyhhmmmNNNNNmmmmmNNNNMMNy`
-											   .syyhhhhsssyyyyyhhhhhhysyhmmddmmmmmdmmNNNNNMMMMMMN
-											   -osssyyyyyyhhhhhhhhdhhhddddddddddddhodNNNNMMMMMMMM
-											   -syyyyyyyhhhhhhhhdddddddhhhdhhhhhyohNNNNNMMMMMMMNm
-											   -ssssshhhhhhhhhhhddddhhdddddhhhhoyNNNNNNMMMMMMNNNN
-											   `shdmmdhhhhhhhhhdddddhhddddhhdsyNNNNNNMMMMMNNNNNNN
-												.-.../yyhhhhhhhddddhhdddddddhNNNNNNNMMMNNNNNNNNNN
-													   `.+hdhhhhhdddhdddmmNNMMNNNNNNMMNNNNNNNNNNN
-														`syhhhhddddddmmmNNMMNNNNNMMMMNNNNNNNNNNNN
-														 -+yhhhdddmmmNNNMMMNNNNNMMMNNNNNNNNNNNNNN
-														   -oyhdmmmmy++hNNNNNNNMMMNNNNNNNNNNNNNNN
-															./os/:-.   `omNNNMMMNNNNNNNNNNNNNNNNN
-																	 `-ymNNNNMMNNNNNNNNNNNNNNNNNN
-						"A funeral! You let Dougal do a funeral!!"
-	*/
-
-								pBits[0] = 0x11;
-								pBits[1] = 0x32;
-								pBits[2] = 0x13;
-								pBits[3] = 0x00;
-								uint8_t *dst;
-								{
-									int x,y;// , y;
-									int pitch;
-									//int col;
-									//int b, g, r;
-									//BYTE *src;
-									//ALLEGRO_BITMAP *bitmap;
-									//ALLEGRO_LOCKED_REGION *lock;
-									//uint8_t *dst;
-									int w = display_width;
-									int h = display_height;
-									al_set_target_bitmap(bitmap);
-
-									for (int bit = 0; bit < w*h; bit++) {
-										pBits[4 * bit + 0] = 0;
-										pBits[4 * bit + 1] = 0;
-										pBits[4 * bit + 2] = 255;
-										pBits[4 * bit + 3] = 0;
-
-									}
-									for (x = 0; x < 50; x++) {
-										for (y = 0; y < 50; y++) {
-
-											al_put_pixel(x, y, al_map_rgba(0, 0, 255, 0));
-										}
-									}
-									pitch = w * BYTES_PER_PIXEL(bpp);
-									pitch = (pitch + 3) & ~3;  /* align on dword */
-
-															   //al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
-															   //bitmap = al_create_bitmap(w, h);
-
-									lock = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_WRITEONLY);
-									//lock = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_RGB_888, ALLEGRO_LOCK_WRITEONLY);
-									//lock = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
-
-									dst = (uint8_t *)lock->data;
-									
-									for (y = 0; y < h/2; ++y)
-									{
-
-										//memcpy(dst, pBits + y * pitch, w * BYTES_PER_PIXEL(bpp));
-										dst += lock->pitch;
-									}
-									//memcpy(dst , pBits, w*h*BYTES_PER_PIXEL(bpp));
-									al_unlock_bitmap(bitmap);
-									//lock = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_WRITEONLY);
-									//al_unlock_bitmap(bitmap);
-
-
-								}
-								ALLEGRO_COLOR p1 = al_get_pixel(bitmap, 0 * display_width, 0 * display_height);
-								ALLEGRO_COLOR p2 = al_get_pixel(bitmap, 1 * display_width -1, 0 * display_height);
-								ALLEGRO_COLOR p3 = al_get_pixel(bitmap, 0 * display_width, 1 * display_height -1);
-								ALLEGRO_COLOR p4 = al_get_pixel(bitmap, 1 * display_width -1 , 1 * display_height -1);
-
-
-
-								int a = 1;
-
-								al_set_target_backbuffer(g_display);
-								//
-								// Blt the changes to the screen DC.
-								//BitBlt(hDC, rcSize.left, rcSize.top, 	rcSize.right - rcSize.left, rcSize.bottom - rcSize.top, hdcMem,	0, 0, SRCCOPY);
-
-
-								//al_convert_mask_to_alpha(bitmap, al_map_rgb(253, 1, 254));
-								//al_convert_mask_to_alpha(bitmap, al_map_rgb(255, 0, 255));
-								//ALLEGRO_BITMAP *bitmap2 = al_clone_bitmap(bitmap);
-
-
-								int op; int src; int dt;
-								al_get_blender(&op, &src, &dt); // get current state of blender
-								al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
-
-								//al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ONE);
-
-								al_draw_bitmap(bitmap, 0, 0, ALLEGRO_FLIP_VERTICAL);
-
-								al_set_blender(op, src, dt); // put this back the way we found it or its white out time
-
-								p1 = al_get_pixel(bitmap, 0 * display_width, 0 * display_height);
-								//al_destroy_bitmap(bitmap2);
-								//static ALLEGRO_BITMAP* al_hbmMem;
-								//al_hbmMem = convert_hbitmap_to_bitmap(hbmMem);
-								//al_hbmMem = get_bitmap_from_dib(bpp, display_width, display_height, pBits);
-								//al_convert_mask_to_alpha(al_hbmMem, al_map_rgb(253, 1, 254));
-								//al_draw_bitmap(al_hbmMem, 0, 0, ALLEGRO_FLIP_VERTICAL);
-
-								//al_hbmMem = al_create_bitmap(display_width, display_height);
-								//al_convert_mask_to_alpha(al_hbmMem, al_map_rgb(255, 255, 255));
-								//al_draw_bitmap(al_hbmMem, 0, 0, 0);
-
-								//ALLEGRO_BITMAP *al_hbmMem2 = al_clone_bitmap(al_hbmMem);
-								//al_convert_mask_to_alpha(al_hbmMem, al_map_rgb(0, 255, 0));
-								//al_draw_bitmap(al_hbmMem, 0, 0, 0);
-								//al_draw_bitmap(al_hbmMem, 0, 0, ALLEGRO_FLIP_VERTICAL);
-								//al_draw_tinted_bitmap(al_hbmMem, al_map_rgba_f(1,1,1,0.5), 0, 0, 0);
-								//al_flip_display();
-								//al_destroy_bitmap(al_hbmMem);
-								//al_destroy_bitmap(al_hbmMem2);
-
-								  //Screenbuffer_AcquireLock();
-								  //BitBlt(hDC, 0, 0, display_width, display_height, hdcMem, 0, 0, SRCCOPY); // "A funeral! You let Dougal do a funeral!!"
-								  //Screenbuffer_ReleaseLock();
-
-/*End No */
-	//al_flip_display();
-	//al_wait_for_vsync();
-/*	char meka_currDir[2048];
-	
-	InvalidateRect(MekaWND, &rcSize, FALSE);
-	GetCurrentDirectory(2048, meka_currDir); // "where'd you get the multithreaded code, Ted?"
-	RA_UpdateRenderOverlay(hDC, &input, ((float)nDelta / 1000.0f), &rcSize, meka_fullscreen, meka_paused);
-	SetCurrentDirectory(meka_currDir); // "Cowboys Ted! They're a bunch of cowboys!"
-	*/
-	
-	ReleaseDC(MekaWND, hDC);
-	
-	
+	RA_UpdateRenderOverlay(hdc, &input, ((float)nDelta / 1000.0f), &rect, meka_fullscreen, meka_paused);
 }
 
 t_video_driver*	VideoDriver_FindByName(const char* name)
@@ -847,165 +659,3 @@ t_video_driver*	VideoDriver_FindByName(const char* name)
 
 //-----------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-#include <Windows.h>
-
-#include <allegro5/allegro.h>
-
-#define BYTES_PER_PIXEL(bpp)     (((int)(bpp) + 7) / 8)
-
-/* get_bitmap_from_dib:
-*  Creates an Allegro BITMAP from a Windows device-independent bitmap (DIB).
-*/
-static ALLEGRO_BITMAP *get_bitmap_from_dib(int bpp, int w, int h, BYTE *pixels)
-{
-	int x, y;
-	int pitch;
-	int col;
-	int b, g, r;
-	BYTE *src;
-	ALLEGRO_BITMAP *bitmap;
-	ALLEGRO_LOCKED_REGION *lock;
-	uint8_t *dst;
-
-	pitch = w * BYTES_PER_PIXEL(bpp);
-	pitch = (pitch + 3) & ~3;  /* align on dword */
-
-	al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ARGB_8888);
-	bitmap = al_create_bitmap(w, h);
-
-	lock = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_XRGB_8888, ALLEGRO_LOCK_WRITEONLY);
-	//lock = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_RGB_888, ALLEGRO_LOCK_WRITEONLY);
-	//lock = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
-
-
-	dst = (uint8_t *)lock->data;
-
-	for (y = 0; y < h; ++y)
-	{
-		memcpy(dst, pixels + y * pitch, w * BYTES_PER_PIXEL(bpp));
-		dst += lock->pitch;
-	}
-
-	al_unlock_bitmap(bitmap);
-
-	return bitmap;
-}
-
-/* get_dib_from_hbitmap:
-*  Creates a Windows device-independent bitmap (DIB) from a Windows BITMAP.
-*  You have to free the memory allocated by this function.
-*/
-static BYTE *get_dib_from_hbitmap(int bpp, HBITMAP hbitmap)
-{
-	BITMAPINFOHEADER bi;
-	BITMAPINFO *binfo;
-	HDC hdc;
-	HPALETTE hpal, holdpal;
-	int col;
-	BITMAP bm;
-	int pitch;
-	BYTE *pixels;
-	BYTE *ptr;
-	int x, y;
-
-	if (!hbitmap)
-		return NULL;
-
-	if (bpp == 15)
-		bpp = 16;
-
-	if (!GetObject(hbitmap, sizeof(bm), (LPSTR)& bm))
-		return NULL;
-
-	pitch = bm.bmWidth * BYTES_PER_PIXEL(bpp);
-	pitch = (pitch + 3) & ~3;  /* align on dword */
-
-	pixels = (BYTE *)al_malloc(bm.bmHeight * pitch);
-	if (!pixels)
-		return NULL;
-
-	ZeroMemory(&bi, sizeof(BITMAPINFOHEADER));
-
-	bi.biSize = sizeof(BITMAPINFOHEADER);
-	bi.biBitCount = bpp;
-	bi.biPlanes = 1;
-	bi.biWidth = bm.bmWidth;
-	bi.biHeight = -abs(bm.bmHeight);
-	bi.biClrUsed = 256;
-	bi.biCompression = BI_RGB;
-
-	binfo = (BITMAPINFO *)al_malloc(sizeof(BITMAPINFO) + sizeof(RGBQUAD) * 256);
-	binfo->bmiHeader = bi;
-
-	hdc = GetDC(NULL);
-
-	GetDIBits(hdc, hbitmap, 0, bm.bmHeight, pixels, binfo, DIB_RGB_COLORS);
-
-	ptr = pixels;
-
-	al_free(binfo);
-
-
-	ReleaseDC(NULL, hdc);
-
-	return pixels;
-}
-
-/* convert_hbitmap_to_bitmap:
-*  Converts a Windows BITMAP to an Allegro BITMAP.
-*/
-ALLEGRO_BITMAP *convert_hbitmap_to_bitmap(HBITMAP bitmap)
-{
-	BYTE *pixels;
-	ALLEGRO_BITMAP *bmp;
-	BITMAP bm;
-	int bpp;
-
-	if (!GetObject(bitmap, sizeof(bm), (LPSTR)& bm))
-		return NULL;
-
-	if (bm.bmBitsPixel == 8) {
-		/* ask windows to save truecolor image, then convert to our format */
-		bpp = 24;
-	}
-	else
-		bpp = bm.bmBitsPixel;
-
-	/* get the DIB first */
-	pixels = get_dib_from_hbitmap(bpp, bitmap);
-
-	/* now that we have the DIB, convert it to a BITMAP */
-	bmp = get_bitmap_from_dib(bpp, bm.bmWidth, bm.bmHeight, pixels);
-
-	al_free(pixels);
-
-	return bmp;
-}
-
-ALLEGRO_BITMAP *convert_hdc_to_bitmap(HDC dc)
-{
-	ALLEGRO_BITMAP *bg;
-	const int w = GetDeviceCaps(dc, HORZRES);
-	const int h = GetDeviceCaps(dc, VERTRES);
-
-	HDC hmemdc = CreateCompatibleDC(dc);
-	HBITMAP hbmp = CreateCompatibleBitmap(dc, w, h);
-	HBITMAP holdbmp = (HBITMAP)SelectObject(hmemdc, hbmp);
-
-	StretchBlt(hmemdc, 0, 0, w, h, dc, 0, 0, w, h, SRCCOPY);
-	SelectObject(hmemdc, holdbmp);
-
-	bg = convert_hbitmap_to_bitmap(hbmp);
-
-	DeleteObject(hbmp);
-	DeleteDC(hmemdc);
-
-	return bg;
-}
