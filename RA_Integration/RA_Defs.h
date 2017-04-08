@@ -11,6 +11,8 @@
 #define RAVBA_VERSION			"0.017"
 #define RANES_VERSION			"0.007"
 #define RAPCE_VERSION			"0.002"
+#define RANES_VERSION			"0.007"
+#define RAMEKA_VERSION			"0.00535"  // (535 sms)
 
 #else
 

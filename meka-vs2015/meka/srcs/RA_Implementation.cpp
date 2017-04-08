@@ -2,7 +2,6 @@
 #include "RA_Interface.h"
 #include <windows.h>
 
-
 //#include "message.h"
 
 void Machine_UnPause(); //machine.c
@@ -65,39 +64,6 @@ void RebuildMenu()
 
 	DrawMenuBar(ConsoleHWND());
 
-/*
-	AppendMenu(AboutMenu, MF_STRING, 100001, "&About Dud");
-	AppendMenu(MainMenu, MF_STRING | MF_POPUP, (UINT)AboutMenu, "&About");
-	SetMenu(ConsoleHWND(), MainMenu);
-
-	SetWindowText(ConsoleHWND(), "Testing Meka RA Build Really");
-
-	//disable close window for console because I am lazy
-	EnableMenuItem(GetSystemMenu(ConsoleHWND(), FALSE), SC_CLOSE,MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
-	DrawMenuBar(ConsoleHWND());
-
-	*/
-	//HMENU hMainMenu = GetMenu(hAppWnd); HMENU hMainMenu = GetMenu(hAppWnd);
-
-	// get main menu handle
-	/*
-	HMENU hMainMenu = GetMenu(hAppWnd);
-	if (!hMainMenu) return;
-
-	// get file menu index
-	int index = GetMenuItemIndex(hMainMenu, "&RetroAchievements");
-	if (index >= 0)
-		DeleteMenu(hMainMenu, index, MF_BYPOSITION);
-
-	index = GetMenuItemIndex(hMainMenu, "&Debug");
-	if (index >= 0)
-		DeleteMenu(hMainMenu, index, MF_BYPOSITION);
-
-	//	##RA embed RA
-	AppendMenu(hMainMenu, MF_POPUP | MF_STRING, (UINT_PTR)RA_CreatePopupMenu(), TEXT("&RetroAchievements"));
-
-	DrawMenuBar(hAppWnd);
-	*/
 }
 
 //	sNameOut points to a 64 character buffer.
@@ -109,9 +75,11 @@ void GetEstimatedGameTitle(char* sNameOut)
 	//	strcpy_s( sNameOut, 49, emu->get_NES_ROM()->GetRomName() );
 }
 
+
+void Machine_Reset(); //machine.c
 void ResetEmulation()
 {
-	//FCEUI_ResetNES();
+	Machine_Reset(); // FCEUI_ResetNES();
 }
 
 void LoadROM(char* sFullPath)

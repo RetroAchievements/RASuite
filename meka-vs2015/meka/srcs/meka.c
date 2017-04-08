@@ -351,15 +351,9 @@ int main(int argc, char **argv)
 
     ConsoleInit(); // First thing to do
     #ifdef ARCH_WIN32
-    //RA
-	//RA_Init(ConsoleHWND(), RA_Meka, "0.000535"); //faking as RA_Gens otherwise RA_Integration will crash on unknown client
 
-	//Run init here or meka will screw up the directories for loading libraries, etc.
-
-	//HWND allegroHWND = al_get_win_window_handle(g_display);
-	//RA_Init(allegroHWND, RA_Meka, "0.00535");
 	
-	//RA Setup Code
+	//#RA Setup Code
 	{ 
 		char meka_currDir[2048];
 		GetCurrentDirectory(2048, meka_currDir); // "where'd you get the multithreaded code, Ted?"
@@ -379,12 +373,12 @@ int main(int argc, char **argv)
 		InvalidateRect(ConsoleHWND(), NULL, TRUE);
 		DrawMenuBar(ConsoleHWND());
 
-		RA_Init(ConsoleHWND(), RA_Meka, "0.000535");
-		//RA_Init(ConsoleHWND(), RA_Gens, "0.500535");
+		RA_Init(ConsoleHWND(), RA_Meka, RAMEKA_VERSION);
+		//RA_Init(ConsoleHWND(), RA_Meka, "0.000535");
 
 		RA_InitShared();
 		RA_InitDirectX();
-		RA_UpdateAppTitle("");
+		RA_UpdateAppTitle("RAMEKA");
 
 
 		RebuildMenu();
@@ -393,54 +387,11 @@ int main(int argc, char **argv)
 
 		RebuildMenu();
 
-
 		GetCurrentDirectory(2048, RA_rootDir); // "Father Todd Unctious?"
 
 		SetCurrentDirectory(meka_currDir); // "Cowboys Ted! They're a bunch of cowboys!"
 	}
 	
-
-
-	/*{ //(What's this all for?)
-
-		//##RA
-		while (RA_HTTPRequestExists("requestlogin.php"))
-		{
-			RA_HandleHTTPResults();
-			Sleep(16);
-		}
-	}
-	RA_HandleHTTPResults();
-	*/
-
-       /*
-		HMENU MainMenu;
-		HMENU AboutMenu;
-		
-
-		MainMenu = CreateMenu();
-		AboutMenu = CreatePopupMenu();
-
-		AppendMenu(AboutMenu, MF_STRING, 100001, "&About Dud");
-		AppendMenu(MainMenu, MF_STRING | MF_POPUP, (UINT)AboutMenu, "&About");
-		SetMenu(ConsoleHWND(), MainMenu);
-
-		ConsolePrintf("%s (built %s %s)\n(c) %s %s\n--\n", MEKA_NAME_VERSION, MEKA_BUILD_DATE, MEKA_BUILD_TIME, MEKA_DATE, MEKA_AUTHORS);
-		SetWindowText(ConsoleHWND(), "Testing Meka RA Build Really");
-
-		//disable close window for console because I am lazy
-		EnableMenuItem(GetSystemMenu(ConsoleHWND(), FALSE), SC_CLOSE,MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
-		DrawMenuBar(ConsoleHWND());*/
-		/*
-
-		Flags = MF_BYPOSITION | MF_POPUP | MF_STRING;
-
-		MENU_L(MainMenu, 0, AboutMenu, (UINT)AboutMenu, "About", "", "&About");
-
-		Flags = MF_BYPOSITION | MF_STRING;
-		MENU_L(AboutMenu, 0, Flags, 10001, "About Dud", "", "&About Dud");
-		InsertMenu(AboutMenu, 1, MF_SEPARATOR, NULL, NULL);
-		*/
 
 		
 		ConsolePrintf("%s (built %s %s)\n(c) %s %s\n--\n", MEKA_NAME_VERSION, MEKA_BUILD_DATE, MEKA_BUILD_TIME, MEKA_DATE, MEKA_AUTHORS);
@@ -520,31 +471,6 @@ int main(int argc, char **argv)
         g_env.state = MEKA_STATE_GUI;
     Video_Setup_State();
 
-	/*HWND allegro_window = al_get_win_window_handle(g_display);
-
-	HMENU MainMenu;
-	HMENU AboutMenu;
-
-
-	MainMenu = CreateMenu();
-	AboutMenu = CreatePopupMenu();
-
-	AppendMenu(AboutMenu, MF_STRING, 100001, "&About Dud");
-	AppendMenu(MainMenu, MF_STRING | MF_POPUP, (UINT)AboutMenu, "&About");
-	//SetMenu(allegro_window, MainMenu);
-	
-	ConsolePrintf("%s (built %s %s)\n(c) %s %s\n--\n", MEKA_NAME_VERSION, MEKA_BUILD_DATE, MEKA_BUILD_TIME, MEKA_DATE, MEKA_AUTHORS);
-	SetWindowText(allegro_window, "Testing Meka RA Build Really");
-	*/
-
-	/*
-	ALLEGRO_MENU *menu = al_create_menu();
-	ALLEGRO_MENU *file_menu = al_create_menu();
-	al_append_menu_item(file_menu, "Exit", 1, 0, NULL, NULL);
-	al_append_menu_item(menu, "File", 0, 0, NULL, file_menu);
-	al_set_display_menu(g_display, menu);
-	*/
-
     Machine_Reset          (); // Reset Emulated Machine (set default values)
 	Init_GUI               (); // Initialize Graphical User Interface
 	FB_Init_2              (); // Finish initializing the file browser
@@ -556,18 +482,11 @@ int main(int argc, char **argv)
     if (!ConsoleWaitForAnswer(true))
         return (0);
 
-
-
-    //ConsoleClose(); // Close Console
+    //ConsoleClose(); // Close Console (Needed for RA)
 
     // Start main program loop
     // Everything runs from there.
     // Z80_Opcodes_Usage_Reset();
-
-
-	
-
-
 
 
 
@@ -590,7 +509,7 @@ int main(int argc, char **argv)
     Messages_Close();
     Close_Allegro();
 
-	//RA
+	//#RA
 	RA_HandleHTTPResults();
 	RA_Shutdown();
 
