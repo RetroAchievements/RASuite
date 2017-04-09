@@ -134,7 +134,7 @@ void        SaveState_Save()
 
 	if (RA_HardcoreModeIsActive())  //Ask for confirmation if RA_Harcore is set
 	{
-		if (MessageBox(NULL, "Hardcore mode is active. If you load/save a state, Hardcore Mode will be disabled. Continue?", "Warning", MB_YESNO) == IDNO)
+		if (MessageBox(NULL, "Hardcore mode is active. If you load/save a state, Hardcore Mode will be disabled. Continue?", "Warning", (MB_YESNO | MB_SETFOREGROUND)) == IDNO)
 			return;
 	}
 
@@ -193,7 +193,7 @@ void        SaveState_Load()
 
 	if (RA_HardcoreModeIsActive()) //Ask for confirmation if RA_Harcore is set
 	{
-		if (MessageBox(NULL, "Hardcore mode is active. If you load/save a state, Hardcore Mode will be disabled. Continue?", "Warning", MB_YESNO) == IDNO)
+		if (MessageBox(NULL, "Hardcore mode is active. If you load/save a state, Hardcore Mode will be disabled. Continue?", "Warning", (MB_YESNO | MB_SETFOREGROUND)) == IDNO)
 			return;
 	}
 
