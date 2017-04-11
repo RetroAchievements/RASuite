@@ -179,7 +179,7 @@ API BOOL CCONV _RA_InitI( HWND hMainHWND, /*enum EmulatorID*/int nEmulatorID, co
 			nMBReply = MessageBox( NULL, 
 				"Cannot load RA_Keys.dll!\n"
 				"Download fresh RetroAchievement keys file from RetroAchievements.org?", 
-				"Warning", MB_YESNO );
+				"Warning", MB_YESNO | MB_SETFOREGROUND);
 			
 			if( nMBReply == IDYES )
 			{
