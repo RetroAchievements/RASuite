@@ -161,7 +161,9 @@ static int Video_ChangeVideoMode(t_video_driver* driver, int w, int h, bool full
 	else
 		display_flags |= ALLEGRO_WINDOWED;
 	al_set_new_display_flags(display_flags);
-	al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST);
+//	al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST); actually v_sync
+	al_set_new_display_option(ALLEGRO_VSYNC, 1, ALLEGRO_SUGGEST);
+
 	al_set_new_display_refresh_rate(g_configuration.video_mode_gui_refresh_rate);
 	g_display = al_create_display(w, h);
 
@@ -530,6 +532,8 @@ void    Video_RefreshScreen()
 #define BYTES_PER_PIXEL(bpp)     (((int)(bpp) + 7) / 8)
 
 void RenderAchievementOverlays() {
+	
+	if (g_env.state == MEKA_STATE_SHUTDOWN) return; // should be here
 
 	if (overlay_render_method == OVERLAY_RENDER_WIN_LAYER) {
 		al_flip_display();
@@ -584,7 +588,7 @@ void RenderAchievementOverlays_WIN_LAYER() {
 		// Set up buffer and back buffer
 		HDC hdc = GetDC(MekaWND);
 		HDC hdcMem = CreateCompatibleDC(hdc);
-		PAINTSTRUCT ps;
+		//PAINTSTRUCT ps; //unreferenced
 		HBITMAP hBmp = CreateCompatibleBitmap(hdc, rect.right, rect.bottom);
 		HBITMAP hBmpOld = (HBITMAP)SelectObject(hdcMem, hBmp);
 

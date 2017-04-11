@@ -2,7 +2,7 @@
 #include "RA_Interface.h"
 #include <windows.h>
 
-//#include "message.h"
+#include "vmachine.h"
 
 void Machine_UnPause(); //machine.c
 HWND ConsoleHWND(void); //message.c
@@ -30,8 +30,11 @@ int GetMenuItemIndex(HMENU hMenu, const char* ItemName)
 //	 no ROM is loaded, or a ROM has been unloaded.
 bool GameIsActive()
 {
+
+//	bool check = (g_machine_flags ^ MACHINE_RUN) == MACHINE_RUN) &&
+//			((g_machine_flags & MACHINE_PAUSED ) == MACHINE_PAUSED)	
 	//return (g_machine_flags ^ MACHINE_ROM_LOADED)== MACHINE_ROM_LOADED; // doesn't detect system
-	return true;
+	return true;  //otherwise debugger won't work.
 }
 
 //	Perform whatever action is required to unpause emulation.

@@ -26,6 +26,8 @@ void    Action_Quit()
     // Redraw last time, so message appears on screen
     gui_redraw_everything_now_once();
 
+	
+
     /*
     // Software, naive, slow fade
     // Only 32-bits supported

@@ -495,6 +495,13 @@ int main(int argc, char **argv)
 
 
 
+	//#RA
+	// Wait for Win32 console signal
+	if (!ConsoleWaitForAnswer(true))
+		return (0); // why isn't this -1?
+	ConsoleClose();
+	RA_HandleHTTPResults();
+	RA_Shutdown();
 
     // Shutting down emulator...
     g_env.state = MEKA_STATE_SHUTDOWN;
@@ -509,9 +516,7 @@ int main(int argc, char **argv)
     Messages_Close();
     Close_Allegro();
 
-	//#RA
-	RA_HandleHTTPResults();
-	RA_Shutdown();
+
 
     return (0);
 }
