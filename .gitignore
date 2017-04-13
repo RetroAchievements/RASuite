@@ -46,12 +46,15 @@
 /meka-vs2015/meka/RA_Integration*.dll
 /meka-vs2015/meka/RA_Keys*.dll
 /meka-vs2015/meka/*.pdb
+/meka-vs2015/meka/*.ipdb
 /meka-vs2015/meka/*.cfg
 /meka-vs2015/meka/*.obj
+/meka-vs2015/meka/*.iobj
 /meka-vs2015/meka/*.bsc
+/meka-vs2015/meka/*.exe
 /meka-vs2015/meka/srcs/projects/msvc/*.VC.db
 /meka-vs2015/meka/RACache/*
-/meka-vs2015/meka/meka.inp
+/meka-vs2015/meka/RAmeka.ilk
 
 
 /RAGens/win32/Backup

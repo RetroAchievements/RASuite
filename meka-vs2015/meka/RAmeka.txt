@@ -23,9 +23,10 @@ Notes:
   The RA menus and dialogs visible from this menu should match those of existing RA Emulators.
 - Meka at present has sound issues. Fiddle with (f2,f3,f4) if you're have problems.
 - Meka has an internal debugger similar to but separate from the RA debugger. Meka's debugger does NOT work with RA.
-- To use the layered Window overlay instead of allegro, set "overlay_render_method = win_layered" in mekaw.cfg
+- To use the layered Window overlay instead of allegro, set "overlay_render_method = win_layer" in mekaw.cfg
 - To change meka resolution/refresh rate, you will need to edit the relevant lines in mekaw.cfg
 - Basic Meka commands:
+	
 	ESC 	- Enter/exit windowed fullscreen
 	F12 	- Pause / Load RA Overlay Menu
 	F5/F7 	- Save/Load State

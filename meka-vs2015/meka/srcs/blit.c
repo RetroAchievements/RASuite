@@ -28,6 +28,11 @@
 #include "vdp.h"
 #include "video.h"
 
+
+//#RA
+int overlay_bg_splits = 0;
+
+
 //-----------------------------------------------------------------------------
 // Data
 //-----------------------------------------------------------------------------
@@ -128,6 +133,8 @@ static void Blit_Fullscreen_Misc(void)
 		//Could clear fractions of the display backbuffer instead, or only do this every so many frames
 		//We're emulating retro (60Hz) for millisecond matter here. May need ot look into this again (When git and VS aren't eating my code)
 		al_set_target_bitmap(al_get_backbuffer(g_display));
+		//al_set_target_bitmap(al_get_backbuffer(fs_out));
+
 		al_clear_to_color(BORDER_COLOR);
 
 	}

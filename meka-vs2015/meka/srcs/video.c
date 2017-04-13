@@ -22,6 +22,11 @@
 #include "RA_Interface.h"
 
 int overlay_render_method = OVERLAY_RENDER_ALLEGRO;// default. Set here but read in by config.c 
+bool disable_RA_overlay = false;
+int overlay_frame_skip = 0;
+int overlay_alternate_render_blit = 0;
+//int overlay_bg_splits = 0;
+
 
 void RenderAchievementOverlays();
 void RenderAchievementOverlays_ALLEGRO_OVERLAY();
@@ -533,6 +538,8 @@ void    Video_RefreshScreen()
 
 void RenderAchievementOverlays() {
 	
+	if (disable_RA_overlay) return;
+
 	if (g_env.state == MEKA_STATE_SHUTDOWN) return; // should be here
 
 	if (overlay_render_method == OVERLAY_RENDER_WIN_LAYER) {
@@ -552,10 +559,13 @@ void RenderAchievementOverlays_WIN_LAYER() {
 	//So alegro is finished flipping screenbuffers?
 	//So we can draw the overlays now, right?
 	//WARNING: Ugly Hack
-	MekaWND = al_get_win_window_handle(g_display); //This works, but Too much flicker.
+	MekaWND = al_get_win_window_handle(g_display);
 
 	RECT rect;
 	GetClientRect(MekaWND, &rect);
+
+	char meka_currDir[2048];
+	GetCurrentDirectory(2048, meka_currDir); // "where'd you get the multithreaded code, Ted?"
 
 	// Initialize layered window
 	if (layeredWnd == NULL)
@@ -582,15 +592,19 @@ void RenderAchievementOverlays_WIN_LAYER() {
 		
 		ShowWindow(layeredWnd, SW_SHOWNOACTIVATE);
 	}
-	
 	else
 	{
 		// Set up buffer and back buffer
 		HDC hdc = GetDC(MekaWND);
-		HDC hdcMem = CreateCompatibleDC(hdc);
-		//PAINTSTRUCT ps; //unreferenced
-		HBITMAP hBmp = CreateCompatibleBitmap(hdc, rect.right, rect.bottom);
-		HBITMAP hBmpOld = (HBITMAP)SelectObject(hdcMem, hBmp);
+
+		static HDC hdcMem = NULL;
+		static HBITMAP hBmp = NULL;
+		static HBITMAP hBmpOld = NULL;
+		if (!hdcMem) {
+			hdcMem = CreateCompatibleDC(hdc);
+			hBmp = CreateCompatibleBitmap(hdc, rect.right, rect.bottom);
+			hBmpOld = (HBITMAP)SelectObject(hdcMem, hBmp);
+		}
 
 		// Blits the MekaWND to the back buffer.
 		BitBlt(hdcMem, 0, 0, rect.right, rect.bottom, hdc, 0, 0, SRCCOPY);
@@ -616,16 +630,14 @@ void RenderAchievementOverlays_WIN_LAYER() {
 		SetWindowPos(layeredWnd, 0, rect.left, rect.top, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE);
 		SetWindowPos(MekaWND, layeredWnd, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); // Don't think this line is necessary on most OS, but just safety net.
 
-		SelectObject(hdcMem, hBmpOld);
-		DeleteObject(hBmp);
-		DeleteDC(hdcMem);
+		//SelectObject(hdcMem, hBmpOld);
+		//DeleteObject(hBmp);
+		//DeleteDC(hdcMem);
 		ReleaseDC(MekaWND, hdc);
 	}
 
-	char meka_currDir[2048];
-	GetCurrentDirectory(2048, meka_currDir); // "where'd you get the multithreaded code, Ted?"
 	SetCurrentDirectory(meka_currDir); // "Cowboys Ted! They're a bunch of cowboys!"
-}
+}	
 
 
 LRESULT CALLBACK RAWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
@@ -779,6 +791,8 @@ void RenderAchievementOverlays_ALLEGRO_OVERLAY() {
 
 void UpdateOverlay(HDC hdc, RECT rect)
 {
+
+
 	static int nOldTime = GetTickCount(); //Time in ms I presume
 
 	int nDelta;
