@@ -24,7 +24,7 @@
 int overlay_render_method = OVERLAY_RENDER_ALLEGRO;// default. Set here but read in by config.c 
 bool disable_RA_overlay = false;
 int overlay_frame_skip = 0;
-int overlay_alternate_render_blit = 0;
+bool overlay_alternate_render_blit = false;
 //int overlay_bg_splits = 0;
 
 
@@ -166,8 +166,8 @@ static int Video_ChangeVideoMode(t_video_driver* driver, int w, int h, bool full
 	else
 		display_flags |= ALLEGRO_WINDOWED;
 	al_set_new_display_flags(display_flags);
-//	al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST); actually v_sync
-	al_set_new_display_option(ALLEGRO_VSYNC, 1, ALLEGRO_SUGGEST);
+	al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST); //actually v_sync
+//	al_set_new_display_option(ALLEGRO_VSYNC, 1, ALLEGRO_SUGGEST);
 
 	al_set_new_display_refresh_rate(g_configuration.video_mode_gui_refresh_rate);
 	g_display = al_create_display(w, h);
@@ -657,6 +657,8 @@ LRESULT CALLBACK RAWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
 void RenderAchievementOverlays_ALLEGRO_OVERLAY() {
 
+	static int frames_skipped = 0;
+
 	static int display_width = -1;
 	static int display_height = -1;
 	static int bpp = 32; // Bits per pixel. Don't change this. The hack won't work without it
@@ -709,74 +711,94 @@ void RenderAchievementOverlays_ALLEGRO_OVERLAY() {
 	} //End bitmaps creation code (Only run once at the moment)
 
 
-    //First let RA Draw the pixels to the WINAPI buffer
-	FillRect(hdcMem, &rcSize, hbrBkGnd);
-	//RA_UpdateRenderOverlay(hdcMem, &input, ((float)nDelta / 1000.0f), &rcSize, meka_fullscreen, meka_paused);
-	UpdateOverlay(hdcMem, rcSize);
+	if (frames_skipped  < overlay_frame_skip) {
+		frames_skipped++; //don't update the overlay buffers this frame
+	}
+	else { //update overlays
+		frames_skipped = 0;
 
 
-	/* Now we do something very stupid and hacky
-	....................................................
-	......................```...........................
-	...............```...:////-`........................
-	...............-:+o++syyhyy+-.`.....................
-	..........-../syyhdhyhdhhhhhyys+/:-`................
-	.........`./sshddddddhhhhhhhhhhhhyso/...............
-	......``-+yyyhhhdddddhhyyhhhddhhdddhys-.............
-	......-/yhhhhhdhddddhhhyhhhdhdddddddddh.............
-	.....`/shhddhhddhhhhhhhhyhhhhdddmmdmddm+............
-	....:-osyhhddhhhdhhhhddddhhdddddmddmmmmdo...........
-	...../oosyhhhhhhhyyhddddddmmmmmmmmmmmmmmd-..........
-	.....+ooosyhhhhhhhhhdddmmmmmddddmmNNNNmmmo..........
-	...`:+oosyhdhhddddddddmdmmmmmdhddNNNmNNNNd-.........
-	...`osyydmmddddhyyyhdmdmmmddmmhhdmNNNNNNNNd`.`......
-	....````hNNNmmddhysshddhhhyshhshdmmNNNNNNNm:oNNdy/`.
-	.........sdmdhhhyssyyyyyhhyyhyyhdmmmmNNmmmNNNNNMMMNo
-	........./ssyhhysyyyyyhhhhhhyhdmddddmmddymNNNMMMMMMM
-	.........+yyyyyyyhhhhhhhdddddhhhdddddhssmNNNMMMMMMNm
-	.........+ssyyhhhhhhhhhddddhhddddhhdssmNNNNMMMMMNNNN
-	.........:ydmmdhhhhhhhhddddhhdddhdhsdMNNNNMMMMNNNNNN
-	...........```/syhhhhhhdddhhddddddmMNNNNNMMNNNNNNNNN
-	.................:hdhhhhdddddmmNNMMNNNNNMMNNNNNNNNNN
-	................./shhhhdddmmNNNNMMNNNNMMMNNNNNNNNNNN
-	..................`/syhddmmdhmNNNNNNMMMNNNNNNNNNNNNN
-	....................:ohs++:`.`+mNNNMMMNNNNNNNNNNNNNN
-	............................`+hNNNMMMNNNNNNNNNNNNNNN
-	"A funeral! You let Dougal do a funeral!!"
-	*/
-	{
-		//		int x, y;// , y;
-		int pitch;
-		int w = display_width;
-		int h = display_height;
-		uint8_t *dst;
-		static DWORD *pPixels = (DWORD*) &(*pBits); //Represent BYTE array as array of 4 byte RGBA DWORD array
+		static bool UPDATE_OVERLAY = false; 
+		static bool COPY_OVERLAY = true; //for now. Decide whether to alternate blits based on overlay_alternate_render_blit
 
-													//The alpha value of all the bits had better be zero after WINAPI is done or ... nothing will happen here.
-		for (int pixel = 0; pixel < w*h; pixel++) {
-			if (pPixels[pixel] != mask)   //there is probably some gosu way of doing this in one SIMD operation but I don't know.
-				pPixels[pixel] += 0xff000000;
-			//Is the system little endian or big endian? If colors are being inverted you know what is wrong now.
+		//if overlay_alternate_render_blit ==0 then both updates are true. Otherwise each flips its truth value
+		UPDATE_OVERLAY = !overlay_alternate_render_blit | !UPDATE_OVERLAY;  
+		COPY_OVERLAY = !overlay_alternate_render_blit | !COPY_OVERLAY;                           //a smart compiler should use !(a&b) instead of !a|!b but code must be more readable.
+
+		if (UPDATE_OVERLAY)
+		{
+			//First let RA Draw the pixels to the WINAPI buffer
+			FillRect(hdcMem, &rcSize, hbrBkGnd);
+			//RA_UpdateRenderOverlay(hdcMem, &input, ((float)nDelta / 1000.0f), &rcSize, meka_fullscreen, meka_paused);
+			UpdateOverlay(hdcMem, rcSize);
 		}
 
-		pitch = w * BYTES_PER_PIXEL(bpp);
-		pitch = (pitch + 3) & ~3;  /* align on dword */
 
-								   //must use ARGB format here. For the life of me I don't understand why this isn't RGBA. or ABGR. I think windows is internally returning 0xAARRGGBB corresponding to BGR. Never mind it works 
-		lock = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_WRITEONLY);
-		dst = (uint8_t *)lock->data;
+		/* Now we do something very stupid and hacky
+		....................................................
+		......................```...........................
+		...............```...:////-`........................
+		...............-:+o++syyhyy+-.`.....................
+		..........-../syyhdhyhdhhhhhyys+/:-`................
+		.........`./sshddddddhhhhhhhhhhhhyso/...............
+		......``-+yyyhhhdddddhhyyhhhddhhdddhys-.............
+		......-/yhhhhhdhddddhhhyhhhdhdddddddddh.............
+		.....`/shhddhhddhhhhhhhhyhhhhdddmmdmddm+............
+		....:-osyhhddhhhdhhhhddddhhdddddmddmmmmdo...........
+		...../oosyhhhhhhhyyhddddddmmmmmmmmmmmmmmd-..........
+		.....+ooosyhhhhhhhhhdddmmmmmddddmmNNNNmmmo..........
+		...`:+oosyhdhhddddddddmdmmmmmdhddNNNmNNNNd-.........
+		...`osyydmmddddhyyyhdmdmmmddmmhhdmNNNNNNNNd`.`......
+		....````hNNNmmddhysshddhhhyshhshdmmNNNNNNNm:oNNdy/`.
+		.........sdmdhhhyssyyyyyhhyyhyyhdmmmmNNmmmNNNNNMMMNo
+		........./ssyhhysyyyyyhhhhhhyhdmddddmmddymNNNMMMMMMM
+		.........+yyyyyyyhhhhhhhdddddhhhdddddhssmNNNMMMMMMNm
+		.........+ssyyhhhhhhhhhddddhhddddhhdssmNNNNMMMMMNNNN
+		.........:ydmmdhhhhhhhhddddhhdddhdhsdMNNNNMMMMNNNNNN
+		...........```/syhhhhhhdddhhddddddmMNNNNNMMNNNNNNNNN
+		.................:hdhhhhdddddmmNNMMNNNNNMMNNNNNNNNNN
+		................./shhhhdddmmNNNNMMNNNNMMMNNNNNNNNNNN
+		..................`/syhddmmdhmNNNNNNMMMNNNNNNNNNNNNN
+		....................:ohs++:`.`+mNNNMMMNNNNNNNNNNNNNN
+		............................`+hNNNMMMNNNNNNNNNNNNNNN
+		"A funeral! You let Dougal do a funeral!!"
+		*/
+		if (COPY_OVERLAY)
+		{
+			//		int x, y;// , y;
+			int pitch;
+			int w = display_width;
+			int h = display_height;
+			uint8_t *dst;
+			static DWORD *pPixels = (DWORD*) &(*pBits); //Represent BYTE array as array of 4 byte RGBA DWORD array
 
-		//Copy the WINAPI bitmap bits into the ALLEGRO bitmap's buffer.
-		memcpy(dst, pBits, w*h*BYTES_PER_PIXEL(bpp));
-		al_unlock_bitmap(bitmap);
+														//The alpha value of all the bits had better be zero after WINAPI is done or ... nothing will happen here.
+			for (int pixel = 0; pixel < w*h; pixel++) {
+				if (pPixels[pixel] != mask)   //there is probably some gosu way of doing this in one SIMD operation but I don't know.
+					pPixels[pixel] += 0xff000000;
+				//Is the system little endian or big endian? If colors are being inverted you know what is wrong now.
+			}
 
-	}							// "You have used three inches of sticky tape, God bless you"
+			pitch = w * BYTES_PER_PIXEL(bpp);
+			pitch = (pitch + 3) & ~3;  /* align on dword */
+
+									   //must use ARGB format here. For the life of me I don't understand why this isn't RGBA. or ABGR. I think windows is internally returning 0xAARRGGBB corresponding to BGR. Never mind it works 
+			lock = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ARGB_8888, ALLEGRO_LOCK_WRITEONLY);
+			dst = (uint8_t *)lock->data;
+
+			//Copy the WINAPI bitmap bits into the ALLEGRO bitmap's buffer.
+			memcpy(dst, pBits, w*h*BYTES_PER_PIXEL(bpp));
+			al_unlock_bitmap(bitmap);
+
+		}							// "You have used three inches of sticky tape, God bless you"
+	}
 
 
+	//must still draw existing buffers even if update was skipped.
 
-								//[02:26] <+SiegeLord> Allegro assumes pre - multiplied alpha channel
-								//[02:27] <+SiegeLord> While what you have uses the non - pre multiplied alpha channel
-								//So we need to switch blender types for drawing transparent bitmaps
+	//[02:26] <+SiegeLord> Allegro assumes pre - multiplied alpha channel
+	//[02:27] <+SiegeLord> While what you have uses the non - pre multiplied alpha channel
+	//So we need to switch blender types for drawing transparent bitmaps
 	int old_op; int old_src; int old_dst;
 	al_get_blender(&old_op, &old_src, &old_dst); // get current state of blender
 	al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);

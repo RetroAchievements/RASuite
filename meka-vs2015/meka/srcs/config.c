@@ -215,10 +215,7 @@ static void     Configuration_Load_Line(char *var, char *value)
 		input = atoi(value); input *= (input > 0);
 		overlay_frame_skip = input; return;
 	}
-	if (!strcmp(var, "overlay_alternate_render_blit")) {
-		input = atoi(value); input *= (input > 0);
-		overlay_alternate_render_blit = input; return;
-	}
+	if (!strcmp(var, "overlay_alternate_render_blit")) { overlay_alternate_render_blit = (atoi(value) != 0); return; }
 	if (!strcmp(var, "overlay_allegro_bg_splits")) {
 		input = atoi(value); input *= (input > 0);
 		overlay_bg_splits = input; return;
@@ -413,10 +410,10 @@ void Configuration_Save()
 		CFG_Write_Str("overlay_render_method", "allegro");
 	}
 
-	CFG_Write_Int("disable_RA_overlay", (int) disable_RA_overlay);
-	CFG_Write_Int("overlay_frame_skip", overlay_frame_skip);
-	CFG_Write_Int("overlay_alternate_render_blit", overlay_alternate_render_blit);
-	CFG_Write_Int("overlay_allegro_bg_splits", overlay_bg_splits);
+	CFG_Write_Int("disable_RA_overlay", (int) disable_RA_overlay);							//
+	CFG_Write_Int("overlay_frame_skip", overlay_frame_skip);								//
+	CFG_Write_Int("overlay_alternate_render_blit", (int) overlay_alternate_render_blit);	//
+	CFG_Write_Int("overlay_allegro_bg_splits", overlay_bg_splits);							//
 
 
 	CFG_Write_Line("-----< FACTS >---------------------------------------------------------------");

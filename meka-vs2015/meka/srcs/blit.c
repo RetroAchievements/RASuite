@@ -129,14 +129,42 @@ static void Blit_Fullscreen_Misc(void)
 	}
 
 	if (overlay_render_method == OVERLAY_RENDER_ALLEGRO && g_env.state == MEKA_STATE_GAME) {
+
+		//This is far simpler, but we don't really need to blank the entire baackbuffer on every frame.
+		//al_set_target_bitmap(al_get_backbuffer(g_display));
+		//al_clear_to_color(BORDER_COLOR);
+
+		//Instead, give the user the option of specificying the number of "stripes" the backbuffer
+		//is split into and we will blank only one of these stripes every frame.
+
+		static int w = al_get_display_width(g_display);
+		static int h = al_get_display_height(g_display);
+		static int strip_top = h+1;
+		static int strip_bottom = h+2;
+
+		int dh = h / (overlay_bg_splits + 1); if (dh == 0) dh = 1;
+
+
+		if (strip_bottom >= h) {
+			strip_top = 0;
+			strip_bottom = dh;
+		}
+		else {
+			strip_top += dh;
+			strip_bottom += dh;
+			if (strip_bottom > h) strip_bottom = h;
+		}
+
+
+
 		//Arguably we don't need to clear the whole screen here as the overlay code doesn't require this much attention
 		//Could clear fractions of the display backbuffer instead, or only do this every so many frames
 		//We're emulating retro (60Hz) for millisecond matter here. May need ot look into this again (When git and VS aren't eating my code)
 		al_set_target_bitmap(al_get_backbuffer(g_display));
 		//al_set_target_bitmap(al_get_backbuffer(fs_out));
 
-		al_clear_to_color(BORDER_COLOR);
-
+		//al_clear_to_color(BORDER_COLOR);
+		al_draw_filled_rectangle(0, strip_top, w, strip_bottom, BORDER_COLOR);
 	}
 
 

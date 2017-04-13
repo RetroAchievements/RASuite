@@ -77,7 +77,7 @@ enum {
 extern int overlay_render_method;
 extern bool disable_RA_overlay;
 extern int overlay_frame_skip;
-extern int overlay_alternate_render_blit;
+extern bool overlay_alternate_render_blit;
 extern int overlay_bg_splits;
 
 //-----------------------------------------------------------------------------
