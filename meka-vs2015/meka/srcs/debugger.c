@@ -17,6 +17,9 @@
 
 #ifdef MEKA_Z80_DEBUGGER
 
+//#RA
+#include "RA_Interface.h"
+
 //-----------------------------------------------------------------------------
 // Definitions
 //-----------------------------------------------------------------------------
@@ -647,6 +650,12 @@ void	Debugger_Update()
 {
     if (Debugger.active)
     {
+
+		if (RA_HardcoreModeIsActive()) {
+			MessageBox(NULL, "Hardcore Mode active. Disabling Debugger", "Warning!", MB_ICONWARNING);
+			Debugger_Switch();
+			return;
+		}
         // If skin has changed, redraw everything
 		t_debugger_app* app = &DebuggerApp;
         if (app->box->flags & GUI_BOX_FLAGS_DIRTY_REDRAW_ALL_LAYOUT)
@@ -1855,6 +1864,17 @@ void	Debugger_Switch()
     // Msg(MSGT_DEBUG, "Debugger_Switch()");
     if (!Debugger.enabled)
         return;
+
+	if (RA_HardcoreModeIsActive() && !Debugger.active)  //Ask for confirmation if RA_Harcore is set
+	{
+		if (MessageBox(NULL, "Hardcore mode is active. If you enable the Debugger, Hardcore Mode will be disabled. Continue?", "Warning", (MB_YESNO | MB_SETFOREGROUND)) == IDNO)
+		{
+			return;
+		}
+		else {
+			RA_DisableHardcoreMode();
+		}
+	}
 
     Debugger.active ^= 1;
     gui_box_show(DebuggerApp.box, Debugger.active, true);

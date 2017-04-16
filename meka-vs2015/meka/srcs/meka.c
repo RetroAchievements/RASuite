@@ -54,6 +54,10 @@
 #include "RA_Interface.h"
 #include "RA_Implementation.h"
 
+//#RA
+#include "app_memview.h"
+#include "app_cheatfinder.h"
+
 char RA_rootDir[2048];
 
 #include <allegro5/allegro_windows.h> //we need to blit ?
@@ -390,6 +394,9 @@ int main(int argc, char **argv)
 		GetCurrentDirectory(2048, RA_rootDir); // "Father Todd Unctious?"
 
 		SetCurrentDirectory(meka_currDir); // "Cowboys Ted! They're a bunch of cowboys!"
+
+		ConsolePrintf("%s\n--\n", "RA Init Completed");
+
 	}
 	
 
@@ -455,11 +462,6 @@ int main(int argc, char **argv)
     // Initialization complete
     ConsolePrintf ("%s\n--\n", Msg_Get(MSG_Init_Completed));
 
-
-	HWND MekaWND = al_get_win_window_handle(g_display);
-
-
-
 	// Save configuration file early on (so that bad drivers, will still create a default .cfg file etc.)
 	if (!g_configuration.loaded_configuration_file)
 		Configuration_Save();
@@ -474,6 +476,24 @@ int main(int argc, char **argv)
     Machine_Reset          (); // Reset Emulated Machine (set default values)
 	Init_GUI               (); // Initialize Graphical User Interface
 	FB_Init_2              (); // Finish initializing the file browser
+
+
+	//RA
+	{
+		if (MemoryViewer_MainInstance->active	||
+			g_CheatFinder_MainInstance->active	||
+			Debugger.active	) {
+			
+			RA_DisableHardcoreMode();
+			//Silently disable Hardcore mode if any  of these are active at startup (Need code to disable when they are activated as well)
+
+		}
+
+	}
+	//HWND MekaWND = al_get_win_window_handle(g_display);
+
+
+
 
     // Load ROM from command line if necessary
     Load_ROM_Command_Line();

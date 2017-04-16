@@ -16,6 +16,10 @@
 #include "inputs_t.h"
 #include "vdp.h"
 
+//#RA
+#include "RA_Interface.h"
+
+
 //-----------------------------------------------------------------------------
 // Definitions
 //-----------------------------------------------------------------------------
@@ -475,8 +479,14 @@ static void        MemoryViewer_Update(t_memory_viewer* app)
     const int       addr_start  = pane->memrange.addr_start;
 
     // Skip update if not active
-    if (!app->active)
-        return;
+	if (!app->active) {
+		return;
+	}
+	else if (RA_HardcoreModeIsActive()) {
+		MessageBox(NULL, "Hardcore Mode active. Disabling Memory Editor", "Warning!", MB_ICONWARNING);
+		MemoryViewer_SwitchMainInstance();
+		return;
+	}
 
 	MemoryViewer_UpdateAllMemoryRanges(app);
 
@@ -613,6 +623,9 @@ static void MemoryViewer_Switch(t_memory_viewer* mv)
 	{
 		mv->active ^= 1;
 		gui_box_show(mv->box, mv->active, TRUE);
+		if (RA_HardcoreModeIsActive()) { //this really shouldn't happen.
+			mv->active = false;
+		}
 		if (!mv->active)
 		{
 			// Flag GUI box for deletion
@@ -631,6 +644,18 @@ static void MemoryViewer_Switch(t_widget* w)
 void    MemoryViewer_SwitchMainInstance()
 {
     t_memory_viewer* app = MemoryViewer_MainInstance;
+
+	if (RA_HardcoreModeIsActive() && !app->active)  //Ask for confirmation if RA_Harcore is set
+	{
+		if (MessageBox(NULL, "Hardcore mode is active. If you enable the Memory Editor, Hardcore Mode will be disabled. Continue?", "Warning", (MB_YESNO | MB_SETFOREGROUND)) == IDNO)
+		{
+			return;
+		}
+		else {
+			RA_DisableHardcoreMode();
+		}
+	}
+
     if (app->active ^= 1)
         Msg(MSGT_USER, "%s", Msg_Get(MSG_MemoryEditor_Enabled));
     else

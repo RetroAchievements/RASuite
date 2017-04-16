@@ -191,7 +191,7 @@ void        SaveState_Save()
 void        SaveState_Load()
 {
 
-	if (RA_HardcoreModeIsActive()) //Ask for confirmation if RA_Harcore is set
+	if (RA_HardcoreModeIsActive()) //Ask for confirmation if RA_Hardcore is set
 	{
 		if (MessageBox(NULL, "Hardcore mode is active. If you load/save a state, Hardcore Mode will be disabled. Continue?", "Warning", (MB_YESNO | MB_SETFOREGROUND)) == IDNO)
 			return;
@@ -241,9 +241,9 @@ void        SaveState_Load()
 	{
 		char meka_currDir[2048];
 		GetCurrentDirectory(2048, meka_currDir);
-		//SetCurrentDirectory(RA_rootDir);
+		SetCurrentDirectory(RA_rootDir);
 		RA_OnLoadState(buf);
-		//SetCurrentDirectory(meka_currDir);
+		SetCurrentDirectory(meka_currDir);
 	}
 
     switch (result)
