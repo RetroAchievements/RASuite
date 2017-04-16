@@ -74,6 +74,10 @@ int		(CCONV *_RA_ConfirmLoadNewRom) (int bQuitting) = NULL;
 int		(CCONV *_RA_OnLoadNewRom) (const BYTE* pROM, const unsigned int nROMSize, const BYTE* pRAM, const unsigned int nRAMSize, const BYTE* pExtraRAM, const unsigned int nRAMExtraSize) = NULL;
 void	(CCONV *_RA_OnLoadState)(const char* sFilename) = NULL;
 void	(CCONV *_RA_OnSaveState)(const char* sFilename) = NULL;
+
+// Disable HardcoreMode
+void	(CCONV *_RA_DisableHardcoreMode)() = NULL;
+
 //	Achievements:
 void	(CCONV *_RA_DoAchievementsFrame)() = NULL;
 //	User:
@@ -202,6 +206,13 @@ void RA_OnSaveState( const char* sFilename )
 {
 	if( _RA_OnSaveState != NULL )
 		_RA_OnSaveState( sFilename );
+}
+
+void RA_DisableHardcoreMode() // Note this will ALSO reset the emulator
+{
+	if (_RA_DisableHardcoreMode != NULL)
+		_RA_DisableHardcoreMode();
+
 }
 
 void RA_DoAchievementsFrame()
@@ -402,7 +413,8 @@ const char* CCONV _RA_InstallIntegration()
 	_RA_SetPaused			= (void(CCONV *)(bool))							GetProcAddress( g_hRADLL, "_RA_SetPaused" );
 	_RA_OnLoadState			= (void(CCONV *)(const char*))					GetProcAddress( g_hRADLL, "_RA_OnLoadState" );
 	_RA_OnSaveState			= (void(CCONV *)(const char*))					GetProcAddress( g_hRADLL, "_RA_OnSaveState" );
-	_RA_DoAchievementsFrame = (void(CCONV *)())								GetProcAddress( g_hRADLL, "_RA_DoAchievementsFrame" );
+	_RA_DisableHardcoreMode = (void(CCONV *)())								GetProcAddress(g_hRADLL, "_RA_DisableHardcoreMode");
+	_RA_DoAchievementsFrame = (void(CCONV *)())								GetProcAddress(g_hRADLL, "_RA_DoAchievementsFrame");
 	_RA_SetConsoleID		= (int(CCONV *)(unsigned int))					GetProcAddress( g_hRADLL, "_RA_SetConsoleID" );
 	_RA_HardcoreModeIsActive= (int(CCONV *)())								GetProcAddress( g_hRADLL, "_RA_HardcoreModeIsActive" );
 	_RA_HTTPGetRequestExists= (int(CCONV *)(const char*))					GetProcAddress( g_hRADLL, "_RA_HTTPGetRequestExists" );
@@ -507,6 +519,7 @@ void RA_Shutdown()
 	_RA_SetPaused			= NULL;
 	_RA_OnLoadState			= NULL;
 	_RA_OnSaveState			= NULL;
+	_RA_DisableHardcoreMode	= NULL;
 	_RA_DoAchievementsFrame = NULL;
 	_RA_InstallSharedFunctions= NULL;
 

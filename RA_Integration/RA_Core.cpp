@@ -1353,6 +1353,28 @@ API void CCONV _RA_OnLoadState( const char* sFilename )
 	}
 }
 
+API void CCONV _RA_DisableHardcoreMode() {
+
+
+	g_hardcoreModeActive = false;
+
+	RA_ResetEmulation();
+
+	if (CoreAchievements->GameID() != 0)
+	{
+		//	Delete Core and Unofficial Achievements so it is redownloaded every time:
+		AchievementSet::DeletePatchFile(AT_CORE, CoreAchievements->GameID());
+		AchievementSet::DeletePatchFile(AT_UNOFFICIAL, CoreAchievements->GameID());
+
+		CoreAchievements->Load(CoreAchievements->GameID());
+		UnofficialAchievements->Load(CoreAchievements->GameID());
+		LocalAchievements->Load(CoreAchievements->GameID());
+	}
+
+	RA_RebuildMenu();
+
+}
+
 API void CCONV _RA_DoAchievementsFrame()
 {
 	if( g_LocalUser.m_bIsLoggedIn )

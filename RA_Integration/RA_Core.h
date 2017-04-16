@@ -44,6 +44,8 @@ API void CCONV _RA_OnLoadState( const char* sFileName );
 //	Immediately after saving a new state.
 API void CCONV _RA_OnSaveState( const char* sFileName );
 
+// Disable Hardcore mode AND Reset emulation as a consequence.
+API void CCONV _RA_DisableHardcoreMode();
 
 //	Perform one test for all achievements in the current set. Call this once per frame/cycle.
 API void CCONV _RA_DoAchievementsFrame();

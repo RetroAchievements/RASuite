@@ -104,6 +104,8 @@ extern int	RA_SetConsoleID( unsigned int nConsoleID );
 extern void RA_OnLoadState( const char* sFilename );
 extern void RA_OnSaveState( const char* sFilename );
 
+// Note this will ALSO reset the emulator
+extern void RA_DisableHardcoreMode();  
 
 //	Call this when initializing DirectX. TBD: clarify this.
 extern void RA_InitDirectX();
