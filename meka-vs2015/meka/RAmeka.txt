@@ -1,4 +1,11 @@
-RAmeka v 0.000535 (Deciding on capitalisation)
+RAmeka v 0.01535 (Closing off Loopholes)
+
+- Disable/Warnings for Meka memory editor and debuggers when Hardcoremode activated
+- added several user configurable options to help speedup RAmeka when overlays are used.
+- Speedup win_layer overlway by avoiding creation/deletion of buffers
+
+
+RAmeka v 0.00535 (Deciding on capitalisation)
 
 Source Notes:
 
