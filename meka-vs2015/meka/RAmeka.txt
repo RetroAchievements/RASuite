@@ -1,3 +1,8 @@
+RAmeka v 0.016535 (Mea Maxima Culpa)
+
+- Actually packaging a working dll this time
+- Code optimisation now in effect on release build.
+
 RAmeka v 0.01535 (Closing off Loopholes)
 
 - Disable/Warnings for Meka memory editor and debuggers when Hardcoremode activated

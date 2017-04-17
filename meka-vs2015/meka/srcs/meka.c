@@ -57,7 +57,6 @@
 //#RA
 #include "app_memview.h"
 #include "app_cheatfinder.h"
-
 char RA_rootDir[2048];
 
 #include <allegro5/allegro_windows.h> //we need to blit ?

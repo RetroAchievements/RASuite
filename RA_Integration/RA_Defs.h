@@ -12,7 +12,7 @@
 #define RANES_VERSION			"0.007"
 #define RAPCE_VERSION			"0.002"
 #define RANES_VERSION			"0.007"
-#define RAMEKA_VERSION			"0.01535"  // (535 sms)
+#define RAMEKA_VERSION			"0.016535"  // (535 sms)
 
 #else
 
