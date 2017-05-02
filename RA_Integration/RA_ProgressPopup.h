@@ -1,11 +1,9 @@
 #ifndef _PROGRESSPOPUP_H_
 #define _PROGRESSPOPUP_H_
 
-#include <wtypes.h>
 #include "RA_AchievementOverlay.h"
 
 //	Graphic to display an progress towards an achievement
-
 
 #define OVERLAY_MESSAGE_QUEUE_SIZE (5)
 
@@ -20,13 +18,13 @@ public:
 	void AddMessage( const char* sTitle, const char* sMessage, int nMessageType=0, HBITMAP hImage=NULL );
 	float GetYOffsetPct() const;
 
-	BOOL IsActive() const				{ return m_sMessageTitleQueue[0][0] != '\0'; }
-	const char* GetTitle() const		{ return m_sMessageTitleQueue[0]; }
-	const char* GetDesc() const			{ return m_sMessageDescQueue[0]; }
-	unsigned int GetMessageType() const	{ return m_nMessageType[0]; }
-	HBITMAP GetImage() const			{ return m_hMessageImage[0]; }
+	BOOL IsActive() const { return m_sMessageTitleQueue[0][0] != '\0'; }
+	const char* GetTitle() const { return m_sMessageTitleQueue[0]; }
+	const char* GetDesc() const { return m_sMessageDescQueue[0]; }
+	unsigned int GetMessageType() const { return m_nMessageType[0]; }
+	HBITMAP GetImage() const { return m_hMessageImage[0]; }
 
-	void SuppressNextDeltaUpdate()		{ m_bSuppressDeltaUpdate = true; }
+	void SuppressNextDeltaUpdate() { m_bSuppressDeltaUpdate = true; }
 
 	void Clear();
 

@@ -1,8 +1,9 @@
+#include "stdafx.h"
 #include "RA_PopupWindows.h"
 
 PopupWindows g_PopupWindows;
 
-//static 
+//static
 ProgressPopup PopupWindows::m_ProgressPopups;
 AchievementPopup PopupWindows::m_AchievementPopups;
 LeaderboardPopup PopupWindows::m_LeaderboardPopups;

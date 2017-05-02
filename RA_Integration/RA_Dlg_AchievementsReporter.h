@@ -13,6 +13,7 @@ public:
 	enum ReporterColumns
 	{
 		Checked,
+
 		//ID,
 		Title,
 		Desc,
@@ -32,11 +33,7 @@ public:
 
 public:
 	static int ms_nNumOccupiedRows;
-	static char ms_lbxData[ MAX_ACHIEVEMENTS ][ NumReporterColumns ][ MAX_TEXT_LEN ];
+	static char ms_lbxData[MAX_ACHIEVEMENTS][NumReporterColumns][MAX_TEXT_LEN];
 };
 
 extern Dlg_AchievementsReporter g_AchievementsReporterDialog;
-
-
-
-

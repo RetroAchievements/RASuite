@@ -27,10 +27,10 @@ public:
 		m_hMessageImage( hImg )
 	{}
 public:
-	const std::string& Title() const	{ return m_sMessageTitle; }
-	const std::string& Subtitle() const	{ return m_sMessageSubtitle; }
-	PopupMessageType Type() const		{ return m_nMessageType; }
-	HBITMAP Image() const				{ return m_hMessageImage; }
+	const std::string& Title() const { return m_sMessageTitle; }
+	const std::string& Subtitle() const { return m_sMessageSubtitle; }
+	PopupMessageType Type() const { return m_nMessageType; }
+	HBITMAP Image() const { return m_hMessageImage; }
 
 private:
 	const std::string m_sMessageTitle;
@@ -53,8 +53,8 @@ public:
 	float GetYOffsetPct() const;
 
 	//bool IsActive() const						{ return( m_vMessages.size() > 0 ); }
-	bool MessagesPresent() const				{ return( m_vMessages.size() > 0 ); }
-	const MessagePopup& ActiveMessage() const	{ return m_vMessages.front(); }
+	bool MessagesPresent() const { return(m_vMessages.size() > 0); }
+	const MessagePopup& ActiveMessage() const { return m_vMessages.front(); }
 
 	void Clear();
 	void PlayAudio();

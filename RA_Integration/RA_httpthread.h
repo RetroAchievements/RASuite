@@ -2,8 +2,9 @@
 
 #include "RA_Defs.h"
 
-typedef void* HANDLE;
-typedef void* LPVOID;
+// HANDLE and LPVOID already exist
+//typedef void* HANDLE;
+//typedef void* LPVOID;
 
 enum HTTPRequestMethod
 {
@@ -18,7 +19,7 @@ enum RequestType
 {
 	//	Login
 	RequestLogin,
-	
+
 	//	Fetch
 	RequestScore,
 	RequestNews,
@@ -45,14 +46,14 @@ enum RequestType
 	RequestSubmitAchievementData,
 	RequestSubmitTicket,
 	RequestSubmitNewTitle,
-	
+
 	//	Media:
 	RequestUserPic,
 	RequestBadge,
-	
+
 	//	Special:
 	StopThread,
-	
+
 	NumRequestTypes
 };
 
@@ -64,10 +65,12 @@ enum UploadType
 	NumUploadTypes
 };
 
-extern const char* RequestTypeToString[];
+extern std::array<const char*, NumRequestTypes> RequestTypeToString;
 
-typedef std::map<char, std::string> PostArgs;
+using PostArgs = std::map<char, std::string>;
 
+// TODO: Discuss if this should actually have external linkage because STL is not
+//       compatible w/ extern "C", extern has no affect in C++ since the scope is file scope.
 extern std::string PostArgsToString( const PostArgs& args );
 
 class RequestObject
@@ -75,16 +78,16 @@ class RequestObject
 public:
 	RequestObject( RequestType nType, const PostArgs& PostArgs = PostArgs(), const std::string& sData = "" ) :
 		m_nType( nType ), m_PostArgs( PostArgs ), m_sData( sData )
-		{}
+	{}
 
 public:
-	const RequestType GetRequestType() const						{ return m_nType; }
-	const PostArgs& GetPostArgs() const								{ return m_PostArgs; }
-	const std::string& GetData() const								{ return m_sData; }
-	
-	DataStream& GetResponse()										{ return m_sResponse; }
-	const DataStream& GetResponse() const							{ return m_sResponse; }
-	void SetResponse( const DataStream& sResponse )					{ m_sResponse = sResponse; }
+	const RequestType GetRequestType() const { return m_nType; }
+	const PostArgs& GetPostArgs() const { return m_PostArgs; }
+	const std::string& GetData() const { return m_sData; }
+
+	DataStream& GetResponse() { return m_sResponse; }
+	const DataStream& GetResponse() const { return m_sResponse; }
+	void SetResponse( const DataStream& sResponse ) { m_sResponse = sResponse; }
 
 	BOOL ParseResponseToJSON( Document& rDocOut );
 
@@ -99,6 +102,7 @@ private:
 class HttpResults
 {
 public:
+
 	//	Caller must manage: SAFE_DELETE when finished
 	RequestObject* PopNextItem();
 	const RequestObject* PeekNextItem() const;
@@ -122,7 +126,7 @@ public:
 	static void CreateThreadedHTTPRequest( RequestType nType, const PostArgs& PostData = PostArgs(), const std::string& sData = "" );
 	static BOOL HTTPRequestExists( RequestType nType, const std::string& sData );
 	static BOOL HTTPResponseExists( RequestType nType, const std::string& sData );
-	
+
 	static BOOL DoBlockingRequest( RequestType nType, const PostArgs& PostData, Document& JSONResponseOut );
 	static BOOL DoBlockingRequest( RequestType nType, const PostArgs& PostData, DataStream& ResponseOut );
 
@@ -133,10 +137,10 @@ public:
 
 	static DWORD WINAPI HTTPWorkerThread( LPVOID lpParameter );
 
-	static HANDLE Mutex()								{ return ms_hHTTPMutex; }
-	static RequestObject* PopNextHttpResult()			{ return ms_LastHttpResults.PopNextItem(); }
+	static HANDLE Mutex() { return ms_hHTTPMutex; }
+	static RequestObject* PopNextHttpResult() { return ms_LastHttpResults.PopNextItem(); }
 
-private:	
+private:
 	static HANDLE ms_hHTTPMutex;
 	static HttpResults ms_LastHttpResults;
 };

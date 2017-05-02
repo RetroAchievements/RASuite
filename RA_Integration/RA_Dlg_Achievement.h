@@ -2,9 +2,6 @@
 
 #include "RA_Achievement.h"
 
-#include <wtypes.h>
-#include <assert.h>
-
 const int MAX_TEXT_ITEM_SIZE = 80;
 
 //extern const char* g_sColTitles[];
@@ -19,7 +16,6 @@ public:
 	{
 		ID,
 		Title,
-    Points,
 		Author,
 		Achieved,
 		Active=Achieved,
@@ -33,8 +29,8 @@ public:
 	Dlg_Achievements();
 
 public:
-	static INT_PTR CALLBACK s_AchievementsProc(HWND, UINT, WPARAM, LPARAM);
-	INT_PTR AchievementsProc(HWND, UINT, WPARAM, LPARAM);
+	static INT_PTR CALLBACK s_AchievementsProc( HWND, UINT, WPARAM, LPARAM );
+	INT_PTR AchievementsProc( HWND, UINT, WPARAM, LPARAM );
 
 public:
 	int GetSelectedAchievementIndex();
@@ -45,10 +41,10 @@ public:
 	void OnEditAchievement( const Achievement& ach );
 	void OnClickAchievementSet( AchievementSetType nAchievementSet );
 
-	inline std::string& LbxDataAt( size_t nRow, Column nCol )	{ return( m_lbxData[ nRow ] )[ nCol ]; }
+	inline std::string& LbxDataAt( size_t nRow, Column nCol ) { return(m_lbxData[nRow])[nCol]; }
 
-	inline HWND GetHWND() const		{ return m_hAchievementsDlg; }
-	void InstallHWND( HWND hWnd )	{ m_hAchievementsDlg = hWnd; }
+	inline HWND GetHWND() const { return m_hAchievementsDlg; }
+	void InstallHWND( HWND hWnd ) { m_hAchievementsDlg = hWnd; }
 
 private:
 	void SetupColumns( HWND hList );

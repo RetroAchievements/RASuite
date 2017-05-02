@@ -1,12 +1,9 @@
 #pragma once
 
-#include <WTypes.h>
 #include "RA_Achievement.h"
 #include "RA_User.h"
 #include "RA_Core.h"
 #include "RA_Interface.h"
-
-#include <ddraw.h>
 
 enum OverlayPage
 {
@@ -40,16 +37,17 @@ class LeaderboardExamine
 {
 public:
 	void Initialize( const unsigned int nLBIDIn );
+
 	//static void CB_OnReceiveData( void* pRequestObject );
 	void OnReceiveData( const Document& doc );
-	
+
 public:
 	unsigned int m_nLBID;
+
 	//	Refer to RA_Leaderboard entry rank info via g_LeaderboardManager.FindLB(m_nLBID)
 	bool m_bHasData;
 };
 extern LeaderboardExamine g_LBExamine;
-
 
 class AchievementExamine
 {
@@ -60,8 +58,8 @@ public:
 		RecentWinnerData( const std::string& sUser, const std::string& sWonAt ) :
 			m_sUser( sUser ), m_sWonAt( sWonAt )
 		{}
-		const std::string& User() const		{ return m_sUser; }
-		const std::string& WonAt() const	{ return m_sWonAt; }
+		const std::string& User() const { return m_sUser; }
+		const std::string& WonAt() const { return m_sWonAt; }
 
 	private:
 		const std::string m_sUser;
@@ -76,21 +74,21 @@ public:
 	void Clear();
 	static void CB_OnReceiveData( void* pRequestObject );
 	void OnReceiveData( Document& doc );
-	
-	bool HasData() const											{ return m_bHasData; }
-	const std::string& CreatedDate() const							{ return m_CreatedDate; }
-	const std::string& ModifiedDate() const							{ return m_LastModifiedDate; }
-	size_t NumRecentWinners() const									{ return RecentWinners.size(); }
-	const RecentWinnerData& GetRecentWinner( size_t nOffs ) const	{ return RecentWinners.at( nOffs ); }
-	
-	unsigned int TotalWinners() const								{ return m_nTotalWinners; }
-	unsigned int PossibleWinners() const							{ return m_nPossibleWinners; }
+
+	bool HasData() const { return m_bHasData; }
+	const std::string& CreatedDate() const { return m_CreatedDate; }
+	const std::string& ModifiedDate() const { return m_LastModifiedDate; }
+	size_t NumRecentWinners() const { return RecentWinners.size(); }
+	const RecentWinnerData& GetRecentWinner( size_t nOffs ) const { return RecentWinners.at( nOffs ); }
+
+	unsigned int TotalWinners() const { return m_nTotalWinners; }
+	unsigned int PossibleWinners() const { return m_nPossibleWinners; }
 
 private:
 	const Achievement* m_pSelectedAchievement;
 	std::string m_CreatedDate;
 	std::string m_LastModifiedDate;
-	
+
 	bool m_bHasData;
 
 	//	Data found:
@@ -100,7 +98,6 @@ private:
 	std::vector<RecentWinnerData> RecentWinners;
 };
 extern AchievementExamine g_AchExamine;
-
 
 class AchievementOverlay
 {
@@ -117,7 +114,7 @@ public:
 	void Render( HDC hDC, RECT* rcDest ) const;
 	BOOL Update( ControllerInput* input, float fDelta, BOOL bFullScreen, BOOL bPaused );
 
-	BOOL IsActive() const	{ return( m_nTransitionState!=TS_OFF ); }
+	BOOL IsActive() const { return(m_nTransitionState!=TS_OFF); }
 
 	const int* GetActiveScrollOffset() const;
 	const int* GetActiveSelectedItem() const;
@@ -137,16 +134,16 @@ public:
 	void DrawUserFrame( HDC hDC, RAUser* pUser, int nX, int nY, int nW, int nH ) const;
 	void DrawAchievement( HDC hDC, const Achievement* Ach, int nX, int nY, BOOL bSelected, BOOL bCanLock ) const;
 
-	OverlayPage CurrentPage()		{ return m_Pages[ m_nPageStackPointer ]; }
+	OverlayPage CurrentPage() { return m_Pages[m_nPageStackPointer]; }
 	void AddPage( OverlayPage NewPage );
 	BOOL GoBack();
 
 	void SelectNextTopLevelPage( BOOL bPressedRight );
-	
+
 	void InitDirectX();
 	void ResetDirectX();
 	void CloseDirectX();
-	void Flip(HWND hWnd);
+	void Flip( HWND hWnd );
 
 	void InstallNewsArticlesFromFile();
 
@@ -185,10 +182,10 @@ private:
 	TransitionState			m_nTransitionState;
 	float					m_fTransitionTimer;
 
-	OverlayPage				m_Pages[ 5 ];
+	OverlayPage				m_Pages[5];
 	unsigned int			m_nPageStackPointer;
 
-	//HBITMAP m_hLockedBitmap;	//	Cached	
+	//HBITMAP m_hLockedBitmap;	//	Cached
 	HBITMAP m_hOverlayBackground;
 
 	LPDIRECTDRAW4 m_lpDD;

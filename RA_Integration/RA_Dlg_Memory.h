@@ -8,7 +8,7 @@ class CodeNotes;
 class MemoryViewerControl
 {
 public:
-	static INT_PTR CALLBACK s_MemoryDrawProc(HWND, UINT, WPARAM, LPARAM);
+	static INT_PTR CALLBACK s_MemoryDrawProc( HWND, UINT, WPARAM, LPARAM );
 
 public:
 	static void RenderMemViewer( HWND hTarget );
@@ -51,27 +51,27 @@ public:
 
 public:
 	void Init();
-	
+
 	void ClearLogOutput();
 	void AddLogLine( const std::string& sNextLine );
 
-	static INT_PTR CALLBACK s_MemoryProc(HWND, UINT, WPARAM, LPARAM);
-	INT_PTR MemoryProc(HWND, UINT, WPARAM, LPARAM);
+	static INT_PTR CALLBACK s_MemoryProc( HWND, UINT, WPARAM, LPARAM );
+	INT_PTR MemoryProc( HWND, UINT, WPARAM, LPARAM );
 
-	void InstallHWND( HWND hWnd )				{ m_hWnd = hWnd; }
-	HWND GetHWND() const						{ return m_hWnd; }
-	
+	void InstallHWND( HWND hWnd ) { m_hWnd = hWnd; }
+	HWND GetHWND() const { return m_hWnd; }
+
 	void OnLoad_NewRom();
 
 	void OnWatchingMemChange();
 
 	void RepopulateMemNotesFromFile();
 	void Invalidate();
-	
+
 	void SetWatchingAddress( unsigned int nAddr );
 	BOOL IsActive() const;
 
-	const CodeNotes& Notes() const				{ return m_CodeNotes; }
+	const CodeNotes& Notes() const { return m_CodeNotes; }
 
 	void ClearBanks();
 	void AddBank( size_t nBankID );

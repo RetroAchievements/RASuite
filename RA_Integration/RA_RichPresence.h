@@ -1,22 +1,19 @@
 #pragma once
-#include <vector>
-#include <map>
 #include "RA_Leaderboard.h"
 #include "RA_Defs.h"
 
-typedef unsigned int DataPos;
-
+using DataPos = unsigned int;
 
 class RA_Lookup
 {
 public:
 	RA_Lookup( const std::string& sDesc );
-	
+
 public:
-	void AddLookupData( DataPos nValue, const std::string& sLookupData )	{ m_lookupData[ nValue ] = sLookupData; }
+	void AddLookupData( DataPos nValue, const std::string& sLookupData ) { m_lookupData[nValue] = sLookupData; }
 	const std::string& Lookup( DataPos nValue ) const;
 
-	const std::string& Description() const									{ return m_sLookupDescription; }
+	const std::string& Description() const { return m_sLookupDescription; }
 
 private:
 	std::string m_sLookupDescription;
@@ -30,7 +27,7 @@ public:
 
 	std::string Lookup( DataPos nValue ) const;
 
-	const std::string& Description() const									{ return m_sLookupDescription; }
+	const std::string& Description() const { return m_sLookupDescription; }
 
 private:
 	std::string m_sLookupDescription;

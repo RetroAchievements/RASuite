@@ -1,8 +1,9 @@
+#include "stdafx.h"
 #include "RA_GameData.h"
 
 GameData* g_pCurrentGameData = new GameData();
 
-void GameData::ParseData(const Document& doc)
+void GameData::ParseData( const Document& doc )
 {
 	m_nGameID = doc["ID"].GetUint();
 	m_sGameTitle = doc["Title"].GetString();
