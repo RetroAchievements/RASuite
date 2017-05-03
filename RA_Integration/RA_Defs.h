@@ -1,17 +1,5 @@
 #pragma once
 
-#include <Windows.h>
-#include <WindowsX.h>
-#include <ShlObj.h>
-#include <tchar.h>
-#include <assert.h>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <queue>
-#include <deque>
-#include <map>
-
 #ifndef RA_EXPORTS
 
 //	Version Information is integrated into tags
@@ -21,18 +9,10 @@
 //NB. These must NOT be accessible from the emulator!
 //#define RA_INTEGRATION_VERSION	"0.053"
 
-//	RA-Only
-#include "rapidjson/include/rapidjson/document.h"
-#include "rapidjson/include/rapidjson/reader.h"
-#include "rapidjson/include/rapidjson/writer.h"
-#include "rapidjson/include/rapidjson/filestream.h"
-#include "rapidjson/include/rapidjson/stringbuffer.h"
-#include "rapidjson/include/rapidjson/error/en.h"
 using namespace rapidjson;
 extern GetParseErrorFunc GetJSONParseErrorStr;
 
 #endif	//RA_EXPORTS
-
 
 #define RA_KEYS_DLL						"RA_Keys.dll"
 #define RA_PREFERENCES_FILENAME_PREFIX	"RAPrefs_"
@@ -54,12 +34,11 @@ extern GetParseErrorFunc GetJSONParseErrorStr;
 #define RA_TITLES_FILENAME				RA_DIR_DATA##"gametitles.txt"
 #define RA_LOG_FILENAME					RA_DIR_DATA##"RALog.txt"
 
-
 #define WIDEN2(x) L ## x
 #define TOWIDESTR(x) WIDEN2(x)
 
-
 #if defined _DEBUG
+
 //#define RA_HOST_URL "localhost"
 #define RA_HOST_URL "retroachievements.org"
 #else
@@ -81,76 +60,77 @@ typedef DWORD			ARGB;
 
 //namespace RA
 //{
-	template<typename T>
-	static inline const T& RAClamp( const T& val, const T& lower, const T& upper )
+template<typename T>
+static inline const T& RAClamp( const T& val, const T& lower, const T& upper )
+{
+	return(val < lower) ? lower : ((val > upper) ? upper : val);
+}
+
+class RARect : public RECT
+{
+public:
+	RARect() {}
+	RARect( LONG nX, LONG nY, LONG nW, LONG nH )
 	{
-		return( val < lower ) ? lower : ( ( val > upper ) ? upper : val );
+		left = nX;
+		right = nX + nW;
+		top = nY;
+		bottom = nY + nH;
 	}
-	
-	class RARect : public RECT
-	{
-	public:
-		RARect() {}
-		RARect( LONG nX, LONG nY, LONG nW, LONG nH )
-		{
-			left = nX;
-			right = nX + nW;
-			top = nY;
-			bottom = nY + nH;
-		}
 
-	public:
-		inline int Width() const		{ return( right - left ); }
-		inline int Height() const		{ return( bottom - top ); }
-	};
+public:
+	inline int Width() const { return(right - left); }
+	inline int Height() const { return(bottom - top); }
+};
 
-	class RASize
-	{
-	public:
-		RASize() : m_nWidth( 0 ), m_nHeight( 0 ) {}
-		RASize( const RASize& rhs ) : m_nWidth( rhs.m_nWidth ), m_nHeight( rhs.m_nHeight ) {}
-		RASize( int nW, int nH ) : m_nWidth( nW ), m_nHeight( nH ) {}
+class RASize
+{
+public:
+	RASize() : m_nWidth( 0 ), m_nHeight( 0 ) {}
+	RASize( const RASize& rhs ) : m_nWidth( rhs.m_nWidth ), m_nHeight( rhs.m_nHeight ) {}
+	RASize( int nW, int nH ) : m_nWidth( nW ), m_nHeight( nH ) {}
 
-	public:
-		inline int Width() const		{ return m_nWidth; }
-		inline int Height() const		{ return m_nHeight; }
-		inline void SetWidth( int nW )	{ m_nWidth = nW; }
-		inline void SetHeight( int nH )	{ m_nHeight = nH; }
+public:
+	inline int Width() const { return m_nWidth; }
+	inline int Height() const { return m_nHeight; }
+	inline void SetWidth( int nW ) { m_nWidth = nW; }
+	inline void SetHeight( int nH ) { m_nHeight = nH; }
 
-	private:
-		int m_nWidth;
-		int m_nHeight;
-	};
+private:
+	int m_nWidth;
+	int m_nHeight;
+};
 
-	const RASize RA_BADGE_PX( 64, 64 );
-	const RASize RA_USERPIC_PX( 64, 64 );
+const RASize RA_BADGE_PX( 64, 64 );
+const RASize RA_USERPIC_PX( 64, 64 );
 
-	enum AchievementSetType
-	{
-		Core,
-		Unofficial,
-		Local,
+enum AchievementSetType
+{
+	Core,
+	Unofficial,
+	Local,
 
-		NumAchievementSetTypes
-	};
-	
-	typedef std::vector<BYTE> DataStream;
-	typedef unsigned long ByteAddress;
+	NumAchievementSetTypes
+};
 
-	typedef unsigned int AchievementID;
-	typedef unsigned int LeaderboardID;
-	typedef unsigned int GameID;
+typedef std::vector<BYTE> DataStream;
+typedef unsigned long ByteAddress;
 
-	char* DataStreamAsString( DataStream& stream );
+typedef unsigned int AchievementID;
+typedef unsigned int LeaderboardID;
+typedef unsigned int GameID;
 
-	extern void RADebugLogNoFormat( const char* data );
-	extern void RADebugLog( const char* sFormat, ... );
-	extern BOOL DirectoryExists( const char* sPath );
+char* DataStreamAsString( DataStream& stream );
 
-	const int SERVER_PING_DURATION = 10*60;	//s
+extern void RADebugLogNoFormat( const char* data );
+extern void RADebugLog( const char* sFormat, ... );
+extern BOOL DirectoryExists( const char* sPath );
+
+const int SERVER_PING_DURATION = 10*60;	//s
+
 //};
 //using namespace RA;
-	
+
 #define RA_LOG RADebugLog
 
 #ifdef _DEBUG
@@ -160,7 +140,7 @@ typedef DWORD			ARGB;
 #undef ASSERT
 #define ASSERT( x ) {}
 #endif
-	
+
 #ifndef UNUSED
 #define UNUSED( x ) ( x );
 #endif

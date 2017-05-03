@@ -1,9 +1,7 @@
+#include "stdafx.h"
 #include "RA_Defs.h"
 
-#include <stdio.h>
-#include <Windows.h>
-#include <locale>
-#include <codecvt>
+#include "File_handle.h"
 
 GetParseErrorFunc GetJSONParseErrorStr = GetParseError_En;
 
@@ -12,27 +10,37 @@ void RADebugLogNoFormat( const char* data )
 	OutputDebugString( Widen( data ).c_str() );
 
 	//SetCurrentDirectory( g_sHomeDir.c_str() );//?
-	FILE* pf = NULL;
-	if( fopen_s( &pf, RA_LOG_FILENAME, "a" ) == 0 )
-	{
-		fwrite( data, sizeof( char ), strlen( data ), pf );
-		fclose( pf );
-	}
-}
 
+	// There's an explanation for this in _WriteFileToBuffer
+	test_file( RA_LOG_FILENAME, "a" );
+	auto pf{fopen( RA_LOG_FILENAME, "r" )};
+
+	fwrite( static_cast<const void*>(data), sizeof( char ), strlen( data ), pf );
+
+	def_filehandle* fh{nullptr};
+	fh->SafeCloseFile( pf );
+	SAFE_DELETE( fh );
+} // end function RADebugLogNoFormat
+
+// NB: auto ensures intended types are used, otherwise casting is needed
 void RADebugLog( const char* format, ... )
 {
-	char buf[ 4096 ];
-	char* p = buf;
+	char buf[4096];
+	auto p{buf};
 
 	va_list args;
 	va_start( args, format );
-	int n = _vsnprintf_s( p, 4096, sizeof buf - 3, format, args ); // buf-3 is room for CR/LF/NUL
+
+	// NB: since primitives are self-referential, they have their own constructors.
+
+	// buf-3 is room for CR/LF/NUL
+	auto max_count{sizeof buf - size_t{3}};
+	auto n{_vsnprintf_s( p, size_t{4096}, max_count, format, args )};
 	va_end( args );
 
-	p += ( n < 0 ) ? sizeof buf - 3 : n;
+	p += (n < 0) ? sizeof buf - 3 : n;
 
-	while( ( p > buf ) && ( isspace( p[ -1 ] ) ) )
+	while ( (p > buf) && (isspace( p[-1] )) )
 		*--p = '\0';
 
 	*p++ = '\r';
@@ -40,27 +48,41 @@ void RADebugLog( const char* format, ... )
 	*p   = '\0';
 
 	OutputDebugString( Widen( buf ).c_str() );
-	
+
 	//SetCurrentDirectory( g_sHomeDir.c_str() );//?
-	FILE* pf = NULL;
-	if( fopen_s( &pf, RA_LOG_FILENAME, "a" ) == 0 )
-	{
-		fwrite( buf, sizeof(char), strlen( buf ), pf );
-		fclose( pf );
-	}
-}
+	test_file( RA_LOG_FILENAME, "a" );
+	auto pf{fopen( RA_LOG_FILENAME, "r" )};
+
+	fwrite( static_cast<const void*>(buf), sizeof( char ), strlen( buf ), pf );
+
+	def_filehandle* fh{nullptr};
+	fh->SafeCloseFile( pf );
+	SAFE_DELETE( fh );
+} // end function RADebugLog
 
 BOOL DirectoryExists( const char* sPath )
 {
 	DWORD dwAttrib = GetFileAttributes( Widen( sPath ).c_str() );
-	return( dwAttrib != INVALID_FILE_ATTRIBUTES && ( dwAttrib & FILE_ATTRIBUTE_DIRECTORY ) );
+	return(dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 }
 
-static_assert( sizeof( BYTE* ) == sizeof( char* ), "dangerous cast ahead" );
+// NB: std::string by definition is a byte stream/byte string, you
+//     don't need to do this cast, it'll lead to undefined behavior.
+//     That's what iterators are for...
+
+// NB: constexpr is more reliable for compile time checks than static_assert but can't be used
+//     since std::string isn't a literal type.
+//static_assert(sizeof( BYTE* ) == sizeof( char* ), "dangerous cast ahead");
 char* DataStreamAsString( DataStream& stream )
 {
-	return reinterpret_cast<char*>( stream.data() );
-}
+	std::string str{stream.begin(), stream.end()};
+	return str._Myptr();
+} // end function DataStreamAsString
+
+// TODO: Discuss whether we actually need these, if we're only using
+//       UTF-8 we don't need these since std::string and std::wstring
+//       are UTF-8. We could just use 2 functions instead of four. Is
+//       there any really reason why the converters are static?
 
 std::string Narrow( const wchar_t* wstr )
 {

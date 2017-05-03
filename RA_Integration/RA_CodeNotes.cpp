@@ -1,6 +1,5 @@
+#include "stdafx.h"
 #include "RA_CodeNotes.h"
-
-#include <Windows.h>
 
 #include "RA_Core.h"
 #include "RA_httpthread.h"
@@ -18,53 +17,58 @@ void CodeNotes::Clear()
 size_t CodeNotes::Load( const std::string& sFile )
 {
 	Clear();
-	
+
 	SetCurrentDirectory( Widen( g_sHomeDir ).c_str() );
 	FILE* pf = NULL;
-	if( fopen_s( &pf, sFile.c_str(), "rb" ) == 0 )
+	if ( fopen_s( &pf, sFile.c_str(), "rb" ) == 0 )
 	{
 		Document doc;
 		doc.ParseStream( FileStream( pf ) );
-		if( !doc.HasParseError() )
+		if ( !doc.HasParseError() )
 		{
 			ASSERT( doc["CodeNotes"].IsArray() );
 
 			const Value& NoteArray = doc["CodeNotes"];
 
-			for( SizeType i = 0; i < NoteArray.Size(); ++i )
+			for ( SizeType i = 0; i < NoteArray.Size(); ++i )
 			{
 				const Value& NextNote = NoteArray[i];
-				if( NextNote[ "Note" ].IsNull() )
+				if ( NextNote["Note"].IsNull() )
 					continue;
-				
-				const std::string& sNote = NextNote[ "Note" ].GetString();
-				if( sNote.length() < 2 )
+
+				const std::string& sNote = NextNote["Note"].GetString();
+				if ( sNote.length() < 2 )
 					continue;
-				
-				const std::string& sAddr = NextNote[ "Address" ].GetString();
-				ByteAddress nAddr = static_cast<ByteAddress>( std::strtoul( sAddr.c_str(), nullptr, 16 ) );
-				const std::string& sAuthor = NextNote[ "User" ].GetString();	//	Author?
-				
-				m_CodeNotes.insert( std::map<ByteAddress,CodeNoteObj>::value_type( nAddr, CodeNoteObj( sAuthor, sNote ) ) );
+
+				const std::string& sAddr = NextNote["Address"].GetString();
+				ByteAddress nAddr = static_cast<ByteAddress>(std::strtoul( sAddr.c_str(), nullptr, 16 ));
+				const std::string& sAuthor = NextNote["User"].GetString();	//	Author?
+
+				m_CodeNotes.insert( std::map<ByteAddress, CodeNoteObj>::value_type( nAddr, CodeNoteObj( sAuthor, sNote ) ) );
 			}
 		}
+
+		// pf was not checked if it's a null pointer, fclose expects that FILE* is not a nullptr, we're gonna make this a function
+		Expects( pf );
 		fclose( pf );
+		Ensures( !pf );
 	}
 
 	return m_CodeNotes.size();
-} 
+}
 
 BOOL CodeNotes::Save( const std::string& sFile )
 {
 	return FALSE;
+
 	//	All saving should be cloud-based!
 }
 
 BOOL CodeNotes::ReloadFromWeb( GameID nID )
 {
-	if( nID == 0 )
+	if ( nID == 0 )
 		return FALSE;
-	
+
 	PostArgs args;
 	args['g'] = std::to_string( nID );
 	RAWeb::CreateThreadedHTTPRequest( RequestCodeNotes, args );
@@ -85,13 +89,13 @@ void CodeNotes::OnCodeNotesResponse( Document& doc )
 
 void CodeNotes::Add( const ByteAddress& nAddr, const std::string& sAuthor, const std::string& sNote )
 {
-	if( m_CodeNotes.find( nAddr ) == m_CodeNotes.end() )
-		m_CodeNotes.insert( std::map<ByteAddress,CodeNoteObj>::value_type( nAddr, CodeNoteObj( sAuthor, sNote ) ) );
+	if ( m_CodeNotes.find( nAddr ) == m_CodeNotes.end() )
+		m_CodeNotes.insert( std::map<ByteAddress, CodeNoteObj>::value_type( nAddr, CodeNoteObj( sAuthor, sNote ) ) );
 	else
 		m_CodeNotes.at( nAddr ).SetNote( sNote );
 
-	if( RAUsers::LocalUser().IsLoggedIn() )
-	{ 
+	if ( RAUsers::LocalUser().IsLoggedIn() )
+	{
 		PostArgs args;
 		args['u'] = RAUsers::LocalUser().Username();
 		args['t'] = RAUsers::LocalUser().Token();
@@ -100,7 +104,7 @@ void CodeNotes::Add( const ByteAddress& nAddr, const std::string& sAuthor, const
 		args['n'] = sNote;
 
 		Document doc;
-		if( RAWeb::DoBlockingRequest( RequestSubmitCodeNote, args, doc ) )
+		if ( RAWeb::DoBlockingRequest( RequestSubmitCodeNote, args, doc ) )
 		{
 			//	OK!
 			MessageBeep( 0xFFFFFFFF );
@@ -114,26 +118,26 @@ void CodeNotes::Add( const ByteAddress& nAddr, const std::string& sAuthor, const
 
 BOOL CodeNotes::Remove( const ByteAddress& nAddr )
 {
-	if( m_CodeNotes.find( nAddr ) == m_CodeNotes.end() )
+	if ( m_CodeNotes.find( nAddr ) == m_CodeNotes.end() )
 	{
 		RA_LOG( "Already deleted this code note? (%d), nAddr " );
 		return FALSE;
 	}
 
 	m_CodeNotes.erase( nAddr );
-	
-	if( RAUsers::LocalUser().IsLoggedIn() )
+
+	if ( RAUsers::LocalUser().IsLoggedIn() )
 	{
 		PostArgs args;
 		args['u'] = RAUsers::LocalUser().Username();
 		args['t'] = RAUsers::LocalUser().Token();
-		args['g'] = std::to_string(g_pCurrentGameData->GetGameID());
+		args['g'] = std::to_string( g_pCurrentGameData->GetGameID() );
 		args['m'] = std::to_string( nAddr );
 		args['n'] = "";
 
 		//	faf
 		RAWeb::CreateThreadedHTTPRequest( RequestSubmitCodeNote, args );
 	}
-	
+
 	return TRUE;
 }

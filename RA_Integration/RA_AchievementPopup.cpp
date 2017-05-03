@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "RA_AchievementPopup.h"
 
 #include "RA_Achievement.h"
@@ -7,29 +8,29 @@
 
 namespace
 {
-	const float POPUP_DIST_Y_TO_PCT = 0.856f;		//	Where on screen to end up
-	const float POPUP_DIST_Y_FROM_PCT = 0.4f;		//	Amount of screens to travel
-	const TCHAR* FONT_TO_USE = _T( "Tahoma" );
-	
-	const int FONT_SIZE_TITLE = 32;
-	const int FONT_SIZE_SUBTITLE = 28;
+const float POPUP_DIST_Y_TO_PCT = 0.856f;		//	Where on screen to end up
+const float POPUP_DIST_Y_FROM_PCT = 0.4f;		//	Amount of screens to travel
+const TCHAR* FONT_TO_USE = _T( "Tahoma" );
 
-	const float START_AT = 0.0f;
-	const float APPEAR_AT = 0.8f;
-	const float FADEOUT_AT = 4.2f;
-	const float FINISH_AT = 5.0f;
+const int FONT_SIZE_TITLE = 32;
+const int FONT_SIZE_SUBTITLE = 28;
 
-	const TCHAR* MSG_SOUND[] =
-	{
-		_T( "./Overlay/login.wav" ),
-		_T( "./Overlay/info.wav" ),
-		_T( "./Overlay/unlock.wav" ),
-		_T( "./Overlay/acherror.wav" ),
-		_T( "./Overlay/lb.wav" ),
-		_T( "./Overlay/lbcancel.wav" ),
-		_T( "./Overlay/message.wav" ),
-	};
-	static_assert( SIZEOF_ARRAY( MSG_SOUND ) == NumMessageTypes, "Must match!" );
+const float START_AT = 0.0f;
+const float APPEAR_AT = 0.8f;
+const float FADEOUT_AT = 4.2f;
+const float FINISH_AT = 5.0f;
+
+const TCHAR* MSG_SOUND[] =
+{
+	_T( "./Overlay/login.wav" ),
+	_T( "./Overlay/info.wav" ),
+	_T( "./Overlay/unlock.wav" ),
+	_T( "./Overlay/acherror.wav" ),
+	_T( "./Overlay/lb.wav" ),
+	_T( "./Overlay/lbcancel.wav" ),
+	_T( "./Overlay/message.wav" ),
+};
+static_assert(SIZEOF_ARRAY( MSG_SOUND ) == NumMessageTypes, "Must match!");
 }
 
 AchievementPopup::AchievementPopup() :
@@ -40,7 +41,7 @@ AchievementPopup::AchievementPopup() :
 void AchievementPopup::PlayAudio()
 {
 	ASSERT( MessagesPresent() );	//	ActiveMessage() dereferences!
-	PlaySound( MSG_SOUND[ ActiveMessage().Type() ], NULL, SND_FILENAME|SND_ASYNC );
+	PlaySound( MSG_SOUND[ActiveMessage().Type()], NULL, SND_FILENAME|SND_ASYNC );
 }
 
 void AchievementPopup::AddMessage( const MessagePopup& msg )
@@ -51,13 +52,13 @@ void AchievementPopup::AddMessage( const MessagePopup& msg )
 
 void AchievementPopup::Update( ControllerInput input, float fDelta, bool bFullScreen, bool bPaused )
 {
-	if( bPaused )
+	if ( bPaused )
 		fDelta = 0.0f;
 	fDelta = RAClamp<float>( fDelta, 0.0f, 0.3f );	//	Limit this!
-	if( m_vMessages.size() > 0 )
+	if ( m_vMessages.size() > 0 )
 	{
 		m_fTimer += fDelta;
-		if( m_fTimer >= FINISH_AT )
+		if ( m_fTimer >= FINISH_AT )
 		{
 			m_vMessages.pop();
 			m_fTimer = 0.0f;
@@ -69,24 +70,24 @@ float AchievementPopup::GetYOffsetPct() const
 {
 	float fVal = 0.0f;
 
-	if( m_fTimer < APPEAR_AT )
+	if ( m_fTimer < APPEAR_AT )
 	{
 		//	Fading in.
 		float fDelta = (APPEAR_AT - m_fTimer);
 		fDelta *= fDelta;	//	Quadratic
 		fVal = fDelta;
 	}
-	else if( m_fTimer < FADEOUT_AT )
+	else if ( m_fTimer < FADEOUT_AT )
 	{
 		//	Faded in - held
 		fVal = 0.0f;
 	}
-	else if( m_fTimer < FINISH_AT )
+	else if ( m_fTimer < FINISH_AT )
 	{
 		//	Fading out
-		float fDelta = ( FADEOUT_AT - m_fTimer );
+		float fDelta = (FADEOUT_AT - m_fTimer);
 		fDelta *= fDelta;	//	Quadratic
-		fVal = ( fDelta );
+		fVal = (fDelta);
 	}
 	else
 	{
@@ -99,7 +100,7 @@ float AchievementPopup::GetYOffsetPct() const
 
 void AchievementPopup::Render( HDC hDC, RECT& rcDest )
 {
-	if( !MessagesPresent() )
+	if ( !MessagesPresent() )
 		return;
 
 	const int nPixelWidth = rcDest.right - rcDest.left;
@@ -109,32 +110,32 @@ void AchievementPopup::Render( HDC hDC, RECT& rcDest )
 	SetTextColor( hDC, COL_POPUP );
 
 	HFONT hFontTitle = CreateFont( FONT_SIZE_TITLE, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
-								   DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_CHARACTER_PRECIS, ANTIALIASED_QUALITY,/*NONANTIALIASED_QUALITY,*/
-								   DEFAULT_PITCH, FONT_TO_USE );
+		DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_CHARACTER_PRECIS, ANTIALIASED_QUALITY,/*NONANTIALIASED_QUALITY,*/
+		DEFAULT_PITCH, FONT_TO_USE );
 
 	HFONT hFontDesc = CreateFont( FONT_SIZE_SUBTITLE, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
-								  DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_CHARACTER_PRECIS, ANTIALIASED_QUALITY,/*NONANTIALIASED_QUALITY,*/
-								  DEFAULT_PITCH, FONT_TO_USE );
+		DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_CHARACTER_PRECIS, ANTIALIASED_QUALITY,/*NONANTIALIASED_QUALITY,*/
+		DEFAULT_PITCH, FONT_TO_USE );
 
 	int nTitleX = 10;
 	int nDescX = nTitleX + 2;
 
 	const int nHeight = rcDest.bottom - rcDest.top;
 
-	float fFadeInY = GetYOffsetPct() * ( POPUP_DIST_Y_FROM_PCT * static_cast<float>( nHeight ) );
-	fFadeInY += ( POPUP_DIST_Y_TO_PCT * static_cast<float>( nHeight ) );
+	float fFadeInY = GetYOffsetPct() * (POPUP_DIST_Y_FROM_PCT * static_cast<float>(nHeight));
+	fFadeInY += (POPUP_DIST_Y_TO_PCT * static_cast<float>(nHeight));
 
-	const int nTitleY = static_cast<int>( fFadeInY );
+	const int nTitleY = static_cast<int>(fFadeInY);
 	const int nDescY = nTitleY + 32;
 
-	if( ActiveMessage().Type() == PopupAchievementUnlocked || ActiveMessage().Type() == PopupAchievementError )
+	if ( ActiveMessage().Type() == PopupAchievementUnlocked || ActiveMessage().Type() == PopupAchievementError )
 	{
 		DrawImage( hDC, ActiveMessage().Image(), nTitleX, nTitleY, 64, 64 );
 
 		nTitleX += 64 + 4 + 2;	//	Negate the 2 from earlier!
 		nDescX += 64 + 4;
 	}
-	else if( ActiveMessage().Type() == PopupLeaderboardInfo )
+	else if ( ActiveMessage().Type() == PopupLeaderboardInfo )
 	{
 		//	meh
 	}
@@ -144,11 +145,11 @@ void AchievementPopup::Render( HDC hDC, RECT& rcDest )
 
 	SelectObject( hDC, hFontTitle );
 	TextOut( hDC, nTitleX, nTitleY, Widen( sTitle ).c_str(), sTitle.length() );
-	SIZE szTitle = { 0, 0 };
+	SIZE szTitle ={0, 0};
 	GetTextExtentPoint32( hDC, Widen( sTitle ).c_str(), sTitle.length(), &szTitle );
 
-	SIZE szAchievement = { 0, 0 };
-	if( ActiveMessage().Subtitle().length() > 0 )
+	SIZE szAchievement ={0, 0};
+	if ( ActiveMessage().Subtitle().length() > 0 )
 	{
 		SelectObject( hDC, hFontDesc );
 		TextOut( hDC, nDescX, nDescY, Widen( sSubTitle ).c_str(), sSubTitle.length() );
@@ -162,7 +163,7 @@ void AchievementPopup::Render( HDC hDC, RECT& rcDest )
 	LineTo( hDC, nTitleX + szTitle.cx, nTitleY + szTitle.cy );	//	right
 	LineTo( hDC, nTitleX + szTitle.cx, nTitleY + 1 );			//	up
 
-	if( ActiveMessage().Subtitle().length() > 0 )
+	if ( ActiveMessage().Subtitle().length() > 0 )
 	{
 		MoveToEx( hDC, nDescX, nDescY + szAchievement.cy, NULL );
 		LineTo( hDC, nDescX + szAchievement.cx, nDescY + szAchievement.cy );
@@ -176,6 +177,6 @@ void AchievementPopup::Render( HDC hDC, RECT& rcDest )
 
 void AchievementPopup::Clear()
 {
-	while( !m_vMessages.empty() )
+	while ( !m_vMessages.empty() )
 		m_vMessages.pop();
 }

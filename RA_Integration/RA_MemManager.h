@@ -6,10 +6,10 @@ class MemCandidate
 {
 public:
 	MemCandidate()
-	 :	m_nAddr( 0 ),
+		: m_nAddr( 0 ),
 		m_nLastKnownValue( 0 )
 	{}
-	
+
 public:
 	unsigned int m_nAddr;
 	unsigned int m_nLastKnownValue;		//	A Candidate MAY be a 32-bit candidate!
@@ -25,19 +25,20 @@ private:
 	class BankData
 	{
 	public:
-		BankData() 
-		 :	Reader( nullptr ), Writer( nullptr ), BankSize( 0 ) 
+		BankData()
+			: Reader( nullptr ), Writer( nullptr ), BankSize( 0 )
 		{}
 
 		BankData( _RAMByteReadFn* pReadFn, _RAMByteWriteFn* pWriteFn, size_t nBankSize )
-		 :	Reader( pReadFn ), Writer( pWriteFn ), BankSize( nBankSize )
+			: Reader( pReadFn ), Writer( pWriteFn ), BankSize( nBankSize )
 		{}
-		
+
 	private:
+
 		//	Copying disabled
 		BankData( const BankData& );
 		BankData& operator=( BankData& );
-	
+
 	public:
 		_RAMByteReadFn* Reader;
 		_RAMByteWriteFn* Writer;
@@ -51,30 +52,31 @@ public:
 public:
 	void ClearMemoryBanks();
 	void AddMemoryBank( size_t nBankID, _RAMByteReadFn* pReader, _RAMByteWriteFn* pWriter, size_t nBankSize );
-	size_t NumMemoryBanks() const									{ return m_Banks.size(); }
+	size_t NumMemoryBanks() const { return m_Banks.size(); }
 
 	void Reset( unsigned short nSelectedMemBank, ComparisonVariableSize nNewComparisonVariableSize );
 
 	size_t Compare( ComparisonType nCompareType, unsigned int nTestValue, bool& bResultsFound );
-	
-	inline DWORD ValidMemAddrFound( size_t iter ) const				{ return m_Candidates[ iter ].m_nAddr; }
-	inline ComparisonVariableSize MemoryComparisonSize() const		{ return m_nComparisonSizeMode; }
-	inline bool UseLastKnownValue() const							{ return m_bUseLastKnownValue; }
-	inline void SetUseLastKnownValue( bool bUseLastKnownValue )		{ m_bUseLastKnownValue = bUseLastKnownValue; }
-	inline size_t BankSize( unsigned short nBank ) const			{ return m_Banks.at( nBank ).BankSize; }
+
+	inline DWORD ValidMemAddrFound( size_t iter ) const { return m_Candidates[iter].m_nAddr; }
+	inline ComparisonVariableSize MemoryComparisonSize() const { return m_nComparisonSizeMode; }
+	inline bool UseLastKnownValue() const { return m_bUseLastKnownValue; }
+	inline void SetUseLastKnownValue( bool bUseLastKnownValue ) { m_bUseLastKnownValue = bUseLastKnownValue; }
+	inline size_t BankSize( unsigned short nBank ) const { return m_Banks.at( nBank ).BankSize; }
+
 	//inline size_t ActiveBankSize() const							{ return m_Banks.at( m_nActiveMemBank ).BankSize; }
 	//inline unsigned short ActiveBankID() const					{ return m_nActiveMemBank; }
-	inline size_t TotalBankSize() const								{ return m_nTotalBankSize; }
+	inline size_t TotalBankSize() const { return m_nTotalBankSize; }
 
 	std::vector<size_t> GetBankIDs() const;
-	
-	size_t NumCandidates() const									{ return m_nNumCandidates; }
-	const MemCandidate& GetCandidate( size_t nAt ) const			{ return m_Candidates[ nAt ]; }
+
+	size_t NumCandidates() const { return m_nNumCandidates; }
+	const MemCandidate& GetCandidate( size_t nAt ) const { return m_Candidates[nAt]; }
 
 	void ChangeActiveMemBank( unsigned short nMemBank );
 
-	unsigned char ActiveBankRAMByteRead(ByteAddress nOffs) const;
-	void ActiveBankRAMByteWrite(ByteAddress nOffs, unsigned int nVal);
+	unsigned char ActiveBankRAMByteRead( ByteAddress nOffs ) const;
+	void ActiveBankRAMByteWrite( ByteAddress nOffs, unsigned int nVal );
 
 	//inline unsigned char ActiveBankRAMByteRead( ByteAddress nOffs ) const								{ return( ( *( m_Banks.at( m_nActiveMemBank ).Reader ) )( nOffs ) ); }
 	//inline void ActiveBankRAMByteWrite( ByteAddress nOffs, unsigned int nVal ) const					{ ( *( m_Banks.at( m_nActiveMemBank ).Writer ) )( nOffs, nVal ); }

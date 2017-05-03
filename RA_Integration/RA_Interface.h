@@ -52,13 +52,12 @@ enum ConsoleID
 	NumConsoleIDs
 };
 
-
-extern bool (*_RA_GameIsActive)();
-extern void (*_RA_CauseUnpause)();
-extern void (*_RA_RebuildMenu)();
-extern void (*_RA_GetEstimatedGameTitle)( char* sNameOut );
-extern void (*_RA_ResetEmulation)();
-extern void (*_RA_LoadROM)( const char* sFullPath );
+extern bool( *_RA_GameIsActive )();
+extern void( *_RA_CauseUnpause )();
+extern void( *_RA_RebuildMenu )();
+extern void( *_RA_GetEstimatedGameTitle )(char* sNameOut);
+extern void( *_RA_ResetEmulation )();
+extern void( *_RA_LoadROM )(const char* sFullPath);
 
 //	Shared funcs, should be implemented by emulator.
 extern bool RA_GameIsActive();
@@ -82,15 +81,13 @@ extern void RA_LoadROM( const char* sFullPath );
 extern void RA_Init( HWND hMainHWND, /*enum ConsoleType*/int console, const char* sClientVersion );
 
 //	Call with shared function pointers from app.
-extern void RA_InstallSharedFunctions( bool(*fpIsActive)(void), void(*fpCauseUnpause)(void), void(*fpRebuildMenu)(void), void(*fpEstimateTitle)(char*), void(*fpResetEmulator)(void), void(*fpLoadROM)(const char*) );
+extern void RA_InstallSharedFunctions( bool( *fpIsActive )(void), void( *fpCauseUnpause )(void), void( *fpRebuildMenu )(void), void( *fpEstimateTitle )(char*), void( *fpResetEmulator )(void), void( *fpLoadROM )(const char*) );
 
 //	Shuts down, tidies up and deallocs the RA DLL from the app's perspective.
 extern void RA_Shutdown();
 
-
 //	Perform one test for all achievements in the current set. Call this once per frame/cycle.
 extern void RA_DoAchievementsFrame();
-
 
 //	Updates and renders all on-screen overlays.
 extern void RA_UpdateRenderOverlay( HDC hDC, ControllerInput* pInput, float fDeltaTime, RECT* prcSize, bool Full_Screen, bool Paused );
@@ -136,7 +133,6 @@ extern void RA_SetConsoleID( unsigned int nConsoleID );
 //	Should be called immediately after loading or saving a new state.
 extern void RA_OnLoadState( const char* sFilename );
 extern void RA_OnSaveState( const char* sFilename );
-
 
 //	Call this when initializing DirectX. TBD: clarify this.
 extern void RA_InitDirectX();

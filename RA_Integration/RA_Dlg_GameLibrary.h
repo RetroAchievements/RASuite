@@ -1,10 +1,5 @@
 #pragma once
 
-#include <wtypes.h>
-#include <vector>
-#include <deque>
-#include <map>
-//#include <string>
 #include "RA_Defs.h"
 
 class GameEntry
@@ -13,10 +8,10 @@ public:
 	GameEntry( const std::string& sTitle, const std::string& sFile, unsigned int nGameID ) :
 		m_sTitle( sTitle ), m_sFilename( sFile ), m_nGameID( nGameID ) {}
 
-	const std::string& Title() const	{ return m_sTitle; }
-	const std::string& Filename() const	{ return m_sFilename; }
-	unsigned int GameID() const			{ return m_nGameID; }
-	
+	const std::string& Title() const { return m_sTitle; }
+	const std::string& Filename() const { return m_sFilename; }
+	unsigned int GameID() const { return m_nGameID; }
+
 	const std::string m_sTitle;
 	const std::string m_sFilename;
 	const unsigned int m_nGameID;
@@ -29,22 +24,23 @@ public:
 	~Dlg_GameLibrary();
 
 public:
+
 	//void DoModalDialog( HINSTANCE hInst, HWND hParent );
 	static INT_PTR CALLBACK s_GameLibraryProc( HWND, UINT, WPARAM, LPARAM );
 	INT_PTR CALLBACK GameLibraryProc( HWND, UINT, WPARAM, LPARAM );
 
 public:
-	void InstallHWND( HWND hWnd )		{ m_hDialogBox = hWnd; }
-	HWND GetHWND() const				{ return m_hDialogBox; }
+	void InstallHWND( HWND hWnd ) { m_hDialogBox = hWnd; }
+	HWND GetHWND() const { return m_hDialogBox; }
 
 	void AddTitle( const std::string& sTitle, const std::string& sFilename, unsigned int nGameID );
 	void ClearTitles();
-	
+
 	void LoadAll();
 	void SaveAll();
 
 	void KillThread();
-	
+
 private:
 	void SetupColumns( HWND hList );
 	void ReloadGameListData();
@@ -61,7 +57,7 @@ private:
 	static void ThreadedScanProc();
 	static bool ThreadProcessingAllowed;
 	static bool ThreadProcessingActive;
-	
+
 private:
 	HWND m_hDialogBox;
 

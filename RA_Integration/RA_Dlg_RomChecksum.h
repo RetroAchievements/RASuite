@@ -1,7 +1,5 @@
 #pragma once
 
-#include <wtypes.h>
-
 class RA_Dlg_RomChecksum
 {
 public:

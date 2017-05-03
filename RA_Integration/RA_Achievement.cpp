@@ -1,18 +1,9 @@
+#include "stdafx.h"
 #include "RA_Achievement.h"
-
-#include <windows.h>
-#include <commctrl.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <memory.h>
-#include <assert.h>
-#include <io.h>
-#include <sstream>
 
 #include "RA_Dlg_Achievement.h"
 #include "RA_Dlg_GameTitle.h"
 
-#include "md5.h"
 #include "RA_md5factory.h"
 
 #include "RA_MemManager.h"
@@ -47,12 +38,13 @@ void Achievement::Parse( const Value& element )
 	m_sAuthor = element["Author"].GetString();
 	m_nTimestampModified = element["Modified"].GetUint();
 	m_nTimestampCreated = element["Created"].GetUint();
+
 	//m_sBadgeImageURI = element["BadgeName"].GetString();
 	SetBadgeImage( element["BadgeName"].GetString() );
+
 	//unsigned int nFlags = element["Flags"].GetUint();
 
-
-	if( element["MemAddr"].IsString() )
+	if ( element["MemAddr"].IsString() )
 	{
 		std::string sMem = element["MemAddr"].GetString();
 		char buffer[8192];
@@ -72,25 +64,23 @@ char* Achievement::ParseMemString( char* sMem )
 	{
 		std::vector<Condition> NewConditionGroup;
 
-		do 
+		do
 		{
 			{
-				while( (*pBuffer) == ' ' || (*pBuffer) == '_' || (*pBuffer) == '|' || (*pBuffer) == 'S' )
+				while ( (*pBuffer) == ' ' || (*pBuffer) == '_' || (*pBuffer) == '|' || (*pBuffer) == 'S' )
 					pBuffer++; // Skip any chars up til the start of the achievement condition
 			}
-			
+
 			Condition nNewCond;
 			nNewCond.ParseFromString( pBuffer );
 			NewConditionGroup.push_back( nNewCond );
-		}
-		while( *pBuffer == '_' || *pBuffer == 'R' || *pBuffer == 'P' ); //	AND, ResetIf, PauseIf
+		} while ( *pBuffer == '_' || *pBuffer == 'R' || *pBuffer == 'P' ); //	AND, ResetIf, PauseIf
 
-		for( size_t i = 0; i < NewConditionGroup.size(); ++i )
+		for ( size_t i = 0; i < NewConditionGroup.size(); ++i )
 			AddCondition( nCondGroupID, NewConditionGroup[i] );
 
 		nCondGroupID++;
-	}
-	while( *pBuffer == 'S' );	//	Repeat for all subconditions if they exist
+	} while ( *pBuffer == 'S' );	//	Repeat for all subconditions if they exist
 
 	return pBuffer;
 }
@@ -110,17 +100,17 @@ char* Achievement::ParseLine( char* pBuffer )
 	time_t nDateModifiedSecs = 0;
 	unsigned short nUpvotes = 0;
 	unsigned short nDownvotes = 0;
-	
+
 	//	Achievement:
 	char* pNextChar = NULL;
 	unsigned int nResetCondIter = 0;
 	unsigned int nAchievementID = 0;
 	unsigned int i = 0;
 
-	if( pBuffer == NULL || pBuffer[0] == '\0' )
+	if ( pBuffer == NULL || pBuffer[0] == '\0' )
 		return pBuffer;
 
-	if( pBuffer[0] == '/' || pBuffer[0] == '\\' )
+	if ( pBuffer[0] == '/' || pBuffer[0] == '\\' )
 		return pBuffer;
 
 	//	Read ID of achievement:
@@ -128,28 +118,29 @@ char* Achievement::ParseLine( char* pBuffer )
 	nAchievementID = strtol( pBuffer, &pNextChar, 10 );
 	pBuffer = pNextChar+1;
 
-	//	
+	//
 	pBuffer = ParseMemString( pBuffer );
-	//	
 
-	while( *pBuffer == ' ' || *pBuffer == ':' )
+	//
+
+	while ( *pBuffer == ' ' || *pBuffer == ':' )
 		pBuffer++; // Skip any whitespace/colons
 
 	SetActive( FALSE );
 	SetID( nAchievementID );
 
 	//	buffer now contains TITLE : DESCRIPTION : $POINTS : $Author : $DateCreated : $DateModified : upvotes : downvotes : badgefilename
-	
+
 	pTitle				= _ReadStringTil( ':', pBuffer, TRUE );
 	pDesc				= _ReadStringTil( ':', pBuffer, TRUE );
 	pProgress			= _ReadStringTil( ':', pBuffer, TRUE );
 	pProgressMax		= _ReadStringTil( ':', pBuffer, TRUE );
 	pProgressFmt		= _ReadStringTil( ':', pBuffer, TRUE );
 	pAuthor				= _ReadStringTil( ':', pBuffer, TRUE );
-	
-	nPoints =			(unsigned int)atol(   _ReadStringTil( ':', pBuffer, TRUE ) );
-	nDateCreatedSecs =	(time_t)atol(		  _ReadStringTil( ':', pBuffer, TRUE ) );
-	nDateModifiedSecs =	(time_t)atol(		  _ReadStringTil( ':', pBuffer, TRUE ) );
+
+	nPoints =			(unsigned int)atol( _ReadStringTil( ':', pBuffer, TRUE ) );
+	nDateCreatedSecs =	(time_t)atol( _ReadStringTil( ':', pBuffer, TRUE ) );
+	nDateModifiedSecs =	(time_t)atol( _ReadStringTil( ':', pBuffer, TRUE ) );
 	nUpvotes =			(unsigned short)atol( _ReadStringTil( ':', pBuffer, TRUE ) );
 	nDownvotes =		(unsigned short)atol( _ReadStringTil( ':', pBuffer, TRUE ) );
 
@@ -164,10 +155,11 @@ char* Achievement::ParseLine( char* pBuffer )
 	SetProgressIndicator( pProgress );
 	SetProgressIndicatorMax( pProgressMax );
 	SetProgressIndicatorFormat( pProgressFmt );
+
 	//SetUpvotes( nUpvotes );
 	//SetDownvotes( nDownvotes );
 	SetBadgeImage( pBadgeFilename );
-	
+
 	return pBuffer;
 }
 
@@ -178,19 +170,19 @@ BOOL Achievement::Test()
 
 	BOOL bRetVal = FALSE;
 	BOOL bRetValSubCond = NumConditionGroups() == 1 ? TRUE : FALSE;
-	for( size_t i = 0; i < NumConditionGroups(); ++i )
+	for ( size_t i = 0; i < NumConditionGroups(); ++i )
 	{
-		if( i == 0 )
+		if ( i == 0 )
 			bRetVal = m_vConditions[i].Test( bDirtyConditions, bResetConditions, FALSE );
 		else	//	OR!
 			bRetValSubCond |= m_vConditions[i].Test( bDirtyConditions, bResetConditions, FALSE );
 	}
 
-	if( bDirtyConditions )
+	if ( bDirtyConditions )
 	{
 		SetDirtyFlag( Dirty_Conditions );
 	}
-	if( bResetConditions )
+	if ( bResetConditions )
 	{
 		Reset();
 	}
@@ -201,13 +193,13 @@ BOOL Achievement::Test()
 void Achievement::Clear()
 {
 	size_t i = 0;
-	for( size_t i = 0; i < m_vConditions.size(); ++i )
+	for ( size_t i = 0; i < m_vConditions.size(); ++i )
 		m_vConditions[i].Clear();
 
 	//m_vConditions.clear();
 
 	m_nAchievementID = 0;
-	
+
 	m_sTitle.clear();
 	m_sDescription.clear();
 	m_sAuthor.clear();
@@ -227,6 +219,7 @@ void Achievement::Clear()
 
 	m_nTimestampCreated = 0;
 	m_nTimestampModified = 0;
+
 	//m_nUpvotes = 0;
 	//m_nDownvotes = 0;
 }
@@ -242,14 +235,14 @@ void Achievement::RemoveConditionGroup()
 }
 
 void Achievement::SetID( unsigned int nID )
-{ 
+{
 	m_nAchievementID = nID;
 	SetDirtyFlag( Dirty_ID );
 }
 
 void Achievement::SetActive( BOOL bActive )
 {
-	if( m_bActive != bActive )
+	if ( m_bActive != bActive )
 	{
 		m_bActive = bActive;
 		SetDirtyFlag( Dirty__All );
@@ -270,7 +263,7 @@ void Achievement::SetActive( BOOL bActive )
 
 void Achievement::SetModified( BOOL bModified )
 {
-	if( m_bModified != bModified )
+	if ( m_bModified != bModified )
 	{
 		m_bModified = bModified;
 		SetDirtyFlag( Dirty__All );	//	TBD? questionable...
@@ -285,7 +278,7 @@ void Achievement::SetBadgeImage( const std::string& sBadgeURI )
 	m_sBadgeImageURI = sBadgeURI;
 
 	m_hBadgeImage = LoadOrFetchBadge( sBadgeURI, RA_BADGE_PX );
-	if( sBadgeURI.find( "_lock" ) == std::string::npos )	//	Ensure we're not going to look for _lock_lock
+	if ( sBadgeURI.find( "_lock" ) == std::string::npos )	//	Ensure we're not going to look for _lock_lock
 		m_hBadgeImageLocked = LoadOrFetchBadge( sBadgeURI + "_lock", RA_BADGE_PX );
 }
 
@@ -293,20 +286,20 @@ void Achievement::Reset()
 {
 	//	Get all conditions, set hits found=0
 	BOOL bDirty = FALSE;
-	
-	for( size_t i = 0; i < NumConditionGroups(); ++i )
+
+	for ( size_t i = 0; i < NumConditionGroups(); ++i )
 		bDirty |= m_vConditions[i].Reset( false );
 
-	if( bDirty )
+	if ( bDirty )
 		SetDirtyFlag( Dirty_Conditions );
 }
 
 size_t Achievement::AddCondition( size_t nConditionGroup, const Condition& rNewCond )
-{ 
-	while( NumConditionGroups() <= nConditionGroup )	//	ENSURE this is a legal op!
+{
+	while ( NumConditionGroups() <= nConditionGroup )	//	ENSURE this is a legal op!
 		m_vConditions.push_back( ConditionSet() );
 
-	m_vConditions[nConditionGroup].Add( rNewCond );	//	NB. Copy by value	
+	m_vConditions[nConditionGroup].Add( rNewCond );	//	NB. Copy by value
 	SetDirtyFlag( Dirty__All );
 
 	return m_vConditions[nConditionGroup].Count();
@@ -315,7 +308,7 @@ size_t Achievement::AddCondition( size_t nConditionGroup, const Condition& rNewC
 BOOL Achievement::RemoveCondition( size_t nConditionGroup, unsigned int nID )
 {
 	m_vConditions[nConditionGroup].RemoveAt( nID );
-	SetDirtyFlag( Dirty__All );	//	Not Conditions: 
+	SetDirtyFlag( Dirty__All );	//	Not Conditions:
 
 	return TRUE;
 }
@@ -330,40 +323,41 @@ void Achievement::RemoveAllConditions( size_t nConditionGroup )
 std::string Achievement::CreateMemString() const
 {
 	std::stringstream sstr;
-	for( size_t nGrp = 0; nGrp < NumConditionGroups(); ++nGrp )
+	for ( size_t nGrp = 0; nGrp < NumConditionGroups(); ++nGrp )
 	{
-		if( m_vConditions[ nGrp ].Count() == 0 )	//	Ignore empty groups when saving
+		if ( m_vConditions[nGrp].Count() == 0 )	//	Ignore empty groups when saving
 			continue;
-		
-		if( nGrp > 0 )	//	Subcondition start found
+
+		if ( nGrp > 0 )	//	Subcondition start found
 			sstr << "S";
 
-		for( size_t i = 0; i < m_vConditions[ nGrp ].Count(); ++i )
+		for ( size_t i = 0; i < m_vConditions[nGrp].Count(); ++i )
 		{
-			const Condition& NextCond = m_vConditions[ nGrp ].GetAt( i );
+			// There are no move constructors defined for this kind of operation
+			const Condition& NextCond = m_vConditions[nGrp].GetAt( i );
 			const CompVariable& Src = NextCond.CompSource();
 			const CompVariable& Target = NextCond.CompTarget();
 
-			char sNextCondition[ 256 ];
+			char sNextCondition[256];
 			memset( sNextCondition, 0, 256 );
-			
-			if( NextCond.IsResetCondition() )
+
+			if ( NextCond.IsResetCondition() )
 				strcat_s( sNextCondition, 256, "R:" );
-			else if( NextCond.IsPauseCondition() )
+			else if ( NextCond.IsPauseCondition() )
 				strcat_s( sNextCondition, 256, "P:" );
-			
+
 			//	Source:
-			if( ( Src.Type() == Address ) || 
-				( Src.Type() == DeltaMem ) )
+			if ( (Src.Type() == Address) ||
+				(Src.Type() == DeltaMem) )
 			{
-				char buffer1[ 64 ];
-				sprintf_s( buffer1, 64, "%s0x%s%06x", ( Src.Type() == DeltaMem ) ? "d" : "", ComparisonSizeToPrefix( Src.Size() ), Src.RawValue() );
+				char buffer1[64];
+				sprintf_s( buffer1, 64, "%s0x%s%06x", (Src.Type() == DeltaMem) ? "d" : "", ComparisonSizeToPrefix( Src.Size() ), Src.RawValue() );
 				strcat_s( sNextCondition, 256, buffer1 );
 			}
-			else if( Src.Type() == ValueComparison )
+			else if ( Src.Type() == ValueComparison )
 			{
 				//	Value: use direct!
-				char buffer2[ 64 ];
+				char buffer2[64];
 				sprintf_s( buffer2, 64, "%d", Src.RawValue() );
 				strcat_s( sNextCondition, 256, buffer2 );
 			}
@@ -371,27 +365,27 @@ std::string Achievement::CreateMemString() const
 			{
 				ASSERT( !"Unknown type? (DynMem)?" );
 			}
-			
+
 			//	Comparison type:
 			strcat_s( sNextCondition, 256, ComparisonTypeToStr( NextCond.CompareType() ) );
 
 			//	Target:
-			if( ( Target.Type() == Address ) || 
-				( Target.Type() == DeltaMem ) )
+			if ( (Target.Type() == Address) ||
+				(Target.Type() == DeltaMem) )
 			{
-				char buffer3[ 64 ];
+				char buffer3[64];
 				sprintf_s( buffer3, 64,
-						   "%s%s%06x",
-						   ( Target.Type() == DeltaMem ) ? "d0x" : "0x",
-						   ComparisonSizeToPrefix( Target.Size() ), 
-						   Target.RawValue() );
+					"%s%s%06x",
+					(Target.Type() == DeltaMem) ? "d0x" : "0x",
+					ComparisonSizeToPrefix( Target.Size() ),
+					Target.RawValue() );
 
 				strcat_s( sNextCondition, 256, buffer3 );
 			}
-			else if( Target.Type() == ValueComparison )
+			else if ( Target.Type() == ValueComparison )
 			{
 				//	Value: use direct!
-				char buffer4[ 64 ];
+				char buffer4[64];
 				sprintf_s( buffer4, 64, "%d", Target.RawValue() );
 				strcat_s( sNextCondition, 256, buffer4 );
 			}
@@ -399,20 +393,20 @@ std::string Achievement::CreateMemString() const
 			{
 				ASSERT( !"Unknown type? (DynMem)?" );
 			}
-			
+
 			//	Hit count:
-			if( NextCond.RequiredHits() > 0 )
+			if ( NextCond.RequiredHits() > 0 )
 			{
-				char buffer5[ 64 ];
+				char buffer5[64];
 				sprintf_s( buffer5, 64, ".%d.", NextCond.RequiredHits() );
 				strcat_s( sNextCondition, 256, buffer5 );
 			}
-			
+
 			//	Copy in the next condition:
 			sstr << sNextCondition;
 
 			//	Are we on the last condition? THIS IS IMPORTANT: check the parsing code!
-			if( ( i + 1 ) < m_vConditions[nGrp].Count() )
+			if ( (i + 1) < m_vConditions[nGrp].Count() )
 				sstr << "_";
 		}
 	}
@@ -422,12 +416,12 @@ std::string Achievement::CreateMemString() const
 
 void Achievement::ClearBadgeImage()
 {
-	if( m_hBadgeImage != NULL )
+	if ( m_hBadgeImage != NULL )
 	{
 		DeleteObject( m_hBadgeImage );
 		m_hBadgeImage = NULL;
 	}
-	if( m_hBadgeImageLocked != NULL )
+	if ( m_hBadgeImageLocked != NULL )
 	{
 		DeleteObject( m_hBadgeImageLocked );
 		m_hBadgeImageLocked = NULL;
@@ -445,21 +439,21 @@ void Achievement::Set( const Achievement& rRHS )
 	SetTitle( rRHS.m_sTitle );
 	SetModified( rRHS.m_bModified );
 	SetBadgeImage( rRHS.m_sBadgeImageURI );
-	
+
 	//	TBD: move to 'now'?
 	SetModifiedDate( rRHS.m_nTimestampModified );
 	SetCreatedDate( rRHS.m_nTimestampCreated );
 
-	for( size_t i = 0; i < NumConditionGroups(); ++i )
+	for ( size_t i = 0; i < NumConditionGroups(); ++i )
 		RemoveAllConditions( i );
 	m_vConditions.clear();
 
-	for( size_t nGrp = 0; nGrp < rRHS.NumConditionGroups(); ++nGrp )
+	for ( size_t nGrp = 0; nGrp < rRHS.NumConditionGroups(); ++nGrp )
 	{
 		m_vConditions.push_back( ConditionSet() );
 
-		for( size_t i = 0; i < rRHS.m_vConditions[nGrp].Count(); ++i )
-			AddCondition( nGrp, rRHS.m_vConditions[nGrp].GetAt(i) );
+		for ( size_t i = 0; i < rRHS.m_vConditions[nGrp].Count(); ++i )
+			AddCondition( nGrp, rRHS.m_vConditions[nGrp].GetAt( i ) );
 	}
 
 	SetDirtyFlag( Dirty__All );
@@ -468,12 +462,12 @@ void Achievement::Set( const Achievement& rRHS )
 //int Achievement::StoreDynamicVar( char* pVarName, CompVariable nVar )
 //{
 //	ASSERT( m_nNumDynamicVars < 5 );
-// 	
+//
 //	//m_nDynamicVars[m_nNumDynamicVars].m_nVar = nVar;
 //	//strcpy_s( m_nDynamicVars[m_nNumDynamicVars].m_sName, 16, pVarName );
-// 	
+//
 //	m_nNumDynamicVars++;
-// 
+//
 //	return m_nNumDynamicVars;
 //}
 //
@@ -488,10 +482,10 @@ void Achievement::Set( const Achievement& rRHS )
 //		nIter++;
 //		fStepAt = fStep * nIter;
 //	}
-// 
+//
 //	if( fStepAt >= 1.0f )
 //		fStepAt = 1.0f;
-// 
+//
 //	return fStepAt;
 //}
 //
@@ -499,21 +493,21 @@ void Achievement::Set( const Achievement& rRHS )
 //{
 //	if( pExp == NULL )
 //		return 0.0f;
-// 
+//
 //	int nOperator = 0;	//	0=add, 1=mult, 2=sub
-// 
+//
 //	while( *pExp == ' ' )
 //		++pExp; //	Trim
-// 
+//
 //	float fProgressValue = 0.0f;
 //	char* pStrIter = &pExp[0];
-// 
+//
 //	int nIterations = 0;
-// 
+//
 //	while( *pStrIter != NULL && nIterations < 20 )
 //	{
 //		float fNextVal = 0.0f;
-// 
+//
 //		//	Parse operator
 //		if( pStrIter == pExp )
 //		{
@@ -533,20 +527,20 @@ void Achievement::Set( const Achievement& rRHS )
 //				char buffer[256];
 //				sprintf_s( buffer, 256, "Unrecognised operator character at %d",
 //					(&pStrIter) - (&pExp) );
-// 
+//
 //				ASSERT(!"Unrecognised operator in format expression!");
 //				return 0.0f;
 //			}
-//			
+//
 //			pStrIter++;
 //		}
-// 
+//
 //		//	Parse value:
 //		if( strncmp( pStrIter, "Cond:", 5 ) == 0 )
 //		{
 //			//	Get the specified condition, and the value from it.
 //			unsigned int nCondIter = strtol( pStrIter+5, NULL, 10 );
-//			
+//
 //			if( nCondIter < NumConditions() )
 //			{
 //				Condition& Cond = GetCondition( nCondIter );
@@ -584,7 +578,7 @@ void Achievement::Set( const Achievement& rRHS )
 //			//	Assume value, assume base 10
 //			fNextVal = (float)( strtol( pStrIter, &pStrIter, 10 ) );
 //		}
-// 
+//
 //		switch( nOperator )
 //		{
 //		case 0:	//	Add
@@ -600,41 +594,41 @@ void Achievement::Set( const Achievement& rRHS )
 //			ASSERT(!"Unrecognised operator?!");
 //			break;
 //		}
-// 
+//
 //		while( *pExp == ' ' )
 //			++pExp; //	Trim any whitespace
-// 
+//
 //		nIterations++;
 //	}
-// 
+//
 //	if( nIterations == 20 )
 //	{
 //		ASSERT(!"Bugger... can't parse this 'progress' thing. Too many iterations!");
 //	}
-// 
+//
 //	return fProgressValue;
 //}
 
 //void Achievement::UpdateProgress()
 // {
 //	//	Produce a float which represents the current progress.
-//	//	Compare to m_sProgressFmt. If greater and 
+//	//	Compare to m_sProgressFmt. If greater and
 //	//	Compare to m_fProgressLastShown
-// 
+//
 //	//	TBD: Don't forget backslashes!
 //	//sprintf_s( m_sProgress, 256,	"0xfe20", 10 );	//	every 10 percent
 //	//sprintf_s( m_sProgressMax, 256, "200", 10 );	//	every 10 percent
 //	//sprintf_s( m_sProgressFmt, 50,	"%d,%%01.f,%%01.f,,", 10 );	//	every 10 percent
-//	
+//
 //	const float fProgressValue = ParseProgressExpression( m_sProgress );
 //	const float fMaxValue = ParseProgressExpression( m_sProgressMax );
-// 
+//
 //	if( fMaxValue == 0.0f )
 //		return;
-// 
+//
 //	const float fProgressPercent = ( fProgressValue / fMaxValue );
 //	const float fNextStep = ProgressGetNextStep( m_sProgressFmt, fProgressPercent );
-// 
+//
 //	if( fProgressPercent >= m_fProgressLastShown && m_fProgressLastShown < fNextStep )
 //	{
 //		if( m_fProgressLastShown == 0.0f )
@@ -646,40 +640,40 @@ void Achievement::Set( const Achievement& rRHS )
 //		{
 //			return;	//	Don't show final indicator!
 //		}
-// 
+//
 //		m_fProgressLastShown = fNextStep;
-//		
+//
 //		char formatSpareBuffer[256];
 //		strcpy_s( formatSpareBuffer, 256, m_sProgressFmt );
-// 
+//
 //		//	DO NOT USE Sprintf!! this will interpret the format!
-//		//	sprintf_s( formatSpareBuffer, 256, m_sProgressFmt ); 
-// 
+//		//	sprintf_s( formatSpareBuffer, 256, m_sProgressFmt );
+//
 //		char* pUnused = &formatSpareBuffer[0];
 //		char* pUnused2 = NULL;
 //		char* pFirstFmt = NULL;
 //		char* pSecondFmt = NULL;
 //		strtok_s( pUnused, ",", &pFirstFmt );
 //		strtok_s( pFirstFmt, ",", &pSecondFmt );
-//		strtok_s( pSecondFmt, ",\0\n:", &pUnused2 );	//	Adds a very useful '\0' to pSecondFmt 
-//		
+//		strtok_s( pSecondFmt, ",\0\n:", &pUnused2 );	//	Adds a very useful '\0' to pSecondFmt
+//
 //		if( pFirstFmt==NULL || pSecondFmt==NULL )
 //		{
 //			ASSERT(!"FUCK. Format string is fucked");
 //			return;
 //		}
-//		
+//
 //		//	Display progress message:
-//		
+//
 //		char bufferVal1[64];
 //		sprintf_s( bufferVal1, 64, pFirstFmt, fProgressValue );
-//		
+//
 //		char bufferVal2[64];
 //		sprintf_s( bufferVal2, 64, pSecondFmt, fMaxValue );
-// 
+//
 //		char progressTitle[256];
 //		sprintf_s( progressTitle, 256, " Progress: %s ", Title() );
-// 
+//
 //		char progressDesc[256];
 //		sprintf_s( progressDesc, 256, " %s of %s ", bufferVal1, bufferVal2 );
 //		g_PopupWindows.ProgressPopups().AddMessage( progressTitle, progressDesc );

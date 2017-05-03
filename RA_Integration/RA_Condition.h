@@ -13,8 +13,9 @@ enum ComparisonVariableSize
 	Bit_7,
 	Nibble_Lower,
 	Nibble_Upper,
+
 	//Byte,
-	EightBit,//=Byte,  
+	EightBit,//=Byte,
 	SixteenBit,
 	ThirtyTwoBit,
 
@@ -25,7 +26,7 @@ extern const char* COMPARISONVARIABLESIZE_STR[];
 enum ComparisonVariableType
 {
 	Address,			//	compare to the value of a live address in RAM
-	ValueComparison,	//	a number. assume 32 bit 
+	ValueComparison,	//	a number. assume 32 bit
 	DeltaMem,			//	the value last known at this address.
 	DynamicVariable,	//	a custom user-set variable
 
@@ -52,7 +53,7 @@ class CompVariable
 {
 public:
 	CompVariable()
-	 :	m_nVal( 0 ),
+		: m_nVal( 0 ),
 		m_nPreviousVal( 0 ),
 		m_nVarSize( ComparisonVariableSize::EightBit ),
 		m_nVarType( ComparisonVariableType::Address ),
@@ -79,7 +80,7 @@ public:
 	{
 		m_nPreviousVal = m_nVal;
 	}
-	
+
 	//void Clear()
 	//{
 	//	m_nVal = 0;
@@ -90,16 +91,16 @@ public:
 
 	void ParseVariable( char*& sInString );	//	Parse from string
 	unsigned int GetValue();				//	Returns the live value
-	
-	inline void SetSize( ComparisonVariableSize nSize )		{ m_nVarSize = nSize; }
-	inline ComparisonVariableSize Size() const				{ return m_nVarSize; }
 
-	inline void SetType( ComparisonVariableType nType )		{ m_nVarType = nType; }
-	inline ComparisonVariableType Type() const				{ return m_nVarType; }
-	
-	inline unsigned int RawValue() const					{ return m_nVal; }
-	inline unsigned int RawPreviousValue() const			{ return m_nPreviousVal; }
-	inline unsigned short BankID() const					{ return m_nBankID; }
+	inline void SetSize( ComparisonVariableSize nSize ) { m_nVarSize = nSize; }
+	inline ComparisonVariableSize Size() const { return m_nVarSize; }
+
+	inline void SetType( ComparisonVariableType nType ) { m_nVarType = nType; }
+	inline ComparisonVariableType Type() const { return m_nVarType; }
+
+	inline unsigned int RawValue() const { return m_nVal; }
+	inline unsigned int RawPreviousValue() const { return m_nPreviousVal; }
+	inline unsigned short BankID() const { return m_nBankID; }
 
 private:
 	ComparisonVariableSize m_nVarSize;
@@ -108,7 +109,6 @@ private:
 	unsigned int m_nVal;
 	unsigned int m_nPreviousVal;
 };
-
 
 class Condition
 {
@@ -124,13 +124,14 @@ public:
 
 public:
 	Condition()
-	 :	m_nConditionType( Standard ),
+		: m_nConditionType( Standard ),
 		m_nCompareType( Equals ),
 		m_nRequiredHits( 0 ),
 		m_nCurrentHits( 0 )
 	{}
 
 public:
+
 	//	Parse a Condition from a string of characters
 	void ParseFromString( char*& sBuffer );
 
@@ -143,35 +144,35 @@ public:
 	//	Resets 'last known' values
 	void ResetDeltas();
 	void Clear();
-	
-	inline CompVariable& CompSource()				{ return m_nCompSource; }	//	NB both required!!
-	inline const CompVariable& CompSource() const	{ return m_nCompSource; }
-	inline CompVariable& CompTarget()				{ return m_nCompTarget; }
-	inline const CompVariable& CompTarget() const	{ return m_nCompTarget; }
 
-	void SetCompareType( ComparisonType nType )		{ m_nCompareType = nType; }
+	inline CompVariable& CompSource() { return m_nCompSource; }	//	NB both required!!
+	inline const CompVariable& CompSource() const { return m_nCompSource; }
+	inline CompVariable& CompTarget() { return m_nCompTarget; }
+	inline const CompVariable& CompTarget() const { return m_nCompTarget; }
 
-	inline ComparisonType CompareType() const		{ return m_nCompareType; }
+	void SetCompareType( ComparisonType nType ) { m_nCompareType = nType; }
 
-	inline unsigned int RequiredHits() const		{ return m_nRequiredHits; }
-	inline unsigned int CurrentHits() const			{ return m_nCurrentHits; }
+	inline ComparisonType CompareType() const { return m_nCompareType; }
 
-	inline BOOL IsResetCondition() const			{ return( m_nConditionType == ResetIf ); }
-	inline BOOL IsPauseCondition() const			{ return( m_nConditionType == PauseIf ); }
-	inline ConditionType GetConditionType() const	{ return m_nConditionType; }
-	void SetConditionType( ConditionType nNewType )	{ m_nConditionType = nNewType; }
-	
-	void SetRequiredHits( unsigned int nHits )		{ m_nRequiredHits = nHits; }
-	void IncrHits()									{ m_nCurrentHits++; }
-	BOOL IsComplete() const							{ return( m_nCurrentHits >= m_nRequiredHits ); }
+	inline unsigned int RequiredHits() const { return m_nRequiredHits; }
+	inline unsigned int CurrentHits() const { return m_nCurrentHits; }
 
-	void OverrideCurrentHits( unsigned int nHits )	{ m_nCurrentHits = nHits; }
+	inline BOOL IsResetCondition() const { return(m_nConditionType == ResetIf); }
+	inline BOOL IsPauseCondition() const { return(m_nConditionType == PauseIf); }
+	inline ConditionType GetConditionType() const { return m_nConditionType; }
+	void SetConditionType( ConditionType nNewType ) { m_nConditionType = nNewType; }
 
-	void SetIsBasicCondition()						{ m_nConditionType = Standard; }
-	void SetIsPauseCondition()						{ m_nConditionType = PauseIf; }
-	void SetIsResetCondition()						{ m_nConditionType = ResetIf; }
+	void SetRequiredHits( unsigned int nHits ) { m_nRequiredHits = nHits; }
+	void IncrHits() { m_nCurrentHits++; }
+	BOOL IsComplete() const { return(m_nCurrentHits >= m_nRequiredHits); }
 
-	void Set( const Condition& rRHS )				{ (*this) = rRHS; }
+	void OverrideCurrentHits( unsigned int nHits ) { m_nCurrentHits = nHits; }
+
+	void SetIsBasicCondition() { m_nConditionType = Standard; }
+	void SetIsPauseCondition() { m_nConditionType = PauseIf; }
+	void SetIsResetCondition() { m_nConditionType = ResetIf; }
+
+	void Set( const Condition& rRHS ) { (*this) = rRHS; }
 
 private:
 	ConditionType	m_nConditionType;
@@ -179,7 +180,7 @@ private:
 	CompVariable	m_nCompSource;
 	ComparisonType	m_nCompareType;
 	CompVariable	m_nCompTarget;
-	
+
 	unsigned int	m_nRequiredHits;
 	unsigned int	m_nCurrentHits;
 };
@@ -187,14 +188,15 @@ private:
 class ConditionSet
 {
 public:
+
 	//	Final param indicates 'or'
 	BOOL Test( BOOL& bDirtyConditions, BOOL& bResetRead, BOOL bMatchAny );
-	size_t Count() const		{ return m_Conditions.size(); }
+	size_t Count() const { return m_Conditions.size(); }
 
-	void Add( const Condition& newCond )		{ m_Conditions.push_back( newCond ); }
-	Condition& GetAt( size_t i )				{ return m_Conditions[i]; }
-	const Condition& GetAt( size_t i ) const	{ return m_Conditions[i]; }
-	void Clear()								{ m_Conditions.clear(); }
+	void Add( const Condition& newCond ) { m_Conditions.push_back( newCond ); }
+	Condition& GetAt( size_t i ) { return m_Conditions[i]; }
+	const Condition& GetAt( size_t i ) const { return m_Conditions[i]; }
+	void Clear() { m_Conditions.clear(); }
 	void RemoveAt( size_t i );
 	BOOL Reset( BOOL bIncludingDeltas );	//	Returns dirty
 

@@ -7,7 +7,6 @@
 #include "RA_LeaderboardPopup.h"
 #include "RA_Core.h"
 
-
 class PopupWindows
 {
 public:
@@ -31,9 +30,9 @@ public:
 		m_AchievementPopups.Clear();
 	}
 
-	static ProgressPopup& ProgressPopups()			{ return m_ProgressPopups; }
-	static AchievementPopup& AchievementPopups()	{ return m_AchievementPopups; }
-	static LeaderboardPopup& LeaderboardPopups()	{ return m_LeaderboardPopups; }
+	static ProgressPopup& ProgressPopups() { return m_ProgressPopups; }
+	static AchievementPopup& AchievementPopups() { return m_AchievementPopups; }
+	static LeaderboardPopup& LeaderboardPopups() { return m_LeaderboardPopups; }
 
 private:
 	static ProgressPopup m_ProgressPopups;
@@ -44,8 +43,8 @@ private:
 //	Exposed to DLL
 extern "C"
 {
-API extern int _RA_UpdatePopups( ControllerInput* input, float fDTime, bool Full_Screen, bool Paused );
-API extern int _RA_RenderPopups( HDC hDC, RECT* rcSize );
+	API extern int _RA_UpdatePopups( ControllerInput* input, float fDTime, bool Full_Screen, bool Paused );
+	API extern int _RA_RenderPopups( HDC hDC, RECT* rcSize );
 }
 
 extern PopupWindows g_PopupWindows;

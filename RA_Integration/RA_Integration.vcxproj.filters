@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="md5.c">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="RA_Achievement.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -87,6 +84,18 @@
     </ClCompile>
     <ClCompile Include="RA_GameData.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="md5.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="File_handle.cpp">
+      <Filter>Source\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="dir_handle.cpp">
+      <Filter>Source\Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -180,6 +189,15 @@
     <ClInclude Include="RA_GameData.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="File_handle.h">
+      <Filter>Headers\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="dir_handle.h">
+      <Filter>Headers\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -191,10 +209,19 @@
     <Filter Include="Resources">
       <UniqueIdentifier>{e8b3e304-7e35-4e4d-814e-28b5e9ff94f5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\Utils">
+      <UniqueIdentifier>{1d0a54ff-2b4d-4081-bb50-3598c91a4c3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Utils">
+      <UniqueIdentifier>{1056986c-f4f4-4879-86c9-1eebf0d997c9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="RA_Shared.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

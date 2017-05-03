@@ -1,8 +1,5 @@
 #pragma once
 
-#include <wincodec.h>
-#include <WTypes.h>
-
 #include "RA_Defs.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -18,9 +15,8 @@ public:
 
 public:
 	IWICBitmapSource* m_pOriginalBitmapSource;
-	IWICImagingFactory* m_pIWICFactory; 
+	IWICImagingFactory* m_pIWICFactory;
 };
-
 
 BOOL InitializeUserImageFactory( HINSTANCE hInst );
 HBITMAP LoadOrFetchBadge( const std::string& sBadgeURI, const RASize& nSZ = RA_BADGE_PX );
