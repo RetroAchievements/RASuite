@@ -767,8 +767,19 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 
 		SetDlgItemText( hDlg, IDC_RA_WATCHING, L"0x0000" );
 
-		SendMessage( GetDlgItem( hDlg, IDC_RA_MEMBITS ), WM_SETFONT, reinterpret_cast<WPARAM>(GetStockObject( SYSTEM_FIXED_FONT )), TRUE );
-		SendMessage( GetDlgItem( hDlg, IDC_RA_MEMBITS_TITLE ), WM_SETFONT, reinterpret_cast<WPARAM>(GetStockObject( SYSTEM_FIXED_FONT )), TRUE );
+		// Code Analysis Warning: C26471
+		// If you new what reinterpret_cast does you would never use it.
+		// Even void* can use static_cast.
+
+		// Just use the Message Crackers, we don't need this useless
+		// casting... plus the casting is incorrect...
+		// What's the point of an API if you aren't gonna use it correctly?
+
+		FORWARD_WM_SETFONT( GetDlgItem( hDlg, IDC_RA_MEMBITS ),
+			GetStockObject( SYSTEM_FIXED_FONT ), TRUE, SendMessage );
+
+		//SendMessage( GetDlgItem( hDlg, IDC_RA_MEMBITS_TITLE ), WM_SETFONT,
+		//reinterpret_cast<WPARAM>(GetStockObject( SYSTEM_FIXED_FONT )), TRUE );
 
 		//	8-bit by default:
 		CheckDlgButton( hDlg, IDC_RA_CBO_4BIT, BST_UNCHECKED );

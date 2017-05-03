@@ -413,12 +413,14 @@ BOOL RAWeb::DoBlockingHttpPost( const std::string& sRequestedPage, const std::st
 				0 );
 			if ( hRequest != nullptr )
 			{
+				// reinterpret_cast will eventually be removed from
+				// C++, it violates all standards.
 				char sPostBuffer[1024];
 				sprintf_s( sPostBuffer, 1024, "%s", sPostString.c_str() );
 				BOOL bSendSuccess = WinHttpSendRequest( hRequest,
 					L"Content-Type: application/x-www-form-urlencoded",
 					0,
-					reinterpret_cast<LPVOID>(sPostBuffer), //WINHTTP_NO_REQUEST_DATA,
+					static_cast<LPVOID>(sPostBuffer), //WINHTTP_NO_REQUEST_DATA,
 					strlen( sPostString.c_str() ),
 					strlen( sPostString.c_str() ),
 					0 );
@@ -700,10 +702,14 @@ void RAWeb::RA_InitializeHTTPThreads()
 //	Takes items from the http request queue, and posts them to the last http results queue.
 DWORD RAWeb::HTTPWorkerThread( LPVOID lpParameter )
 {
-	time_t nSendNextKeepAliveAt = time( nullptr ) + SERVER_PING_DURATION;
+	// w/o this the auto is __int64, time_t basically is just a typedef
+	// of size_t (x64 version) anyway
+	auto nSendNextKeepAliveAt{time_t{time( nullptr ) + SERVER_PING_DURATION}};
+	auto bThreadActive{true};
 
-	bool bThreadActive = true;
-	bool bDoPingKeepAlive = (reinterpret_cast<int>(lpParameter) == 0);	//	Cause this only on first thread
+	// This doesn't make sense but it's the only safe way.
+	auto lhs{static_cast<int*>(lpParameter)};
+	auto bDoPingKeepAlive{*lhs == 0};	//	Cause this only on first thread
 
 	while ( bThreadActive )
 	{

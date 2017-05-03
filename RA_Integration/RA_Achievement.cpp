@@ -333,6 +333,7 @@ std::string Achievement::CreateMemString() const
 
 		for ( size_t i = 0; i < m_vConditions[nGrp].Count(); ++i )
 		{
+			// There are no move constructors defined for this kind of operation
 			const Condition& NextCond = m_vConditions[nGrp].GetAt( i );
 			const CompVariable& Src = NextCond.CompSource();
 			const CompVariable& Target = NextCond.CompTarget();

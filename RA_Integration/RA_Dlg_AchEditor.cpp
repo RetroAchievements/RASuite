@@ -13,6 +13,8 @@
 #include "RA_MemManager.h"
 #include "RA_User.h"
 
+using gsl::narrow_cast;
+
 namespace
 {
 const char* COLUMN_TITLE[] ={"ID", "Special?", "Type", "Size", "Memory", "Cmp", "Type", "Size", "Mem/Val", "Hits"};
@@ -1522,16 +1524,23 @@ void Dlg_AchievementEditor::RepopulateGroupList( Achievement* pCheevo )
 
 	while ( ListBox_DeleteString( hGroupList, 0 ) >= 0 ) {}
 
-	if ( pCheevo != NULL )
-	{
-		for ( size_t i = 0; i < pCheevo->NumConditionGroups(); ++i )
-		{
-			ListBox_AddString( hGroupList, m_lbxGroupNames[i] );
-		}
-	}
+	// NB: NULL pointers are unacceptable as parameters, are you
+	//     telling me you're gonna put NULL or nullptr for this
+	//     function? man this makes no sense...
 
-	//	Try and restore selection
-	if ( nSel < 0 || nSel >= (int)pCheevo->NumConditionGroups() )
+	// Warning C6011: Dereferencing NULL pointer 'pCheevo'
+	// 'pCheevo' may be NULL
+	Expects( pCheevo );
+
+	for ( size_t i = 0; i < pCheevo->NumConditionGroups(); ++i )
+		ListBox_AddString( hGroupList, m_lbxGroupNames[i] );
+
+	// Try and restore selection
+	// Continued: 'pCheevo' is dereferenced, but may still be NULL,
+	//            also this is an invalid narrowing conversion because
+	//            size_t could possible be 8 bytes while int is 4 bytes
+	//            in VC++.
+	if ( (nSel < 0) || (nSel >= narrow_cast<int>(pCheevo->NumConditionGroups())) )
 		nSel = 0;	//	Reset to core if unsure
 
 	ListBox_SetCurSel( hGroupList, nSel );

@@ -8,6 +8,10 @@
 #include "RA_Achievement.h"
 #include "RA_httpthread.h"
 #include "RA_md5factory.h"
+#include "File_handle.h"
+
+using std::make_unique;
+using std::wstring;
 
 #define KEYDOWN(vkCode) ((GetAsyncKeyState(vkCode) & 0x8000) ? true : false)
 
@@ -90,6 +94,8 @@ Dlg_GameLibrary::~Dlg_GameLibrary()
 void ParseGameHashLibraryFromFile( std::map<std::string, GameID>& GameHashLibraryOut )
 {
 	SetCurrentDirectory( Widen( g_sHomeDir ).c_str() );
+
+	// RAII
 	FILE* pf = NULL;
 	fopen_s( &pf, RA_GAME_HASH_FILENAME, "rb" );
 	if ( pf != NULL )
@@ -269,29 +275,55 @@ void Dlg_GameLibrary::ThreadedScanProc()
 		}
 		mtx.unlock();
 
-		FILE* pf = nullptr;
-		if ( fopen_s( &pf, FilesToScan.front().c_str(), "rb" ) == 0 )
-		{
-			// obtain file size:
-			fseek( pf, 0, SEEK_END );
-			DWORD nSize = ftell( pf );
-			rewind( pf );
+		// A file pointer can't be a null pointer... nullptr is
+		// nullptr_t. Plus fopen_s is errno_t.
 
-			static BYTE* pBuf = nullptr;	//	static (optimisation)
-			if ( pBuf == nullptr )
-				pBuf = new BYTE[6 * 1024 * 1024];
+		// RAII
+		test_file( FilesToScan.front().c_str(), "rb" );
+		auto pf{fopen( FilesToScan.front().c_str(), "rb" )};
+		Ensures( pf );
+
+		// obtain file size:
+		fseek( pf, 0L, SEEK_END );
+		auto nSize{ftell( pf )};
+		rewind( pf );
+
+		// static (optimisation), static does not optimize anything
+		// it just gives permanent storage which in-turn makes it
+		// non-deletable and will leak, and degrade performance,
+		// here's a real optimization.
+		auto bufsize{6 * 1024 * 1024};
+		auto pBuf{make_unique<BYTE[]>( 6 * 1024 * 1024 )};
+
+		// What's up with these useless conditions, have you guys
+		// heard of RAII? Resource Acquisition is Initialization,
+		// that concept existed since the first OS created. This
+		// makes no sense... gonna correct it. A nullptr is not a
+		// resource...
+
+		/*if ( pBuf == nullptr )
+			pBuf = new BYTE[];*/
 
 			//BYTE* pBuf = new BYTE[ nSize ];	//	Do we really need to load this into memory?
-			if ( pBuf != nullptr )
-			{
-				fread( pBuf, sizeof( BYTE ), nSize, pf );	//Check
-				Results[FilesToScan.front()] = RAGenerateMD5( pBuf, nSize );
 
-				SendMessage( g_GameLibrary.GetHWND(), WM_TIMER, NULL, NULL );
-			}
+		// It is impossible for an object to be a nullptr
 
-			fclose( pf );
-		}
+		// This WILL CAUSE A STACK OVERFLOW!?!? What's going on? Is this why it always hangs?
+		fread( static_cast<void*>(pBuf._Myptr()), sizeof( BYTE ), nSize, pf );	//Check
+
+		// Bounds checking is fundamental...
+		Results.at( FilesToScan.front() ) = RAGenerateMD5( pBuf.get(), nSize );
+
+		// Did you even look at WindowsX.h?
+		// I didn't see an id assigned so I left it as 0
+		// NB: GetActiveWindow() gets the handle to the window in the message queue
+
+		// I honestly have no idea why each class has it's own handle
+		// just make a parent window spawn dialogs...
+		FORWARD_WM_TIMER( GetActiveWindow(), 0, SendMessage );
+
+		// I'm gonna leave this alone for now
+		fclose( pf );
 
 		mtx.lock();
 		FilesToScan.pop_front();
@@ -362,7 +394,15 @@ void Dlg_GameLibrary::ScanAndAddRomsRecursive( const std::string& sBaseDir )
 							nSize = (File_Inf.nFileSizeHigh << 16) + File_Inf.nFileSizeLow;
 
 						DWORD nBytes = 0;
-						BOOL bResult = ReadFile( hROMReader, sROMRawData, nSize, &nBytes, NULL );
+
+						// Code Analysis Warning:
+						// warning C28193: 'bResult' holds a value that must be examined
+						auto bResult{ReadFile( hROMReader, sROMRawData, nSize, &nBytes, nullptr )};
+
+						// This should resolve it
+						// I'm assuming bResult is supposed to be TRUE/1
+						Expects( bResult );
+
 						const std::string sHashOut = RAGenerateMD5( sROMRawData, nSize );
 
 						if ( m_GameHashLibrary.find( sHashOut ) != m_GameHashLibrary.end() )
@@ -447,19 +487,20 @@ BOOL Dlg_GameLibrary::LaunchSelected()
 	const int nSel = ListView_GetSelectionMark( hList );
 	if ( nSel != -1 )
 	{
-		wchar_t buffer[1024];
-		ListView_GetItemText( hList, nSel, 1, buffer, 1024 );
-		SetWindowText( GetDlgItem( m_hDialogBox, IDC_RA_GLIB_NAME ), buffer );
+		wstring buffer{};
+		buffer.reserve( 1024 );
 
-		ListView_GetItemText( hList, nSel, 3, buffer, 1024 );
+		// TODO: Discuss the way the team wants to do this, just
+		//       resolving defects the fastest way...
+		ListView_GetItemText( hList, nSel, 1, buffer._Myptr(), buffer.capacity() );
+		SetWindowText( GetDlgItem( m_hDialogBox, IDC_RA_GLIB_NAME ), buffer.c_str() );
+
+		ListView_GetItemText( hList, nSel, 3, buffer._Myptr(), buffer.capacity() );
 		_RA_LoadROM( Narrow( buffer ).c_str() );
 
 		return TRUE;
 	}
-	else
-	{
-		return FALSE;
-	}
+	return FALSE;
 }
 
 void Dlg_GameLibrary::LoadAll()
@@ -584,9 +625,11 @@ INT_PTR CALLBACK Dlg_GameLibrary::GameLibraryProc( HWND hDlg, UINT uMsg, WPARAM 
 				const int nSel = ListView_GetSelectionMark( hList );
 				if ( nSel != -1 )
 				{
-					wchar_t buffer[1024];
-					ListView_GetItemText( hList, nSel, 1, buffer, 1024 );
-					SetWindowText( GetDlgItem( hDlg, IDC_RA_GLIB_NAME ), buffer );
+					wstring buffer{};
+					buffer.reserve( 1024 );
+
+					ListView_GetItemText( hList, nSel, 1, buffer._Myptr(), buffer.capacity() );
+					SetWindowText( GetDlgItem( hDlg, IDC_RA_GLIB_NAME ), buffer.c_str() );
 				}
 			}
 			break;
@@ -649,9 +692,15 @@ INT_PTR CALLBACK Dlg_GameLibrary::GameLibraryProc( HWND hDlg, UINT uMsg, WPARAM 
 			const int nSel = ListView_GetSelectionMark( hList );
 			if ( nSel != -1 )
 			{
-				wchar_t sGameTitle[1024];
-				ListView_GetItemText( hList, nSel, 1, sGameTitle, 1024 );
-				SetWindowText( GetDlgItem( hDlg, IDC_RA_GLIB_NAME ), sGameTitle );
+				// Initialize to empty NOT nullptr, objects are not
+				// pointers. Otherwise an exception will be thrown.
+				wstring sGameTitle{};
+				sGameTitle.reserve( 1024 );
+
+				ListView_GetItemText(
+					hList, nSel, 1, sGameTitle._Myptr(), sGameTitle.capacity()
+				);
+				SetWindowText( GetDlgItem( hDlg, IDC_RA_GLIB_NAME ), sGameTitle.c_str() );
 			}
 		}
 		return FALSE;

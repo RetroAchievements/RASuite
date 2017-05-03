@@ -28,6 +28,10 @@
 #include "RA_Dlg_Memory.h"
 #include "RA_Dlg_RomChecksum.h"
 
+#include "File_handle.h" // Used to correct File API violations
+#include "dir_handle.h" // Made to address Directory API violations
+using std::string;
+
 std::string g_sKnownRAVersion;
 std::string g_sHomeDir;
 std::string g_sROMDirLocation;
@@ -60,19 +64,27 @@ API const char* CCONV _RA_IntegrationVersion()
 	return RA_INTEGRATION_VERSION;
 }
 
+// Warning C6031: Return value ignored: '_mkdir'
+// Remarks: the way it's currently coded violates the API
+//          specification, the function is defined as "_Check_return_
+//          _ACRTIMP int __cdecl _mkdir(_In_z_ char const* _Path)"; yet
+//          the return value is not checked
+Dir_handle* dir_handle;
 API BOOL CCONV _RA_InitI( HWND hMainHWND, /*enum EmulatorID*/int nEmulatorID, const char* sClientVer )
 {
 	//	Ensure all required directories are created:
 	if ( DirectoryExists( RA_DIR_BASE ) == FALSE )
-		_mkdir( RA_DIR_BASE );
+		calldirh_check_mkdir( dir_handle, RA_DIR_BASE );
 	if ( DirectoryExists( RA_DIR_BADGE ) == FALSE )
-		_mkdir( RA_DIR_BADGE );
+		calldirh_check_mkdir( dir_handle, RA_DIR_BADGE );
 	if ( DirectoryExists( RA_DIR_DATA ) == FALSE )
-		_mkdir( RA_DIR_DATA );
+		calldirh_check_mkdir( dir_handle, RA_DIR_DATA );
 	if ( DirectoryExists( RA_DIR_USERPIC ) == FALSE )
-		_mkdir( RA_DIR_USERPIC );
+		calldirh_check_mkdir( dir_handle, RA_DIR_USERPIC );
 	if ( DirectoryExists( RA_DIR_OVERLAY ) == FALSE )	//	It should already, really...
-		_mkdir( RA_DIR_OVERLAY );
+		calldirh_check_mkdir( dir_handle, RA_DIR_OVERLAY );
+
+	SAFE_DELETE( dir_handle );
 
 	g_EmulatorID = static_cast<EmulatorID>(nEmulatorID);
 	g_RAMainWnd = hMainHWND;
@@ -1266,79 +1278,118 @@ char* _ReadStringTil( char nChar, char*& pOffsetInOut, BOOL bTerminate )
 	return (pStartString);
 }
 
+// Just putting the definition here since this is where we need it
+template class File_handle<const char*, char*>;
+
+// Refer to Warning C6387 (Invalid parameter value) for why this was
+// changed.
+// Summary: A file pointer cannot be a nullptr if you want to use it as
+//          a file, that's an error in logic, you can't read/write to
+//          nothing.
+// Remarks: fopen_s is not of type FILE* and may lead to bugs. test_file takes care of that.
+//          If these do need C-Linkage for RA_Core, we can use the wrappers instead.
 void _WriteBufferToFile( const std::string& sFileName, const Document& doc )
 {
 	SetCurrentDirectory( Widen( g_sHomeDir ).c_str() );
-	FILE* pf = nullptr;
-	if ( fopen_s( &pf, sFileName.c_str(), "wb" ) == 0 )
-	{
-		FileStream fs( pf );
-		Writer<FileStream> writer( fs );
-		doc.Accept( writer );
-		fclose( pf );
-	}
-}
+	test_file( sFileName.c_str(), "wb" );
+	auto fp{fopen( sFileName.c_str(), "wb" )};
+
+	FileStream fs{fp};
+	Writer<FileStream> writer{fs};
+	doc.Accept( writer );
+
+	def_filehandle* fh{nullptr};
+	fh->SafeCloseFile( fp );
+	SAFE_DELETE( fh );
+} // end function _WriteBufferToFile
+
+// These all seem redundant..., simply working on code defects for now.
 
 void _WriteBufferToFile( const std::string& sFileName, const DataStream& raw )
 {
 	SetCurrentDirectory( Widen( g_sHomeDir ).c_str() );
-	FILE* pf = nullptr;
-	if ( fopen_s( &pf, sFileName.c_str(), "wb" ) == 0 )
-	{
-		fwrite( raw.data(), 1, raw.size(), pf );
-		fclose( pf );
-	}
-}
+	test_file( sFileName.c_str(), "wb" );
+	auto fp{fopen( sFileName.c_str(), "wb" )};
+
+	fwrite( raw.data(), 1, raw.size(), fp );
+
+	def_filehandle* fh{nullptr};
+	fh->SafeCloseFile( fp );
+	SAFE_DELETE( fh );
+} // end function _WriteBufferToFile
 
 void _WriteBufferToFile( const std::string& sFileName, const std::string& sData )
 {
 	SetCurrentDirectory( Widen( g_sHomeDir ).c_str() );
-	FILE* pf = nullptr;
-	if ( fopen_s( &pf, sFileName.c_str(), "wb" ) == 0 )
-	{
-		fwrite( sData.data(), 1, sData.length(), pf );
-		fclose( pf );
-	}
-}
+	test_file( sFileName.c_str(), "wb" );
+	auto fp{fopen( sFileName.c_str(), "wb" )};
+
+	fwrite( sData.data(), 1, sData.length(), fp );
+
+	def_filehandle* fh{nullptr};
+	fh->SafeCloseFile( fp );
+	SAFE_DELETE( fh );
+} // end function _WriteBufferToFile
 
 void _WriteBufferToFile( const char* sFile, const BYTE* sBuffer, int nBytes )
 {
 	SetCurrentDirectory( Widen( g_sHomeDir ).c_str() );
-	FILE* pf = nullptr;
-	if ( fopen_s( &pf, sFile, "wb" ) == 0 )
-	{
-		fwrite( sBuffer, 1, nBytes, pf );
-		fclose( pf );
-	}
-}
+	test_file( sFile, "wb" );
+	auto fp{fopen( sFile, "wb" )};
 
-char* _MallocAndBulkReadFileToBuffer( const char* sFilename, long& nFileSizeOut )
+	fwrite( sBuffer, 1, nBytes, fp );
+
+	def_filehandle* fh{nullptr};
+	fh->SafeCloseFile( fp );
+	SAFE_DELETE( fh );
+} // end function _WriteBufferToFile
+
+// NB: Passing primitives by reference is expensive.
+char* _MallocAndBulkReadFileToBuffer( const char* sFilename, long nFileSizeOut )
 {
 	SetCurrentDirectory( Widen( g_sHomeDir ).c_str() );
-	FILE* pf = nullptr;
-	fopen_s( &pf, sFilename, "r" );
-	if ( pf == NULL )
-		return NULL;
+	test_file( sFilename, "r" );
+	auto pf{fopen( sFilename, "r" )};
+
+	// Leaving this here just in-case, but the File_handle will
+	// terminate the program to prevent damage.
+	//if ( pf == NULL )
+	//	return NULL;
 
 	//	Calculate filesize
 	fseek( pf, 0L, SEEK_END );
 	nFileSizeOut = ftell( pf );
 	fseek( pf, 0L, SEEK_SET );
 
-	if ( nFileSizeOut <= 0 )
-	{
-		//	No good content in this file.
-		fclose( pf );
-		return NULL;
-	}
+	// memset and fread do not expect the length to be <=0 because
+	// unsigned numbers are not negative and it's an error in logic for
+	// a length to 0. Returning a nullptr will throw an exception so
+	// that's gone.
+	Expects( nFileSizeOut > 0 );
 
 	//	malloc() must be managed!
 	//	NB. By adding +1, we allow for a single \0 character :)
-	char* pRawFileOut = (char*)malloc( (nFileSizeOut+1)*sizeof( char ) );
-	ZeroMemory( pRawFileOut, nFileSizeOut+1 );
 
-	fread( pRawFileOut, nFileSizeOut, sizeof( char ), pf );
-	fclose( pf );
+	// NB: two violations here, memset and fread, they do expect
+	//     nullptr as a parameter. Unless the API function used
+	//     explicitly uses C-Style Cast (like WindowsX), it is
+	//     generally unsafe because C-Style casts perform all 3 at once (not const_cast)
+	//     which may cause instability.
+	auto pRawFileOut{
+		static_cast<char*>(malloc( static_cast<size_t>((nFileSizeOut+1)*sizeof( char )) ))
+	};
+
+	// The specification for memset and fread do accept NULL as a
+	// parameter, otherwise an unhandled exception that can't be caught
+	// will occur (because they are C functions).
+	Expects( pRawFileOut );
+	ZeroMemory( pRawFileOut, static_cast<size_t>(nFileSizeOut+1) );
+
+	fread( pRawFileOut, static_cast<size_t>(nFileSizeOut), sizeof( char ), pf );
+
+	def_filehandle* fh{nullptr};
+	fh->SafeCloseFile( pf );
+	SAFE_DELETE( fh );
 
 	return pRawFileOut;
 }

@@ -116,8 +116,13 @@ extern bool g_bHardcoreModeActive;
 extern bool g_bLeaderboardsActive;
 extern unsigned int g_nNumHTTPThreads;
 
+// TODO: Discuss - These should be in class then wrapped around in C
+//       Callers because overloaded functions do not meet the
+//       specifications for C linkage. "Extern" for C++ functions is only
+//       useful if they are going to be used outside the binary.
+
 //	Read a file to a malloc'd buffer. Returns NULL on error. Owner MUST free() buffer if not NULL.
-extern char* _MallocAndBulkReadFileToBuffer( const char* sFilename, long& nFileSizeOut );
+extern char* _MallocAndBulkReadFileToBuffer( const char* sFilename, long nFileSizeOut );
 
 //	Read file until reaching the end of the file, or the specified char.
 extern BOOL _ReadTil( const char nChar, char buffer[], unsigned int nSize, DWORD* pCharsRead, FILE* pFile );

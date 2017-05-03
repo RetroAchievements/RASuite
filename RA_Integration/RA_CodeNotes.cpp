@@ -47,7 +47,11 @@ size_t CodeNotes::Load( const std::string& sFile )
 				m_CodeNotes.insert( std::map<ByteAddress, CodeNoteObj>::value_type( nAddr, CodeNoteObj( sAuthor, sNote ) ) );
 			}
 		}
+
+		// pf was not checked if it's a null pointer, fclose expects that FILE* is not a nullptr, we're gonna make this a function
+		Expects( pf );
 		fclose( pf );
+		Ensures( !pf );
 	}
 
 	return m_CodeNotes.size();

@@ -10,6 +10,8 @@
 #include "RA_md5factory.h"
 #include "RA_GameData.h"
 
+using std::string;
+
 AchievementSet* g_pCoreAchievements = nullptr;
 AchievementSet* g_pUnofficialAchievements = nullptr;
 AchievementSet* g_pLocalAchievements = nullptr;
@@ -569,13 +571,16 @@ void AchievementSet::SaveProgress( const char* sSaveStateFilename )
 			continue;
 
 		//	Write ID of achievement and num conditions:
-		char cheevoProgressString[4096];
-		memset( cheevoProgressString, '\0', 4096 );
+
+		// NB: Search "Warning C6054" on MSDN for reasons
+		// NB: size/length is 0, capacity is 4096 initially
+		string cheevoProgressString{};
+		cheevoProgressString.reserve( 4096 );
 
 		for ( unsigned int nGrp = 0; nGrp < pAch->NumConditionGroups(); ++nGrp )
 		{
 			sprintf_s( buffer, "%d:%d:", pAch->ID(), pAch->NumConditions( nGrp ) );
-			strcat_s( cheevoProgressString, 4096, buffer );
+			strcat_s( cheevoProgressString._Myptr(), cheevoProgressString.capacity(), buffer );
 
 			for ( unsigned int j = 0; j < pAch->NumConditions( nGrp ); ++j )
 			{
@@ -586,23 +591,34 @@ void AchievementSet::SaveProgress( const char* sSaveStateFilename )
 					cond.CompSource().RawPreviousValue(),
 					cond.CompTarget().RawValue(),
 					cond.CompTarget().RawPreviousValue() );
-				strcat_s( cheevoProgressString, 4096, buffer );
+				strcat_s( cheevoProgressString._Myptr(), 4096, buffer );
 			}
 		}
 
-		//	Generate a slightly different key to md5ify:
-		char sCheevoProgressMangled[4096];
-		sprintf_s( sCheevoProgressMangled, 4096, "%s%s%s%d",
-			RAUsers::LocalUser().Username().c_str(), cheevoProgressString, RAUsers::LocalUser().Username().c_str(), pAch->ID() );
+		// Search C6054 on MSDN.
 
-		std::string sMD5Progress = RAGenerateMD5( std::string( sCheevoProgressMangled ) );
+		// for x86_64 cross-hybrid there'd be a lot more errors...
+
+		//	Generate a slightly different key to md5ify:
+		string sCheevoProgressMangled{};
+		sCheevoProgressMangled.reserve( 4096 );
+
+		// I'll leave this alone for now, but the fast majority of the MS "safe" functions are not the same as the C11 versions. Those require the restrict keyword, "sprintf_s" is basically "snprintf".
+		sprintf_s( sCheevoProgressMangled._Myptr(), sCheevoProgressMangled.capacity(),
+			"%s%s%s%d",
+			RAUsers::LocalUser().Username().c_str(), cheevoProgressString.c_str(),
+			RAUsers::LocalUser().Username().c_str(), pAch->ID() );
+
+		std::string sMD5Progress = RAGenerateMD5( sCheevoProgressMangled );
 		std::string sMD5Achievement = RAGenerateMD5( pAch->CreateMemString() );
 
-		fwrite( cheevoProgressString, sizeof( char ), strlen( cheevoProgressString ), pf );
+		fwrite( static_cast<const void*>(cheevoProgressString.c_str()), sizeof( char ),
+			cheevoProgressString.length(), pf );
 		fwrite( sMD5Progress.c_str(), sizeof( char ), sMD5Progress.length(), pf );
-		fwrite( ":", sizeof( char ), 1, pf );
-		fwrite( sMD5Achievement.c_str(), sizeof( char ), sMD5Achievement.length(), pf );
-		fwrite( ":", sizeof( char ), 1, pf );	//	Check!
+		fwrite( static_cast<const void*>(":"), sizeof( char ), size_t{1}, pf );
+		fwrite( static_cast<const void*>(sMD5Achievement.c_str()), sizeof( char ),
+			sMD5Achievement.length(), pf );
+		fwrite( static_cast<const void*>(":"), sizeof( char ), size_t{1}, pf );	//	Check!
 	}
 
 	fclose( pf );
