@@ -1,0 +1,1 @@
+#define RAGENS_VERSION "0.052" 
