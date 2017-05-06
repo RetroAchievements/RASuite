@@ -1258,12 +1258,18 @@ API void CCONV _RA_InvokeDialog( LPARAM nID )
 				{
 					char sRichPresenceFile[1024];
 					sprintf_s( sRichPresenceFile, 1024, "%s%d-Rich.txt", RA_DIR_DATA, g_pActiveAchievements->GameID() );
+					
+					char currentDir[2048];
+					GetCurrentDirectory(2048, currentDir);
+					SetCurrentDirectory(g_sHomeDir);
 
 					//	Then install it
 					g_RichPresenceInterpretter.ParseRichPresenceFile( sRichPresenceFile );
 
 					//	Then fetch immediately
 					std::string sRP = g_RichPresenceInterpretter.GetRichPresenceString();
+
+					SetCurrentDirectory(currentDir);
 
 					MessageBox( NULL, sRP.c_str(), "Rich Presence script result", MB_OK );
 				}

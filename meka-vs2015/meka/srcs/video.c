@@ -21,11 +21,12 @@
 //RA
 #include "RA_Interface.h"
 
-int overlay_render_method = OVERLAY_RENDER_ALLEGRO;// default. Set here but read in by config.c 
-bool disable_RA_overlay = false;
-int overlay_frame_skip = 0;
-bool overlay_alternate_render_blit = false;
-//int overlay_bg_splits = 0;
+//All constants below are preset defaults, set here, but read in by config.c from mekaw.cfg
+int overlay_render_method			= OVERLAY_RENDER_ALLEGRO; 
+bool disable_RA_overlay				= false;
+int overlay_frame_skip				= 2;					
+bool overlay_alternate_render_blit	= true;	
+//int overlay_bg_splits = 1;  // see blit.c
 
 
 void RenderAchievementOverlays();
@@ -538,9 +539,9 @@ void    Video_RefreshScreen()
 
 void RenderAchievementOverlays() {
 	
-	if (disable_RA_overlay) return;
+	if (disable_RA_overlay) { al_flip_display(); return; }
 
-	if (g_env.state == MEKA_STATE_SHUTDOWN) return; // should be here
+	if (g_env.state == MEKA_STATE_SHUTDOWN) { al_flip_display(); return; } // should be here
 
 	if (overlay_render_method == OVERLAY_RENDER_WIN_LAYER) {
 		al_flip_display();

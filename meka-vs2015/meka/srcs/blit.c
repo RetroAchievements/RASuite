@@ -30,8 +30,7 @@
 
 
 //#RA
-int overlay_bg_splits = 0;
-
+int overlay_bg_splits = 4;  //overridden by mekaw.cfg
 
 //-----------------------------------------------------------------------------
 // Data

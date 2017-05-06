@@ -210,7 +210,9 @@ static void     Configuration_Load_Line(char *var, char *value)
 	}
 
 	int input;
-	if (!strcmp(var, "disable_RA_overlay")) { disable_RA_overlay = (atoi(value) != 0); return; }
+	if (!strcmp(var, "disable_ra_overlay")) {  //will be "disable_RA_overlay" in config file
+		disable_RA_overlay = (atoi(value) != 0); return;
+	}
 	if (!strcmp(var, "overlay_frame_skip")) {
 		input = atoi(value); input *= (input > 0);
 		overlay_frame_skip = input; return;

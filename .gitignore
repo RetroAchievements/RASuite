@@ -55,6 +55,9 @@
 /meka-vs2015/meka/srcs/projects/msvc/*.VC.db
 /meka-vs2015/meka/RACache/*
 /meka-vs2015/meka/RAmeka.ilk
+/meka-vs2015/meka/RAmeka.iobj
+/meka-vs2015/meka/RAmeka.ipdb
+
 
 
 /RAGens/win32/Backup
