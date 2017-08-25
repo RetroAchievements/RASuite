@@ -4209,6 +4209,9 @@ static bool LoadROM(const TCHAR *filename) {
 	}
 	Settings.Paused = false;
 
+	if (GUI.HideMenu)
+		SetMenu(GUI.hWnd, NULL); //auto hide menu if we enabled that option
+
 	return !Settings.StopEmulation;
 }
 
