@@ -43,7 +43,10 @@ public:
 
 	inline BOOL Modified() const										{ return m_bModified; }
 	void SetModified( BOOL bModified );
-	
+
+	inline BOOL GetPauseOnTrigger() const                               { return m_bPauseOnTrigger; }
+	void SetPauseOnTrigger(BOOL bPause)                                 { m_bPauseOnTrigger = bPause; }
+
 	BOOL IsCoreAchievement() const										{ return m_nSetType == Core; }
 
 	void SetID( AchievementID nID );
@@ -125,6 +128,7 @@ private:
 	unsigned int m_nPointValue;
 	BOOL m_bActive;
 	BOOL m_bModified;
+	BOOL m_bPauseOnTrigger;
 
 	//	Progress:
 	BOOL m_bProgressEnabled;	//	on/off

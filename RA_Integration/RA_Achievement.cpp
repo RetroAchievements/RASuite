@@ -31,7 +31,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 Achievement::Achievement( AchievementSetType nType ) :
-	m_nSetType( nType )
+	m_nSetType( nType ), m_bPauseOnTrigger( FALSE )
 {
 	Clear();
 	m_vConditions.push_back( ConditionSet() );
