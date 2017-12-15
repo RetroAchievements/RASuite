@@ -49,17 +49,27 @@ void    FM_Enable (void)
 
 void    Sound_Volume_Menu_Init(int menu_id)
 {
-    const int master_volume_100 = (float)Sound.MasterVolume * ((float)100 / 128);
-    for (int i = 0; i <= 100; i += 20)
-    {
-		char buffer[256];
-        if (i == 0)
-            snprintf(buffer, countof(buffer), "%s", Msg_Get(MSG_Menu_Sound_Volume_Mute));
-        else
-            snprintf(buffer, countof(buffer), Msg_Get(MSG_Menu_Sound_Volume_Value), i);
-        menu_add_item(menu_id, buffer, NULL, Is_Checked(i - 9 < master_volume_100 && i + 9 > master_volume_100), 
-			(t_menu_callback)Sound_Volume_Menu_Handler, (void *)(int)((float)i * ((float)128 / 100)));
-    }
+	const int master_volume_100 = SOUND_MAX_VOLUME;// Sound.MasterVolume; //should be 100
+
+	const int N = 7;
+	int levels[N] = {0, 10,20,40,60,80,SOUND_MAX_VOLUME};
+	char buffer[256];
+
+	for (int j = 0; j < N; j++) {
+		int volume_level = levels[j];
+		if (volume_level == 0) {
+			snprintf(buffer, countof(buffer), "%s", Msg_Get(MSG_Menu_Sound_Volume_Mute));
+		}
+		else {
+			snprintf(buffer, countof(buffer), Msg_Get(MSG_Menu_Sound_Volume_Value), volume_level);
+		}
+
+		menu_add_item(menu_id, buffer, NULL,
+			MENU_ITEM_FLAG_ACTIVE | Is_Checked(volume_level == SOUND_MAX_VOLUME),
+			(t_menu_callback)Sound_Volume_Menu_Handler, (void *)volume_level);
+
+	}
+
 }
 
 void    Sound_Volume_Menu_Handler(t_menu_event *event)
@@ -68,7 +78,7 @@ void    Sound_Volume_Menu_Handler(t_menu_event *event)
 
 	Sound_SetMasterVolume(volume);
     Msg(MSGT_USER /*_BOX*/, Msg_Get(MSG_Sound_Volume_Changed), volume);
-    gui_menu_uncheck_all (menus_ID.volume);
+	gui_menu_uncheck_all (menus_ID.volume);
 	gui_menu_check (menus_ID.volume, event->menu_item_idx);
 }
 

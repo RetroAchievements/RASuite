@@ -1,3 +1,13 @@
+RAmeka v 0.018535 (Whispered secrets of Allegro)
+
+- Minor fixes to Sound Interface. Volume can now be set in menu.
+- Preparing for Merge
+
+RAmeka v 0.017535 (Probably didn't break anything)
+
+- Fixed disabling_RA_overlay. This now works
+- Fixed Rich presence code. This now reports correctly (but isn't currently enabled on site at the moment)
+
 RAmeka v 0.016535 (Mea Maxima Culpa)
 
 - Actually packaging a working dll this time

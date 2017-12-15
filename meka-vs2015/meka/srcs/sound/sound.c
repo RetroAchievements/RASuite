@@ -71,7 +71,7 @@ void	Sound_Init_Config(void)
     Sound.Initialized   = FALSE;
     Sound.SampleRate    = 44100;                  // 44100 Hz by default
     Sound.Paused        = 0;
-    Sound.MasterVolume  = 128;
+	Sound.MasterVolume  = SOUND_MAX_VOLUME;// (new) 100 (old) 128;
 	Sound.CycleCounter	= 0;
 
     // Sound Logging
@@ -225,11 +225,10 @@ void    Sound_Playback_Resume(void)
     }
 }
 
-// Change Master Volume (0-128)
+// Change Master Volume (0-100)  (No longer goes to 128)
 void    Sound_SetMasterVolume(int volume)
 {
-    Sound.MasterVolume = volume;
-	// FIXME-NEWSOUND: Master volume
+    Sound.MasterVolume = volume>SOUND_MAX_VOLUME ? SOUND_MAX_VOLUME : volume;
 }
 
 void Sound_ResetCycleCounter()
@@ -301,8 +300,28 @@ void SoundStream_Destroy(t_sound_stream* stream)
 	delete stream;
 }
 
+void SoundStream_Set_Gain(t_sound_stream* stream, float gain_level) {
+	al_set_audio_stream_gain(stream->audio_stream, gain_level);
+}
+
+inline void SoundStream_Check_Volume(t_sound_stream* stream)
+{
+
+	//"FIX" to sound volume
+	static int Sound_MasterVolume_last = -1;
+	if (Sound.MasterVolume != Sound_MasterVolume_last) {
+		float gain = Sound.MasterVolume / ((float) SOUND_MAX_VOLUME);
+		SoundStream_Set_Gain(stream, gain);
+		Sound_MasterVolume_last = Sound.MasterVolume;
+	}
+	//END "FIX"	
+}
+
 void SoundStream_Update(t_sound_stream* stream)
 {
+
+	SoundStream_Check_Volume(stream); //Sound Volume Fix.
+
 	ALLEGRO_EVENT sound_event;
 	while (al_get_next_event(stream->event_queue, &sound_event))
 	{

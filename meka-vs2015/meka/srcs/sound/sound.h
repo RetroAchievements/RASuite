@@ -12,6 +12,8 @@
 
 #define SOUND_DEBUG_APPLET		(1)
 
+#define SOUND_MAX_VOLUME		(100) //Not 128
+
 //-----------------------------------------------------------------------------
 // INCLUDES
 //-----------------------------------------------------------------------------
@@ -29,7 +31,9 @@ struct t_sound
     bool        Initialized;
     int         SampleRate;                 // In Hz
     int         Paused;                     // Paused stack. Sounds play only when this is zero
-    int         MasterVolume;               // Master Volume (0-128)
+
+	//Now has range 0-100 instead of 0-128 
+    int         MasterVolume;               // Master Volume [Allegro Gain Level] (0-100) (Note: allegro itself uses a float)
 
     // FM Emulation
     bool        FM_Enabled;					// FM Emulation enabled (emulated machine)
@@ -83,6 +87,8 @@ int				SoundStream_CountReadableSamples(const t_sound_stream* stream);
 int				SoundStream_CountWritableSamples(const t_sound_stream* stream);
 bool			SoundStream_PushSamplesRequestBufs(t_sound_stream* stream, int samples_count, s16** wbuf1, int* wbuf1_len, s16** buf2, int* wbuf2_len);
 int				SoundStream_PopSamples(t_sound_stream* stream, s16* buf, int samples_wanted);
+
+void			SoundStream_Set_Gain(t_sound_stream* stream, float gain_level);
 
 void			SoundDebugApp_Init();
 void			SoundDebugApp_InstallMenuItems(int menu_parent);
