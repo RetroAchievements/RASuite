@@ -553,6 +553,7 @@ API int CCONV _RA_HandleHTTPResults()
 					const std::string& sBadgeURI = pObj->GetData();
 					_WriteBufferToFile( RA_DIR_BADGE + sBadgeURI + ".png", pObj->GetResponse() );
 
+					/* This block seems unnecessary. --GD
 					for( size_t i = 0; i < g_pActiveAchievements->NumAchievements(); ++i )
 					{
 						Achievement& ach = g_pActiveAchievements->GetAchievement( i );
@@ -562,7 +563,7 @@ API int CCONV _RA_HandleHTTPResults()
 							//	NB. This is already a non-modifying op
 							ach.SetBadgeImage( sBadgeURI );
 						}
-					}
+					}*/
 
 					g_AchievementEditorDialog.UpdateSelectedBadgeImage();	//	Is this necessary if it's no longer selected?
 				}
