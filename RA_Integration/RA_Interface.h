@@ -28,6 +28,7 @@ enum EmulatorID
 	RA_Nester,
 	RA_FCEUX,
 	RA_PCE,
+	RA_Meka,
 
 	NumEmulatorIDs,
 	UnknownEmulator = NumEmulatorIDs
@@ -154,5 +155,12 @@ extern int RA_HardcoreModeIsActive();
 
 //	Returns TRUE if the page requested is currently being parsed.
 extern int RA_HTTPRequestExists( const char* sPageName );
+
+// If hardcore mode is not active, enables hardcore mode AND calls RA_ResetEmulation()
+// If hardcore mode is already active, does nothing
+extern void RA_EnableHardcoreMode();
+
+// Disables hardcore mode
+extern void RA_DisableHardcoreMode();
 
 #endif //RA_EXPORTS

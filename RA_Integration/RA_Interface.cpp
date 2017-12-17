@@ -94,6 +94,8 @@ void	(CCONV *_RA_InvokeDialog)(LPARAM nID) = nullptr;
 void	(CCONV *_RA_InstallSharedFunctions)( bool(*)(), void(*)(), void(*)(), void(*)(), void(*)(char*), void(*)(), void(*)(const char*) ) = nullptr;
 int		(CCONV *_RA_SetConsoleID)(unsigned int nConsoleID) = nullptr;
 int		(CCONV *_RA_HardcoreModeIsActive)(void) = nullptr;
+void	(CCONV *_RA_EnableHardcoreMode) (void) = nullptr;
+void	(CCONV *_RA_DisableHardcoreMode) (void) = nullptr;
 int		(CCONV *_RA_HTTPGetRequestExists)(const char* sPageName) = nullptr;
 
 //	Don't expose to app
@@ -233,6 +235,20 @@ void RA_SetConsoleID( unsigned int nConsoleID )
 int RA_HardcoreModeIsActive()
 {
 	return ( _RA_HardcoreModeIsActive != nullptr ) ? _RA_HardcoreModeIsActive() : 0;
+}
+
+void RA_EnableHardcoreMode() // Note this will reset the emulator on state change
+{
+	if (_RA_EnableHardcoreMode != nullptr) {
+		_RA_EnableHardcoreMode();
+	}
+}
+
+void RA_DisableHardcoreMode()
+{
+	if (_RA_DisableHardcoreMode != nullptr) {
+		_RA_DisableHardcoreMode();
+	}
 }
 
 int RA_HTTPRequestExists( const char* sPageName )
@@ -433,6 +449,8 @@ const char* CCONV _RA_InstallIntegration()
 	_RA_DoAchievementsFrame = (void(CCONV *)())										GetProcAddress( g_hRADLL, "_RA_DoAchievementsFrame" );
 	_RA_SetConsoleID		= (int(CCONV *)(unsigned int))							GetProcAddress( g_hRADLL, "_RA_SetConsoleID" );
 	_RA_HardcoreModeIsActive= (int(CCONV *)())										GetProcAddress( g_hRADLL, "_RA_HardcoreModeIsActive" );
+	_RA_EnableHardcoreMode	= (void(CCONV *)())										GetProcAddress( g_hRADLL, "_RA_EnableHardcoreMode");
+	_RA_DisableHardcoreMode = (void(CCONV *)())										GetProcAddress( g_hRADLL, "_RA_DisableHardcoreMode");
 	_RA_HTTPGetRequestExists= (int(CCONV *)(const char*))							GetProcAddress( g_hRADLL, "_RA_HTTPGetRequestExists" );
 
 	_RA_InstallSharedFunctions = ( void(CCONV *)( bool(*)(), void(*)(), void(*)(), void(*)(), void(*)(char*), void(*)(), void(*)(const char*) ) ) GetProcAddress( g_hRADLL, "_RA_InstallSharedFunctionsExt" );
@@ -550,6 +568,9 @@ void RA_Shutdown()
 	_RA_LoadROM					= nullptr;
 	_RA_SetConsoleID			= nullptr;
 	_RA_HardcoreModeIsActive	= nullptr;
+	_RA_EnableHardcoreMode		= nullptr;
+	_RA_DisableHardcoreMode		= nullptr;
+	
 	_RA_HTTPGetRequestExists	= nullptr;
 	_RA_AttemptLogin			= nullptr;
 
