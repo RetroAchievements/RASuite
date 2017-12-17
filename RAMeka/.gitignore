@@ -3,6 +3,11 @@ meka/Debug
 meka/Music
 meka/Saves
 meka/Screenshots
+meka/Overlay
+meka/RAPrefs_RAMeka.cfg
+meka/RACache/
+meka/srcs/projects/msvc/RAPrefs_RAMeka.cfg
+meka/srcs/projects/msvc/packages.config
 
 # Developer data
 meka/objs
@@ -21,16 +26,18 @@ allegro.log
 *.sdf
 *.suo
 *.ipch
+*.ipdb
+*.iobj
 *.vcproj.*.user
 *.vcxproj.user
+*.VC.db
 meka/srcs/obj
 meka/Dist
 *.opendb
+*allegro*.zip
 meka/srcs/projects/msvc/packages
 
 #misc merge latest junk
-meka/RACache/
-meka/RAPrefs_RAMeka.cfg
 meka/RA_Integration_d.dll
 meka/RAmeka.bsc
 meka/RAmeka.exe
@@ -39,5 +46,3 @@ meka/hq2x16.obj
 meka/hq2x32.obj
 meka/srcs/projects/msvc/RACache/
 meka/srcs/projects/msvc/RAMeka.VC.db
-meka/srcs/projects/msvc/RAPrefs_RAMeka.cfg
-meka/srcs/projects/msvc/packages.config
