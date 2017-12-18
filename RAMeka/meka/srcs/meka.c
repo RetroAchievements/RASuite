@@ -58,17 +58,11 @@
 #include "app_memview.h"
 #include "app_cheatfinder.h"
 
-//Needed for what I think is multithreaded code context switching.
-//RA and Meka both use GetCurrentDirectory and SetCurrentDirectory seperately 
-char RA_rootDir[2048];
 
 //These allegro libraries are needed for integrating RA's interface code
 #include <allegro5/allegro_windows.h> //we need to blit ?
 #include <allegro5/allegro_native_dialog.h> // Just want a menu that doesn't break everything.
 
-//Most of the other emulators define their version in their MakeBuildVer.bat scripts. 
-//But we're using NuGet/Allegro/VS2015 so nothing here is "straightforward"
-#define RAMEKA_VERSION  "0.019535"
 //-----------------------------------------------------------------------------
 // Globals
 //-----------------------------------------------------------------------------
@@ -362,64 +356,15 @@ int main(int argc, char **argv)
 
     ConsoleInit(); // First thing to do
     #ifdef ARCH_WIN32
-
-	
-	//#RA Setup Code
-	{ 
-		char meka_currDir[2048];
-		GetCurrentDirectory(2048, meka_currDir); // "where'd you get the multithreaded code, Ted?"
-		
-		//See Meka.rc for Console parameters.
-		//disable close window for console because I am lazy.
-		EnableMenuItem(GetSystemMenu(ConsoleHWND(), FALSE), SC_CLOSE, MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
-
-
-		//Make placeholder menu for console (We will put the RA menu on the console because this is the easiest way for me right now)
-		HMENU MainMenu = CreateMenu();
-
-		HMENU RAMenu = CreatePopupMenu();
-		AppendMenu(RAMenu, MF_POPUP | MF_STRING, 100001, "(RA Not Yet Loaded)");
-		AppendMenu(MainMenu, MF_STRING | MF_POPUP, (UINT)RAMenu, "&RetroAchievements");
-		SetMenu(ConsoleHWND(), MainMenu);
-		InvalidateRect(ConsoleHWND(), NULL, TRUE);
-		DrawMenuBar(ConsoleHWND());
-
-		RA_Init(ConsoleHWND(), RA_Meka, RAMEKA_VERSION);
-		//RA_Init(ConsoleHWND(), RA_Meka, "0.000535");
-
-		RA_InitShared();
-		RA_InitDirectX();
-		RA_UpdateAppTitle("RAMEKA");
-
-
-		RebuildMenu();
-		RA_HandleHTTPResults();
-		RA_AttemptLogin(true); // Doesn't RA_AttemptLogin() call RebuildMenu() anyway at some point in its code?
-
-		RebuildMenu();
-
-		GetCurrentDirectory(2048, RA_rootDir); // "Father Todd Unctious?"
-
-		SetCurrentDirectory(meka_currDir); // "Cowboys Ted! They're a bunch of cowboys!"
-
-		ConsolePrintf("%s\n--\n", "RA Init Completed");
-
-	}
-	
-
-		
+		RAMeka_RA_Setup(); //Attach RA Menu to Console and Initialise RA System
 		ConsolePrintf("%s (built %s %s)\n(c) %s %s\n--\n", MEKA_NAME_VERSION, MEKA_BUILD_DATE, MEKA_BUILD_TIME, MEKA_DATE, MEKA_AUTHORS);
-
 	#else
         ConsolePrintf ("\n%s (c) %s %s\n--\n", MEKA_NAME_VERSION, MEKA_DATE, MEKA_AUTHORS);
     #endif
 
-
-
     // Wait for Win32 console signal
     if (!ConsoleWaitForAnswer(true))
         return (0);
-
 
     // Save command line parameters
     g_env.argc = argc;
@@ -484,21 +429,8 @@ int main(int argc, char **argv)
 	Init_GUI               (); // Initialize Graphical User Interface
 	FB_Init_2              (); // Finish initializing the file browser
 
-
 	//RA
-	{
-		if (MemoryViewer_MainInstance->active	||
-			g_CheatFinder_MainInstance->active	||
-			Debugger.active	) {
-			
-			RA_DisableHardcoreMode();
-			//Silently disable Hardcore mode if any  of these are active at startup (Need code to disable when they are activated as well)
-
-		}
-
-	}
-	//HWND MekaWND = al_get_win_window_handle(g_display);
-
+	RAMeka_ValidateHardcoreMode	(); // Disable Hardcore mode if required
 
 
 
@@ -506,29 +438,26 @@ int main(int argc, char **argv)
     Load_ROM_Command_Line();
 
     // Wait for Win32 console signal
-    if (!ConsoleWaitForAnswer(true))
-        return (0);
-
-    //ConsoleClose(); // Close Console (Needed for RA)
+    //if (!ConsoleWaitForAnswer(true))
+    //    return (0);
+    //ConsoleClose(); // Don't Close Console here (Needed for RA!)
 
     // Start main program loop
     // Everything runs from there.
     // Z80_Opcodes_Usage_Reset();
 
 
-
     Main_Loop(); 
     // Z80_Opcodes_Usage_Print();
 
 
-
-	//#RA
+	//RA
 	// Wait for Win32 console signal
 	if (!ConsoleWaitForAnswer(true))
 		return (0); // why isn't this -1?
 	ConsoleClose();
-	RA_HandleHTTPResults();
-	RA_Shutdown();
+
+	RAMeka_RA_Shutdown	   (); //Finalise and Shutdown RA
 
     // Shutting down emulator...
     g_env.state = MEKA_STATE_SHUTDOWN;

@@ -563,6 +563,7 @@ static int      Load_ROM_Init_Memory ()
 
 //RA
 #include "RA_Interface.h"
+#include "RA_Implementation.h"
 
 //Required for new RA Memory Bank interface
 //See: RA_MemManager.h _RAMByteReadFn _RAMByteWriteFn
@@ -612,12 +613,13 @@ int             Load_ROM_Main ()
 	//RA
 	if (g_machine.driver_id == DRV_SMS & err == MEKA_ERR_OK) {
 
-		//Multithreaded code so need to set proper director or RA will leave log files etc lying all over the filesystem
 
-		char meka_currDir[2048];
-		GetCurrentDirectory(2048, meka_currDir);
-		SetCurrentDirectory(RA_rootDir);
-		
+		//char meka_currDir[2048];
+		//GetCurrentDirectory(2048, meka_currDir);
+		//SetCurrentDirectory(RA_rootDir);
+		//Set proper working directory or RA will leave log files etc lying all over the filesystem
+		RAMeka_Stash_Meka_CurrentDirectory();
+		RAMeka_Restore_RA_RootDirectory();
 		
 		//Just giving RA the 8k of z80 RAM
 		//Meka allocates this in a segment of the RAM variable in a confusing way using the Map_8k_RAM function
@@ -635,8 +637,8 @@ int             Load_ROM_Main ()
 		//Old memory model call
 		//RA_OnLoadNewRom(ROM, tsms.Size_ROM, RAM, 0x2000, NULL, 0);
 
-
-		SetCurrentDirectory(meka_currDir); //give back directory state to meka.
+		RAMeka_Restore_Meka_CurrentDirectory();
+		//SetCurrentDirectory(meka_currDir); //give back directory state to meka.
 	}
 
     return (meka_errno = err);

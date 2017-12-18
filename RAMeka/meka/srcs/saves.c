@@ -18,6 +18,7 @@
 
 //##RA
 #include "RA_Interface.h"
+#include "RA_Implementation.h"
 
 //-----------------------------------------------------------------------------
 // Functions
@@ -172,11 +173,16 @@ void        SaveState_Save()
 
 	//#RA
 	{
-		char meka_currDir[2048];
-		GetCurrentDirectory(2048, meka_currDir);
-		SetCurrentDirectory(RA_rootDir);
+		//char meka_currDir[2048];
+		//GetCurrentDirectory(2048, meka_currDir);
+		//SetCurrentDirectory(RA_rootDir);
+		RAMeka_Stash_Meka_CurrentDirectory();
+		RAMeka_Restore_RA_RootDirectory();
+		
 		RA_OnSaveState(buf);
-		SetCurrentDirectory(meka_currDir);
+
+		RAMeka_Restore_Meka_CurrentDirectory();
+		//SetCurrentDirectory(meka_currDir);
 	}
     switch (result)
     {
@@ -239,11 +245,17 @@ void        SaveState_Load()
 
 	//#RA
 	{
-		char meka_currDir[2048];
-		GetCurrentDirectory(2048, meka_currDir);
-		SetCurrentDirectory(RA_rootDir);
+		//char meka_currDir[2048];
+		//GetCurrentDirectory(2048, meka_currDir);
+		//SetCurrentDirectory(RA_rootDir);
+		RAMeka_Stash_Meka_CurrentDirectory();
+		RAMeka_Restore_RA_RootDirectory();
+
 		RA_OnLoadState(buf);
-		SetCurrentDirectory(meka_currDir);
+		
+		RAMeka_Restore_Meka_CurrentDirectory();
+
+		//SetCurrentDirectory(meka_currDir);
 	}
 
     switch (result)

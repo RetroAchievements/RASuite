@@ -14,6 +14,7 @@ extern int g_machine_pause_requests;
 //-----------------------------------------------------------------------------
 
 void    Machine_Pause               (void);
+void    Machine_UnPause				(void);
 void    Machine_Debug_Start         (void);
 void    Machine_Debug_Stop          (void);
 void    Machine_Reset               (void);
