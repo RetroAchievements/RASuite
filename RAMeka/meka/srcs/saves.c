@@ -133,10 +133,8 @@ void        Load_Game_Fixup(void)
 void        SaveState_Save()
 {
 
-	if (RA_HardcoreModeIsActive())  //Ask for confirmation if RA_Harcore is set
-	{
-		if (MessageBox(NULL, "Hardcore mode is active. If you load/save a state, Hardcore Mode will be disabled. Continue?", "Warning", (MB_YESNO | MB_SETFOREGROUND)) == IDNO)
-			return;
+	if (!RAMeka_HardcoreDeactivateConfirm(SCF_SAVE_LOAD)) {
+		return; //user did not agree to a hardcore mode deactivation, abandon debugger activation
 	}
 
     // Do not allow saving if machine is not running
@@ -167,24 +165,11 @@ void        SaveState_Save()
     }
 
 
-	
-
     StrPath_RemoveDirectory (buf);
-
 	//#RA
-	{
-		//char meka_currDir[2048];
-		//GetCurrentDirectory(2048, meka_currDir);
-		//SetCurrentDirectory(RA_rootDir);
-		RAMeka_Stash_Meka_CurrentDirectory();
-		RAMeka_Restore_RA_RootDirectory();
-		
-		RA_OnSaveState(buf);
+	RAMeka_RA_OnSaveStateSave(buf);
 
-		RAMeka_Restore_Meka_CurrentDirectory();
-		//SetCurrentDirectory(meka_currDir);
-	}
-    switch (result)
+	switch (result)
     {
     case 1: Msg(MSGT_USER, Msg_Get(MSG_Save_Success), buf);
         break;
@@ -196,11 +181,9 @@ void        SaveState_Save()
 // Load state from current slot
 void        SaveState_Load()
 {
-
-	if (RA_HardcoreModeIsActive()) //Ask for confirmation if RA_Hardcore is set
-	{
-		if (MessageBox(NULL, "Hardcore mode is active. If you load/save a state, Hardcore Mode will be disabled. Continue?", "Warning", (MB_YESNO | MB_SETFOREGROUND)) == IDNO)
-			return;
+	
+	if (!RAMeka_HardcoreDeactivateConfirm(SCF_SAVE_LOAD)) {
+		return; //user did not agree to a hardcore mode deactivation, abandon debugger activation
 	}
 
     // Do not allow loading if machine is not running
@@ -244,19 +227,7 @@ void        SaveState_Load()
     StrPath_RemoveDirectory (buf);
 
 	//#RA
-	{
-		//char meka_currDir[2048];
-		//GetCurrentDirectory(2048, meka_currDir);
-		//SetCurrentDirectory(RA_rootDir);
-		RAMeka_Stash_Meka_CurrentDirectory();
-		RAMeka_Restore_RA_RootDirectory();
-
-		RA_OnLoadState(buf);
-		
-		RAMeka_Restore_Meka_CurrentDirectory();
-
-		//SetCurrentDirectory(meka_currDir);
-	}
+	RAMeka_RA_OnSaveStateLoad(buf);
 
     switch (result)
     {

@@ -35,6 +35,7 @@ meka/Dist
 *.opendb
 *allegro*.zip
 meka/srcs/projects/msvc/packages
+*.rap
 
 #misc merge latest junk
 meka/RA_Integration_d.dll

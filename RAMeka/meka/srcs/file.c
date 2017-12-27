@@ -565,15 +565,6 @@ static int      Load_ROM_Init_Memory ()
 #include "RA_Interface.h"
 #include "RA_Implementation.h"
 
-//Required for new RA Memory Bank interface
-//See: RA_MemManager.h _RAMByteReadFn _RAMByteWriteFn
-unsigned char SMS_RAMByteReadFn(unsigned int Offset) {
-	return static_cast<unsigned char>(RAM[Offset]);
-}
-void SMS_RAMByteWriteFn(unsigned int Offset, unsigned int nVal) {
-	//why is nVal an int and not a char?
-	RAM[Offset] = static_cast<unsigned char>(nVal);
-}
 
 // LOAD A ROM INTO MEMORY, RESET SYSTEM AND VARIOUS STUFF.. -------------------
 int             Load_ROM_Main ()
@@ -613,32 +604,8 @@ int             Load_ROM_Main ()
 	//RA
 	if (g_machine.driver_id == DRV_SMS & err == MEKA_ERR_OK) {
 
-
-		//char meka_currDir[2048];
-		//GetCurrentDirectory(2048, meka_currDir);
-		//SetCurrentDirectory(RA_rootDir);
-		//Set proper working directory or RA will leave log files etc lying all over the filesystem
-		RAMeka_Stash_Meka_CurrentDirectory();
-		RAMeka_Restore_RA_RootDirectory();
+		RAMeka_RA_MountMasterSystemROM();
 		
-		//Just giving RA the 8k of z80 RAM
-		//Meka allocates this in a segment of the RAM variable in a confusing way using the Map_8k_RAM function
-		//Have determined that, while in SMS mode, the 8k of z80 ram is contained in the first 8k of RAM (pointed to by Mem_Pages[0] ?)(Am not confident that this ram is being allocated correctly actually)
-		//Be wary of this 
-		//Note: Instead of starting at 0xc000, master system memory will start at 0x0000
-		//See: Machine_Set_Mapping() g_machine.mapper=default? 
-		//RA_OnLoadNewRom(ROM, tsms.Size_ROM, RAM, 0x10000, NULL, 0);  //previously gave the whole 64k RAM file
-
-		RA_SetConsoleID(MasterSystem);
-		RA_ClearMemoryBanks();
-		RA_InstallMemoryBank(0, SMS_RAMByteReadFn, SMS_RAMByteWriteFn , 0x2000); //8KB
-		RA_OnLoadNewRom(ROM, tsms.Size_ROM);
-
-		//Old memory model call
-		//RA_OnLoadNewRom(ROM, tsms.Size_ROM, RAM, 0x2000, NULL, 0);
-
-		RAMeka_Restore_Meka_CurrentDirectory();
-		//SetCurrentDirectory(meka_currDir); //give back directory state to meka.
 	}
 
     return (meka_errno = err);

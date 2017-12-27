@@ -14,6 +14,7 @@
 //RA
 #include "RA_Resource.h"
 #include "RA_Interface.h"
+#include "RA_Implementation.h"
 
 
 //-----------------------------------------------------------------------------
@@ -1140,11 +1141,11 @@ static int CALLBACK ConsoleWin32_DialogProc(HWND hDlg, UINT message, WPARAM wPar
                 }
             }
 
-			//	##RA
+			//	##RA //RAMeka
 			if (LOWORD(wParam) >= IDM_RA_MENUSTART &&
 				LOWORD(wParam) < IDM_RA_MENUEND)
 			{
-				RA_InvokeDialog(LOWORD(wParam));
+				RAMeka_RA_InvokeDialog(wParam); //indulgent wrapper function
 				return 0;
 			}
 			// ...

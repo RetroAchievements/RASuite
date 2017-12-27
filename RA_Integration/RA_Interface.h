@@ -50,6 +50,8 @@ enum ConsoleID
 	Sega32X,
 	MasterSystem,
 
+	GameGear = 15,  // !! WARNING: Conflicts with present Retroarch ConsoleID  WARNING!!
+
 	NumConsoleIDs
 };
 

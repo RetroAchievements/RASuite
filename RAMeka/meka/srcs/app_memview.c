@@ -18,7 +18,7 @@
 
 //#RA
 #include "RA_Interface.h"
-
+#include "RA_Implementation.h"
 
 //-----------------------------------------------------------------------------
 // Definitions
@@ -482,8 +482,8 @@ static void        MemoryViewer_Update(t_memory_viewer* app)
 	if (!app->active) {
 		return;
 	}
-	else if (RA_HardcoreModeIsActive()) {
-		MessageBox(NULL, "Hardcore Mode active. Disabling Memory Editor", "Warning!", MB_ICONWARNING);
+
+	if (RAMeka_HardcoreIsActiveCheck(SCF_MEMORY_EDITOR)) {
 		MemoryViewer_SwitchMainInstance();
 		return;
 	}
@@ -623,9 +623,9 @@ static void MemoryViewer_Switch(t_memory_viewer* mv)
 	{
 		mv->active ^= 1;
 		gui_box_show(mv->box, mv->active, TRUE);
-		if (RA_HardcoreModeIsActive()) { //this really shouldn't happen.
-			mv->active = false;
-		}
+		//if (RA_HardcoreModeIsActive()) { //this really shouldn't happen.
+		//	mv->active = false;
+		//}
 		if (!mv->active)
 		{
 			// Flag GUI box for deletion
@@ -645,14 +645,9 @@ void    MemoryViewer_SwitchMainInstance()
 {
     t_memory_viewer* app = MemoryViewer_MainInstance;
 
-	if (RA_HardcoreModeIsActive() && !app->active)  //Ask for confirmation if RA_Harcore is set
-	{
-		if (MessageBox(NULL, "Hardcore mode is active. If you enable the Memory Editor, Hardcore Mode will be disabled. Continue?", "Warning", (MB_YESNO | MB_SETFOREGROUND)) == IDNO)
-		{
-			return;
-		}
-		else {
-			RA_DisableHardcoreMode();
+	if (!app->active) {
+		if (!RAMeka_HardcoreDeactivateConfirm(SCF_MEMORY_EDITOR)) {
+			return; //user did not agree to a hardcore mode deactivation, abandon debugger activation
 		}
 	}
 

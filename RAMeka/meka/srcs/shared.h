@@ -84,7 +84,3 @@ struct t_widget;
 #include "vmachine.h"       // Virtual machine system
 
 //-----------------------------------------------------------------------------
-
-
-//RA
-extern char RA_rootDir[2048]; //needed for multithreaded shenanigans

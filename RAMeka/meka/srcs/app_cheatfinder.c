@@ -265,6 +265,12 @@ void	CheatFinder_Update(t_cheat_finder* app)
 	if (!app->active)
 		return;
 
+	//Not sure if cheatfinder really needs to be deactivated if hardcore is active.
+	//if (RAMeka_HardcoreIsActiveCheck(SCF_CHEAT_FINDER)) {
+	//	CheatFinder_SwitchMainInstance()
+	//	return;
+	//}
+
 	al_set_target_bitmap(app->box->gfx_buffer);
 
 	// If skin has changed, redraw everything
@@ -610,6 +616,14 @@ static void	CheatFinder_CallbackClose(t_widget* w)
 void	CheatFinder_SwitchMainInstance()
 {
 	t_cheat_finder *app = g_CheatFinder_MainInstance;
+
+	//Not sure if hardcore deactivation is really required in case of cheat finder alone
+	//if (!app->active) {
+	//	if (!RAMeka_HardcoreDeactivateConfirm(SCF_CHEAT_FINDER)) {
+	//		return; //user did not agree to a hardcore mode deactivation, abandon debugger activation
+	//	}
+	//}
+
 	app->active ^= 1;
 	gui_box_show(app->box, app->active, TRUE);
 	gui_menu_toggle_check(menus_ID.tools, 5);
