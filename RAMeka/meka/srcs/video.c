@@ -20,13 +20,8 @@
 
 //RA
 #include "RA_Interface.h"
+#include "RA_Implementation.h"
 
-//All constants below are preset defaults, set here, but read in by config.c from mekaw.cfg
-int overlay_render_method			= OVERLAY_RENDER_ALLEGRO; 
-bool disable_RA_overlay				= false;
-int overlay_frame_skip				= 2;					
-bool overlay_alternate_render_blit	= true;	
-//int overlay_bg_splits = 1;  // see blit.c
 
 
 void RenderAchievementOverlays();

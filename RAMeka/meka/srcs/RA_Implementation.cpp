@@ -364,3 +364,68 @@ bool RAMeka_HardcoreDeactivateConfirm(RAMeka_Softcore_Feature current_feature) {
 	}
 
 }
+
+//Code to handle reading RAMeka specific configuration variables
+void RAMeka_Config_Load_Line(char *var, char *value) {
+
+	if (!strcmp(var, "overlay_render_method")) {
+		if (strcmp(value, "win_layer") == 0) {
+			overlay_render_method = OVERLAY_RENDER_WIN_LAYER;
+		}
+		else if (strcmp(value, "allegro") == 0) {
+			overlay_render_method = OVERLAY_RENDER_ALLEGRO;
+		}
+		else {
+			overlay_render_method = OVERLAY_RENDER_ALLEGRO; // default to allegro
+		}
+		return;
+	}
+
+	int input;
+	if (!strcmp(var, "disable_ra_overlay")) {  //will be "disable_RA_overlay" in config file
+		disable_RA_overlay = (atoi(value) != 0); return;
+	}
+	if (!strcmp(var, "overlay_frame_skip")) {
+		input = atoi(value); input *= (input > 0);
+		overlay_frame_skip = input; return;
+	}
+	if (!strcmp(var, "overlay_alternate_render_blit")) { overlay_alternate_render_blit = (atoi(value) != 0); return; }
+	if (!strcmp(var, "overlay_allegro_bg_splits")) {
+		input = atoi(value); input *= (input > 0);
+		overlay_bg_splits = input; return;
+	}
+
+}
+
+//Code to handle saving RAMeka specific configuration variables (without Meka code needing to know about this)
+void RAMeka_Configs_Save(CFG_Write_Line_Func CFG_Write_Line, CFG_Write_Int_Func CFG_Write_Int, CFG_Write_Str_Func CFG_Write_Str){
+
+	//See original  (static) definitions of these functions in config.c
+
+	CFG_Write_Line("-----<RETROACHIEVEMENTS SETTINGS -------------------------------------------");
+
+	if (overlay_render_method == OVERLAY_RENDER_WIN_LAYER) {
+		CFG_Write_Str("overlay_render_method", "win_layer");
+	}
+	else {
+		CFG_Write_Str("overlay_render_method", "allegro");
+	}
+
+	CFG_Write_Int("disable_RA_overlay", (int)disable_RA_overlay);							//
+	CFG_Write_Int("overlay_frame_skip", overlay_frame_skip);								//
+	CFG_Write_Int("overlay_alternate_render_blit", (int)overlay_alternate_render_blit);	//
+	CFG_Write_Int("overlay_allegro_bg_splits", overlay_bg_splits);							//
+
+}
+
+//-----------------------------------------------------------------------
+//                RA Overlay Video Functions                            | 
+//-----------------------------------------------------------------------
+
+
+//All constants below are preset defaults, set here, but read in by config.c from mekaw.cfg
+int overlay_render_method = OVERLAY_RENDER_ALLEGRO;
+bool disable_RA_overlay = false;
+int overlay_frame_skip = 2;
+bool overlay_alternate_render_blit = true;
+int overlay_bg_splits = 4; //overridden by mekaw.cfg

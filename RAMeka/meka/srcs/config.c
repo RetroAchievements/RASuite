@@ -18,6 +18,9 @@
 #include "tvtype.h"
 #include "libparse.h"
 
+//#RA
+#include "RA_Implementation.h"
+
 //-----------------------------------------------------------------------------
 // Functions
 //-----------------------------------------------------------------------------
@@ -196,33 +199,7 @@ static void     Configuration_Load_Line(char *var, char *value)
 	if (!strcmp(var, "video_game_page_flipping")) {}
 
 	//#RA
-	if (!strcmp(var, "overlay_render_method")) {
-		if (strcmp(value, "win_layer") == 0) {
-			overlay_render_method = OVERLAY_RENDER_WIN_LAYER;
-		}
-		else if (strcmp(value, "allegro") == 0) {
-			overlay_render_method = OVERLAY_RENDER_ALLEGRO;
-		}
-		else {
-			overlay_render_method = OVERLAY_RENDER_ALLEGRO; // default to allegro
-		}
-		return;
-	}
-
-	int input;
-	if (!strcmp(var, "disable_ra_overlay")) {  //will be "disable_RA_overlay" in config file
-		disable_RA_overlay = (atoi(value) != 0); return;
-	}
-	if (!strcmp(var, "overlay_frame_skip")) {
-		input = atoi(value); input *= (input > 0);
-		overlay_frame_skip = input; return;
-	}
-	if (!strcmp(var, "overlay_alternate_render_blit")) { overlay_alternate_render_blit = (atoi(value) != 0); return; }
-	if (!strcmp(var, "overlay_allegro_bg_splits")) {
-		input = atoi(value); input *= (input > 0);
-		overlay_bg_splits = input; return;
-	}
-	
+	RAMeka_Config_Load_Line(var, value);
 
 }
 
@@ -403,19 +380,10 @@ void Configuration_Save()
 	CFG_Write_Line("");
 
 	//#RA Overlay settings
-	CFG_Write_Line("-----<RETROACHIEVEMENTS SETTINGS -------------------------------------------");
-
-	if (overlay_render_method == OVERLAY_RENDER_WIN_LAYER) {
-		CFG_Write_Str("overlay_render_method", "win_layer");
-	}
-	else {
-		CFG_Write_Str("overlay_render_method", "allegro");
-	}
-
-	CFG_Write_Int("disable_RA_overlay", (int) disable_RA_overlay);							//
-	CFG_Write_Int("overlay_frame_skip", overlay_frame_skip);								//
-	CFG_Write_Int("overlay_alternate_render_blit", (int) overlay_alternate_render_blit);	//
-	CFG_Write_Int("overlay_allegro_bg_splits", overlay_bg_splits);							//
+	
+	//The CFG_Write functions are declared static so passing functions by reference
+	//in order to make the RAMeka call minimal.
+	RAMeka_Configs_Save(&CFG_Write_Line, &CFG_Write_Int, &CFG_Write_Str);
 
 
 	CFG_Write_Line("-----< FACTS >---------------------------------------------------------------");
