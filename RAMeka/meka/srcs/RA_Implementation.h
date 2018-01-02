@@ -116,3 +116,14 @@ extern bool overlay_alternate_render_blit;
 extern int overlay_bg_splits;
 extern int overlay_bg_splits;
 
+void RAMeka_Overlay_ClearBackbuffer();
+
+#define BYTES_PER_PIXEL(bpp)     (((int)(bpp) + 7) / 8)
+
+LRESULT CALLBACK RAMeka_RAWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+
+void RAMeka_Overlay_RenderAchievementOverlays();
+void RAMeka_Overlay_RenderAchievementOverlays_WIN_LAYER();
+void RAMeka_Overlay_RenderAchievementOverlays_ALLEGRO_OVERLAY();
+void RAMeka_Overlay_UpdateOverlay(HDC hdc, RECT rect);
+
