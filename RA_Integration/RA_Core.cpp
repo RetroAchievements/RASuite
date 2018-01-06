@@ -137,6 +137,16 @@ API BOOL CCONV _RA_InitI(HWND hMainHWND, /*enum EmulatorID*/int nEmulatorID, con
 		g_sClientDownloadURL = "RAPCE.zip";
 		g_sClientEXEName = "RAPCE.exe";
 		break;
+	case RA_Meka:
+		g_ConsoleID				= MasterSystem; // True only for SMS games. Current model here only supports one Console per emulator
+		//FIXME! Currently no RAMeka update page exists on the website
+		g_sGetLatestClientPage = "LatestRAPCEVersion.html";
+		//g_sGetLatestClientPage	= "LatestRAMekaVersion.html"; //doesn't actually exist yet!!
+		g_sClientVersion		= sClientVer;
+		g_sClientName			= "RAMeka";
+		g_sClientDownloadURL	= "RAMeka.zip"; //doesn't exist yet!!
+		g_sClientEXEName		= "RAMeka.exe"; //doesn't exist yet!!
+		break; 
 	default:
 		break;
 	}
@@ -300,6 +310,25 @@ API void CCONV _RA_SetConsoleID(unsigned int nConsoleID)
 API int CCONV _RA_HardcoreModeIsActive()
 {
 	return g_bHardcoreModeActive;
+}
+
+API void CCONV _RA_EnableHardcoreMode() { //Note: May also reset emulation
+
+	if (g_bHardcoreModeActive == false) {
+		g_bHardcoreModeActive = true;
+		RA_ResetEmulation();
+		RA_RebuildMenu();
+	}
+	//else already enabled, do nothing
+}
+
+API void CCONV _RA_DisableHardcoreMode() {
+
+	if (g_bHardcoreModeActive == true) {
+		g_bHardcoreModeActive = false;
+		RA_RebuildMenu();
+	}
+	//else already disabled, do nothing
 }
 
 API int CCONV _RA_HTTPGetRequestExists(const char* sPageName)
@@ -596,6 +625,7 @@ API int CCONV _RA_HandleHTTPResults()
 						{
 							RA_LOG("Latest Client already up to date: server 0.%d, current 0.%d\n", nValServer, nValCurrent);
 						}
+<<<<<<< HEAD
 					}
 				}
 				else
@@ -603,6 +633,17 @@ API int CCONV _RA_HandleHTTPResults()
 					ASSERT(!"RequestLatestClientPage responded, but 'LatestVersion' cannot be found!");
 					RA_LOG("RequestLatestClientPage responded, but 'LatestVersion' cannot be found?");
 				}
+=======
+					}
+					else
+					{
+						//ASSERT( !"RequestLatestClientPage responded, but 'LatestVersion' cannot be found!" ); //Why do we need to assert this? Couldn't we just write the log and silently fail, or just flag an error? //Is anyone actually building debug versions?
+						RA_LOG("RequestLatestClientPage responded, but 'LatestVersion' cannot be found?");
+
+					}
+				}
+
+>>>>>>> sms-0.67-0.68-rebase
 			}
 			break;
 
@@ -1039,6 +1080,7 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 			g_pUnofficialAchievements->LoadFromFile(nGameID);
 			g_pLocalAchievements->LoadFromFile(nGameID);
 		}
+<<<<<<< HEAD
 
 		_RA_RebuildMenu();
 	}
@@ -1048,6 +1090,17 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 		Dlg_AchievementsReporter::DoModalDialog(g_hThisDLLInst, g_RAMainWnd);
 		break;
 
+=======
+
+		_RA_RebuildMenu();
+	}
+	break;
+
+	case IDM_RA_REPORTBROKENACHIEVEMENTS:
+		Dlg_AchievementsReporter::DoModalDialog(g_hThisDLLInst, g_RAMainWnd);
+		break;
+
+>>>>>>> sms-0.67-0.68-rebase
 	case IDM_RA_GETROMCHECKSUM:
 	{
 		RA_Dlg_RomChecksum::DoModalDialog();
