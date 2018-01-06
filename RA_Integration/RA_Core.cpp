@@ -625,25 +625,14 @@ API int CCONV _RA_HandleHTTPResults()
 						{
 							RA_LOG("Latest Client already up to date: server 0.%d, current 0.%d\n", nValServer, nValCurrent);
 						}
-<<<<<<< HEAD
 					}
 				}
 				else
 				{
-					ASSERT(!"RequestLatestClientPage responded, but 'LatestVersion' cannot be found!");
+					//ASSERT( !"RequestLatestClientPage responded, but 'LatestVersion' cannot be found!" ); //Why do we need to assert this? Couldn't we just write the log and silently fail, or just flag an error? //Is anyone actually building debug versions?
 					RA_LOG("RequestLatestClientPage responded, but 'LatestVersion' cannot be found?");
-				}
-=======
-					}
-					else
-					{
-						//ASSERT( !"RequestLatestClientPage responded, but 'LatestVersion' cannot be found!" ); //Why do we need to assert this? Couldn't we just write the log and silently fail, or just flag an error? //Is anyone actually building debug versions?
-						RA_LOG("RequestLatestClientPage responded, but 'LatestVersion' cannot be found?");
 
-					}
 				}
-
->>>>>>> sms-0.67-0.68-rebase
 			}
 			break;
 
@@ -1080,7 +1069,6 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 			g_pUnofficialAchievements->LoadFromFile(nGameID);
 			g_pLocalAchievements->LoadFromFile(nGameID);
 		}
-<<<<<<< HEAD
 
 		_RA_RebuildMenu();
 	}
@@ -1090,17 +1078,6 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 		Dlg_AchievementsReporter::DoModalDialog(g_hThisDLLInst, g_RAMainWnd);
 		break;
 
-=======
-
-		_RA_RebuildMenu();
-	}
-	break;
-
-	case IDM_RA_REPORTBROKENACHIEVEMENTS:
-		Dlg_AchievementsReporter::DoModalDialog(g_hThisDLLInst, g_RAMainWnd);
-		break;
-
->>>>>>> sms-0.67-0.68-rebase
 	case IDM_RA_GETROMCHECKSUM:
 	{
 		RA_Dlg_RomChecksum::DoModalDialog();
