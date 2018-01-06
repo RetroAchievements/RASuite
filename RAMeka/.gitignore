@@ -36,6 +36,7 @@ meka/Dist
 *allegro*.zip
 meka/srcs/projects/msvc/packages
 *.rap
+/meka/srcs/projects/msvc/.vs/
 
 #misc merge latest junk
 meka/RA_Integration_d.dll
