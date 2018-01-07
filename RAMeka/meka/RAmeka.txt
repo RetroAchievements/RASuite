@@ -1,7 +1,14 @@
+RAmeka v 0.020535 ()
+
+- Integrating with current RA_Integration DLL (0.068)
+- Major code refactoring. Old Meka code now knows as little as possible about the RAMeka additions. Most RAMeka additions now in RA_Implementation.cpp
+- Added references to GameGear in RA DLL (ConsoleID differs from current Retroarch version)
+- Git merge history looks pretty bad. Might need rebasing if anyone really cares enough.
+
 RAmeka v 0.019535 (Stalking purple ghosts)
 
 - Integrating with current RA_Integration DLL (0.067)
-- Merging with RASuite Master branch
+- Merging with RASuite Master branch (Very kludgey, git confusing, (gitless) merge)
 - Some overlay issues present (bugs maybe related to new memory model/challenge system)
 - Who knows what build system horrors await us next.
 
