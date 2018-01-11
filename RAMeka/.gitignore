@@ -27,8 +27,6 @@ allegro.log
 *.ipch
 *.ipdb
 *.iobj
-*.vcproj.*.user
-*.vcxproj.user
 *.VC.db
 meka/srcs/obj
 meka/Dist
