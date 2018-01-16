@@ -818,7 +818,10 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc( HWND hDlg, UINT uMsg, WPAR
 				RepopulateGroupList(m_pSelectedAchievement);
 
 			if( !CanCausePause() )
+			{
 				ShowWindow( GetDlgItem( m_hAchievementEditorDlg, IDC_RA_CHK_ACH_PAUSE_ON_TRIGGER ), SW_HIDE );
+				ShowWindow( GetDlgItem( m_hAchievementEditorDlg, IDC_RA_CHK_ACH_PAUSE_ON_RESET ), SW_HIDE );
+			}
 		}
 		return TRUE;
 
@@ -916,6 +919,15 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc( HWND hDlg, UINT uMsg, WPAR
 			{
 				if( ActiveAchievement() != NULL )
 					ActiveAchievement()->SetPauseOnTrigger( !ActiveAchievement()->GetPauseOnTrigger() );
+
+				bHandled = TRUE;
+			}
+			break;
+
+		case IDC_RA_CHK_ACH_PAUSE_ON_RESET:
+			{
+				if( ActiveAchievement() != NULL )
+					ActiveAchievement()->SetPauseOnReset( !ActiveAchievement()->GetPauseOnReset() );
 
 				bHandled = TRUE;
 			}
@@ -1714,6 +1726,7 @@ void Dlg_AchievementEditor::LoadAchievement( Achievement* pCheevo, BOOL bAttempt
 
 		CheckDlgButton( m_hAchievementEditorDlg, IDC_RA_CHK_ACH_ACTIVE, ActiveAchievement()->Active() );
 		CheckDlgButton( m_hAchievementEditorDlg, IDC_RA_CHK_ACH_PAUSE_ON_TRIGGER, ActiveAchievement()->GetPauseOnTrigger() );
+		CheckDlgButton( m_hAchievementEditorDlg, IDC_RA_CHK_ACH_PAUSE_ON_RESET, ActiveAchievement()->GetPauseOnReset() );
 
 		sprintf_s( buffer, 1024, "%d", m_pSelectedAchievement->ID() );
 		SetDlgItemText( m_hAchievementEditorDlg, IDC_RA_ACH_ID, Widen( buffer ).c_str() );

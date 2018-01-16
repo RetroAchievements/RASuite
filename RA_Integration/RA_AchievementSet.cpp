@@ -231,7 +231,13 @@ void AchievementSet::Test()
 			}
 
 			if( ach.GetPauseOnTrigger() )
+			{
 				RA_CausePause();
+
+				wchar_t buffer[256];
+				swprintf( buffer, 256, L"Pause on Trigger: %s", Widen( ach.Title() ).c_str() );
+				MessageBox( g_RAMainWnd, buffer, L"Paused", MB_OK );
+			}
 		}
 	}
 }
