@@ -40,10 +40,20 @@ RA_ConditionalDisplayString::RA_ConditionalDisplayString( char* pBuffer )
 			Condition nNewCond;
 			nNewCond.ParseFromString( pBuffer );
 			conditionSet.Add( nNewCond );
-		} while( *pBuffer == '_' ); // AND
+
+			if( *pBuffer != '_' ) // AND
+				break;
+
+			++pBuffer;
+		} while( true );
 
 		m_conditions.push_back( conditionSet );
-	} while( *pBuffer == 'S' ); // OR
+
+		if (*pBuffer != 'S') // OR
+			break;
+
+		++pBuffer;
+	} while( true ); // OR
 
 	if( *pBuffer == '?' )
 	{
