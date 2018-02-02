@@ -106,6 +106,8 @@ HttpResults HttpRequestQueue;
 HANDLE RAWeb::ms_hHTTPMutex = NULL;
 HttpResults RAWeb::ms_LastHttpResults;
 
+PostArgs PrevArgs;
+
 
 BOOL RequestObject::ParseResponseToJSON( Document& rDocOut )
 {
@@ -297,7 +299,7 @@ BOOL RAWeb::DoBlockingHttpGet( const std::string& sRequestedPage, DataStream& Re
  	// Specify an HTTP server.
 	if( hSession != NULL )
 	{
- 		HINTERNET hConnect = WinHttpConnect( hSession, bIsImageRequest ? RA_HOST_IMG_URL_WIDE : RA_HOST_URL_WIDE, INTERNET_DEFAULT_HTTP_PORT, 0 );
+ 		HINTERNET hConnect = WinHttpConnect( hSession, Widen( bIsImageRequest ? RA_HOST_IMG_URL : RA_HOST_URL ).c_str(), INTERNET_DEFAULT_HTTP_PORT, 0 );
  
  		// Create an HTTP Request handle.
  		if( hConnect != NULL )
@@ -399,7 +401,7 @@ BOOL RAWeb::DoBlockingHttpPost( const std::string& sRequestedPage, const std::st
 									  WINHTTP_NO_PROXY_BYPASS, 0 );
 	if( hSession != nullptr )
 	{
-		HINTERNET hConnect = WinHttpConnect( hSession, RA_HOST_URL_WIDE, INTERNET_DEFAULT_HTTP_PORT, 0 );
+		HINTERNET hConnect = WinHttpConnect(hSession, Widen(RA_HOST_URL).c_str(), INTERNET_DEFAULT_HTTP_PORT, 0);
 		if( hConnect != nullptr )
 		{
 			HINTERNET hRequest = WinHttpOpenRequest( hConnect,
@@ -411,12 +413,10 @@ BOOL RAWeb::DoBlockingHttpPost( const std::string& sRequestedPage, const std::st
 													 0 );
 			if( hRequest != nullptr )
 			{
-				char sPostBuffer[ 1024 ];
-				sprintf_s( sPostBuffer, 1024, "%s", sPostString.c_str() );
 				BOOL bSendSuccess = WinHttpSendRequest( hRequest,
 														L"Content-Type: application/x-www-form-urlencoded",
 														0,
-														reinterpret_cast<LPVOID>( sPostBuffer ), //WINHTTP_NO_REQUEST_DATA,
+														reinterpret_cast<LPVOID>( const_cast<char*>( sPostString.data() ) ), //WINHTTP_NO_REQUEST_DATA,
 														strlen( sPostString.c_str() ),
 														strlen( sPostString.c_str() ),
 														0 );
@@ -524,8 +524,10 @@ BOOL DoBlockingImageUpload( UploadType nType, const std::string& sFilename, Data
 		WINHTTP_NO_PROXY_BYPASS, 0);
 
 	// Specify an HTTP server.
-	if( hSession != NULL )
-		hConnect = WinHttpConnect( hSession, RA_HOST_URL_WIDE, INTERNET_DEFAULT_HTTP_PORT, 0 );
+	if (hSession != NULL)
+	{
+		hConnect = WinHttpConnect(hSession, Widen(RA_HOST_URL).c_str(), INTERNET_DEFAULT_HTTP_PORT, 0);
+	}
 
 	if( hConnect != NULL )
 	{
@@ -702,7 +704,9 @@ DWORD RAWeb::HTTPWorkerThread( LPVOID lpParameter )
 
 	while( bThreadActive )
 	{
+		WaitForSingleObject(RAWeb::Mutex(), INFINITE);
 		RequestObject* pObj = HttpRequestQueue.PopNextItem();
+		ReleaseMutex(RAWeb::Mutex());
 		if( pObj != NULL )
 		{
 			DataStream Response;
@@ -757,14 +761,31 @@ DWORD RAWeb::HTTPWorkerThread( LPVOID lpParameter )
 						else
 						{
 							const std::string& sRPResponse = g_RichPresenceInterpretter.GetRichPresenceString();
-							if( sRPResponse.size() == 0 )
-								args['m'] = "Earning Achievements";
-							else
+							if( !sRPResponse.empty() )
+							{
 								args['m'] = sRPResponse;
+							}
+							else if( g_pActiveAchievements && g_pActiveAchievements->NumAchievements() > 0 )
+							{
+								args['m'] = "Earning Achievements";
+							}
+							else
+							{
+								char buffer[128];
+								snprintf( buffer, sizeof(buffer), "Playing %s", g_pCurrentGameData->GameTitle().c_str() );
+								args['m'] = buffer;
+							}
 						}
 					}
-					
-					RAWeb::CreateThreadedHTTPRequest( RequestPing, args );
+
+					//	Scott: Temporarily removed; Ping and RP are merged at current
+					//	 and if we don't constantly poll the server, the players are dropped
+					//	 from 'currently playing'.
+					//if (args['m'] != PrevArgs['m'] || args['g'] != PrevArgs['g'])
+					{
+						RAWeb::CreateThreadedHTTPRequest(RequestPing, args);
+						PrevArgs = args;
+					}
 				}
 			}
 		}

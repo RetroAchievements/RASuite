@@ -31,14 +31,14 @@ INT_PTR Dlg_GameTitle::GameTitleProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
 	{
 		const HWND hKnownGamesCbo = GetDlgItem( hDlg, IDC_RA_KNOWNGAMES );
 		std::string sGameTitleTidy = Dlg_GameTitle::CleanRomName( g_GameTitleDialog.m_sEstimatedGameTitle );
-		SetDlgItemText( hDlg, IDC_RA_GAMETITLE, Widen( sGameTitleTidy ).c_str() );
+		SetDlgItemText( hDlg, IDC_RA_GAMETITLE, NativeStr( sGameTitleTidy ).c_str() );
 
 		//	Load in the checksum
-		SetDlgItemText( hDlg, IDC_RA_CHECKSUM, Widen( g_GameTitleDialog.m_sMD5 ).c_str() );
+		SetDlgItemText( hDlg, IDC_RA_CHECKSUM, NativeStr( g_GameTitleDialog.m_sMD5 ).c_str() );
 
 		//	Populate the dropdown
 		//	***Do blocking fetch of all game titles.***
-		int nSel = ComboBox_AddString( hKnownGamesCbo, Widen( "<New Title>" ).c_str() );
+		int nSel = ComboBox_AddString( hKnownGamesCbo, NativeStr( "<New Title>" ).c_str() );
 		ComboBox_SetCurSel( hKnownGamesCbo, nSel );
 
 		PostArgs args;
@@ -74,11 +74,13 @@ INT_PTR Dlg_GameTitle::GameTitleProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
 				{
 					const std::string& sTitle = iter->first;
 
-					nSel = ComboBox_AddString( hKnownGamesCbo, Widen( sTitle ).c_str() );
+					nSel = ComboBox_AddString( hKnownGamesCbo, NativeStr( sTitle ).c_str() );
 
 					//	Attempt to find this game and select it by default: case insensitive comparison
-					if( sGameTitleTidy.compare( sTitle ) == 0 )
-						ComboBox_SetCurSel( hKnownGamesCbo, nSel );
+					if (sGameTitleTidy.compare(sTitle) == 0)
+					{
+						ComboBox_SetCurSel(hKnownGamesCbo, nSel);
+					}
 
 					iter++;
 				}
@@ -96,21 +98,22 @@ INT_PTR Dlg_GameTitle::GameTitleProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
 		case IDOK:
 		{
 			//	Fetch input data:
-			wchar_t sSelectedTitleWide[ 512 ];
-			ComboBox_GetText( GetDlgItem( hDlg, IDC_RA_KNOWNGAMES ), sSelectedTitleWide, 512 );
-			std::string sSelectedTitle = Narrow( sSelectedTitleWide );
+			TCHAR sSelectedTitleBuffer[ 512 ];
+			ComboBox_GetText( GetDlgItem( hDlg, IDC_RA_KNOWNGAMES ), sSelectedTitleBuffer, 512 );
+			tstring sSelectedTitle = sSelectedTitleBuffer;
 
 			GameID nGameID = 0;
 			if( strcmp( sSelectedTitle.c_str(), "<New Title>" ) == 0 )
 			{
 				//	Add a new title!
-				GetDlgItemText( hDlg, IDC_RA_GAMETITLE, sSelectedTitleWide, 512 );
+				GetDlgItemText( hDlg, IDC_RA_GAMETITLE, sSelectedTitleBuffer, 512 );
+				sSelectedTitle = sSelectedTitleBuffer;
 			}
 			else
 			{
 				//	Existing title
 				ASSERT( m_aGameTitles.find( std::string( sSelectedTitle ) ) != m_aGameTitles.end() );
-				nGameID = m_aGameTitles[ std::string( sSelectedTitle ) ];
+				nGameID = m_aGameTitles[ std::string( Narrow(sSelectedTitle) ) ];
 			}
 
 			PostArgs args;
@@ -145,15 +148,15 @@ INT_PTR Dlg_GameTitle::GameTitleProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
 				{
 					//Error given
 					MessageBox( hDlg,
-								Widen( std::string( "Could not add new title: " ) + std::string( doc[ "Error" ].GetString() ) ).c_str(),
-								L"Errors encountered",
+								NativeStr( std::string( "Could not add new title: " ) + std::string( doc[ "Error" ].GetString() ) ).c_str(),
+								TEXT("Errors encountered"),
 								MB_OK );
 				}
 				else
 				{
 					MessageBox( hDlg,
-								L"Cannot contact server!",
-								L"Error in connection",
+								TEXT("Cannot contact server!"),
+								TEXT("Error in connection"),
 								MB_OK );
 				}
 
@@ -187,7 +190,7 @@ INT_PTR Dlg_GameTitle::GameTitleProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARA
 				//	If the user has selected a value, copy this text to the bottom textbox.
 				bUpdatingTextboxTitle = TRUE;
 
-				wchar_t sSelectedTitle[ 512 ];
+				TCHAR sSelectedTitle[ 512 ];
 				GetDlgItemText( hDlg, IDC_RA_KNOWNGAMES, sSelectedTitle, 512 );
 				SetDlgItemText( hDlg, IDC_RA_GAMETITLE, sSelectedTitle );
 

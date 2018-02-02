@@ -13,7 +13,7 @@ const std::string& RA_Lookup::Lookup( DataPos nValue ) const
 	if( m_lookupData.find( nValue ) != m_lookupData.end() )
 		return m_lookupData.find( nValue )->second;
 
-	static const std::string sUnknown = "Unknown";
+	static const std::string sUnknown = "";
 	return sUnknown;
 }
 
@@ -181,6 +181,11 @@ const std::string& RA_RichPresenceInterpretter::Lookup( const std::string& sName
 	return sReturnVal;
 }
 
+bool RA_RichPresenceInterpretter::Enabled() const
+{
+	return !m_sDisplay.empty();
+}
+
 const std::string& RA_RichPresenceInterpretter::GetRichPresenceString()
 {
 	static std::string sReturnVal;
@@ -251,7 +256,7 @@ const std::string& RA_RichPresenceInterpretter::GetRichPresenceString()
 void RA_RichPresenceInterpretter::PersistAndParseScript( GameID nGameID, const std::string& str )
 {
 	//	Read to file:
-	SetCurrentDirectory( Widen( g_sHomeDir ).c_str() );
+	SetCurrentDirectory( NativeStr( g_sHomeDir ).c_str());
 	_WriteBufferToFile( RA_DIR_DATA + std::to_string( nGameID ) + "-Rich.txt", str );
 						
 	//	Then install it
