@@ -995,7 +995,8 @@ API void CCONV _RA_SavePreferences()
 			if (iter->second.nHeight != WindowPosition::nUnset)
 				rect.AddMember("Height", iter->second.nHeight, a);
 
-			positions.AddMember(StringRef(iter->first.c_str()), rect, a);
+			if (rect.MemberCount() > 0)
+				positions.AddMember(StringRef(iter->first.c_str()), rect, a);
 		}
 
 		if (positions.MemberCount() > 0)
