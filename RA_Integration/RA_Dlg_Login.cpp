@@ -8,34 +8,10 @@
 #include "RA_httpthread.h"
 #include "RA_PopupWindows.h"
 
-//static 
-//BOOL RA_Dlg_Login::DoModalLogin()
-//{
-//	return DialogBox( g_hThisDLLInst, MAKEINTRESOURCE(IDD_RA_LOGIN), g_RAMainWnd, RA_Dlg_Login::RA_Dlg_LoginProc );
-//} 
 
-//INT_PTR CALLBACK RA_Dlg_Login::RA_Dlg_LoginProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
-//{
-//	switch( uMsg )
-//	{
-//	case WM_INITDIALOG:
-//
-//		
-//
-//	case WM_COMMAND:
-//		
-//		break;
-//
-//	case WM_CLOSE:
-//		EndDialog( hDlg, TRUE );
-//		return TRUE;
-//	}
-//
-//	return FALSE;
-//}
 
 RA_Dlg_Login::RA_Dlg_Login() : 
-	IRA_Dialog{ ResId },
+	IRA_Dialog{ IDD_RA_LOGIN },
 	UsernameCtl{ MakeControl(IDC_RA_USERNAME) },
 	PassCtl{ MakeControl(IDC_RA_PASSWORD) }
 {
