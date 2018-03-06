@@ -375,7 +375,7 @@ Name* parse(char* lines, const char* filename)
 			}
 		} else
 		{
-			sscanf(cur->offset, "%*[$]%4X", &(cur->offsetNumeric));
+			sscanf(cur->offset, "%*[$]%hX", &(cur->offsetNumeric));
 			// Add the node to the list of address nodes
 			if (prev)
 			{
