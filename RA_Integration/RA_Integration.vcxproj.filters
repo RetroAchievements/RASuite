@@ -92,6 +92,9 @@
     <ClCompile Include="RA_Dlg_MemBookmark.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="IRA_Dialog.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="md5.h">
@@ -186,6 +189,9 @@
     </ClInclude>
     <ClInclude Include="RA_Dlg_RichPresence.h" />
     <ClInclude Include="RA_Dlg_MemBookmark.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="IRA_Dialog.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

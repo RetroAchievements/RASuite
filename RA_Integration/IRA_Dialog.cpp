@@ -1,0 +1,138 @@
+#include <Windows.h>
+#include <WindowsX.h>
+#include <CommCtrl.h>
+
+#include "IRA_Dialog.h"
+
+
+INT_PTR IRA_Dialog::DoModal()
+{
+	return DialogBox(instance, MAKEINTRESOURCE(ResourceId), hwnd_parent, DlgProc);
+}
+
+INT_PTR IRA_Dialog::MsgQueue(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	// This pointer could be any child, this function will attempt to call 
+	// child functions first and the abstract as a fail-safe
+	IRA_Dialog* ira{ nullptr };
+
+	// The Message Queue
+	switch (uMsg)
+	{
+		HANDLE_MSG(hDlg, WM_INITDIALOG, ira->OnInitDialog);
+		HANDLE_MSG(hDlg, WM_COMMAND, ira->OnCommand);
+		HANDLE_MSG(hDlg, WM_NCCREATE, ira->OnNCCreate);
+		HANDLE_MSG(hDlg, WM_NCDESTROY, ira->OnNCDestroy);
+		HANDLE_MSG(hDlg, WM_PAINT, ira->OnPaint);
+		HANDLE_MSG(hDlg, WM_ERASEBKGND, ira->OnEraseBkgnd);
+		HANDLE_MSG(hDlg, WM_MOUSEWHEEL, ira->OnMouseWheel);
+		HANDLE_MSG(hDlg, WM_LBUTTONUP, ira->OnLButtonUp);
+		HANDLE_MSG(hDlg, WM_KEYDOWN, ira->OnKeyDown);
+		HANDLE_MSG(hDlg, WM_CHAR, ira->OnChar);
+		HANDLE_MSG(hDlg, WM_DESTROY, ira->OnDestroy);
+		HANDLE_MSG(hDlg, WM_NOTIFY, ira->OnNotify);
+		HANDLE_MSG(hDlg, WM_TIMER, ira->OnTimer);
+		HANDLE_MSG(hDlg, WM_GETMINMAXINFO, ira->OnGetMinMaxInfo);
+		HANDLE_MSG(hDlg, WM_DRAWITEM, ira->OnDrawItem);
+		HANDLE_MSG(hDlg, WM_MEASUREITEM, ira->OnMeasureItem);
+		HANDLE_MSG(hDlg, WM_SIZE, ira->OnSize);
+	default:
+		return ira->DialogProc(hDlg, uMsg, wParam, lParam);
+	}
+
+	delete ira;
+}
+
+IRA_Dialog::~IRA_Dialog()
+{
+	OnDestroy(hwnd_parent);
+	FreeLibrary(instance);
+}
+
+
+
+BOOL IRA_Dialog::OnNCCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
+{
+	return 0;
+}
+
+void IRA_Dialog::OnNCDestroy(HWND hwnd)
+{
+}
+
+void IRA_Dialog::OnPaint(HWND hDlg)
+{
+}
+
+BOOL IRA_Dialog::OnEraseBkgnd(HWND hDlg, HDC hdc)
+{
+	return 0;
+}
+
+void IRA_Dialog::OnChar(HWND hDlg, TCHAR ch, int cRepeat)
+{
+}
+
+void IRA_Dialog::OnKeyDown(HWND hDlg, UINT vk, BOOL fDown, int cRepeat, UINT flags)
+{
+}
+
+void IRA_Dialog::OnLButtonUp(HWND hDlg, int x, int y, UINT keyFlags)
+{
+}
+
+void IRA_Dialog::OnMouseWheel(HWND hDlg, int xPos, int yPos, int zDelta, UINT fwKeys)
+{
+}
+
+void IRA_Dialog::OnDestroy(HWND hDlg)
+{
+	DestroyWindow(hDlg);
+}
+
+LRESULT IRA_Dialog::OnNotify(HWND hDlg, int idFrom, NMHDR * pnmhdr)
+{
+	return LRESULT();
+}
+
+void IRA_Dialog::OnTimer(HWND hDlg, UINT id)
+{
+}
+
+void IRA_Dialog::OnGetMinMaxInfo(HWND hDlg, LPMINMAXINFO lpMinMaxInfo)
+{
+}
+
+void IRA_Dialog::OnDrawItem(HWND hDlg, const DRAWITEMSTRUCT* lpDrawItem)
+{
+}
+
+void IRA_Dialog::OnMeasureItem(HWND hDlg, MEASUREITEMSTRUCT* lpMeasureItem)
+{
+}
+
+void IRA_Dialog::OnSize(HWND hDlg, UINT state, int cx, int cy)
+{
+}
+
+#pragma region Button Event Handlers
+void IRA_Dialog::OnClose(HWND hDlg)
+{
+	EndDialog(hDlg, IDCLOSE);
+}
+
+void IRA_Dialog::OnOK(HWND hDlg)
+{
+	EndDialog(hDlg, IDOK);
+}
+
+void IRA_Dialog::OnCancel(HWND hDlg)
+{
+	EndDialog(hDlg, IDCANCEL);
+}
+HWND IRA_Dialog::MakeControl(int ControlId, HWND hDlg)
+{
+	return GetDlgItem(hDlg, ControlId);
+}
+#pragma endregion
+

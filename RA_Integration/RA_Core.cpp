@@ -73,21 +73,21 @@ API const char* CCONV _RA_IntegrationVersion()
 API BOOL CCONV _RA_InitI(HWND hMainHWND, /*enum EmulatorID*/int nEmulatorID, const char* sClientVer)
 {
 	//	Ensure all required directories are created:
-	if( DirectoryExists( RA_DIR_BASE ) == FALSE )
-		_mkdir( RA_DIR_BASE );
-	if( DirectoryExists( RA_DIR_BADGE ) == FALSE )
-		_mkdir( RA_DIR_BADGE );
-	if( DirectoryExists( RA_DIR_DATA ) == FALSE )
-		_mkdir( RA_DIR_DATA );
-	if( DirectoryExists( RA_DIR_USERPIC ) == FALSE )
-		_mkdir( RA_DIR_USERPIC );
-	if( DirectoryExists( RA_DIR_OVERLAY ) == FALSE )	//	It should already, really...
-		_mkdir( RA_DIR_OVERLAY );
-	if ( DirectoryExists( RA_DIR_BOOKMARKS ) == FALSE )
-		_mkdir( RA_DIR_BOOKMARKS );
+	if (DirectoryExists(RA_DIR_BASE) == FALSE)
+		_mkdir(RA_DIR_BASE);
+	if (DirectoryExists(RA_DIR_BADGE) == FALSE)
+		_mkdir(RA_DIR_BADGE);
+	if (DirectoryExists(RA_DIR_DATA) == FALSE)
+		_mkdir(RA_DIR_DATA);
+	if (DirectoryExists(RA_DIR_USERPIC) == FALSE)
+		_mkdir(RA_DIR_USERPIC);
+	if (DirectoryExists(RA_DIR_OVERLAY) == FALSE)	//	It should already, really...
+		_mkdir(RA_DIR_OVERLAY);
+	if (DirectoryExists(RA_DIR_BOOKMARKS) == FALSE)
+		_mkdir(RA_DIR_BOOKMARKS);
 
 
-	g_EmulatorID = static_cast<EmulatorID>( nEmulatorID );
+	g_EmulatorID = static_cast<EmulatorID>(nEmulatorID);
 	g_RAMainWnd = hMainHWND;
 	//g_hThisDLLInst
 
@@ -245,17 +245,17 @@ API int CCONV _RA_Shutdown()
 	}
 
 	g_GameLibrary.KillThread();
-	
-	if ( g_RichPresenceDialog.GetHWND() != nullptr )
+
+	if (g_RichPresenceDialog.GetHWND() != nullptr)
 	{
 		DestroyWindow(g_RichPresenceDialog.GetHWND());
 		g_RichPresenceDialog.InstallHWND(nullptr);
 	}
 
-	if ( g_MemBookmarkDialog.GetHWND() != nullptr )
+	if (g_MemBookmarkDialog.GetHWND() != nullptr)
 	{
-		DestroyWindow( g_MemBookmarkDialog.GetHWND() );
-		g_MemBookmarkDialog.InstallHWND( nullptr );
+		DestroyWindow(g_MemBookmarkDialog.GetHWND());
+		g_MemBookmarkDialog.InstallHWND(nullptr);
 	}
 
 	CoUninitialize();
@@ -402,15 +402,15 @@ API int CCONV _RA_OnLoadNewRom(const BYTE* pROM, unsigned int nROMSize)
 		g_pLocalAchievements->Clear();
 	}
 
-	if ( !g_bHardcoreModeActive && g_bLeaderboardsActive )
+	if (!g_bHardcoreModeActive && g_bLeaderboardsActive)
 	{
 		g_PopupWindows.AchievementPopups().AddMessage(
-			MessagePopup( "Playing in Softcore Mode", "Leaderboard submissions will be canceled.", PopupInfo ) );
+			MessagePopup("Playing in Softcore Mode", "Leaderboard submissions will be canceled.", PopupInfo));
 	}
-	else if ( !g_bHardcoreModeActive )
+	else if (!g_bHardcoreModeActive)
 	{
 		g_PopupWindows.AchievementPopups().AddMessage(
-			MessagePopup( "Playing in Softcore Mode", "", PopupInfo ) );
+			MessagePopup("Playing in Softcore Mode", "", PopupInfo));
 	}
 
 	g_AchievementsDialog.OnLoad_NewRom(nGameID);
@@ -732,12 +732,12 @@ API HMENU CCONV _RA_CreatePopupMenu()
 		AppendMenu(hRA, g_bHardcoreModeActive ? MF_CHECKED : MF_UNCHECKED, IDM_RA_HARDCORE_MODE, TEXT("&Hardcore Mode"));
 		AppendMenu(hRA, MF_SEPARATOR, NULL, NULL);
 
-		AppendMenu( hRA, MF_POPUP, (UINT_PTR)hRA_LB, "Leaderboards" );
-		AppendMenu( hRA_LB, g_bLeaderboardsActive ? MF_CHECKED : MF_UNCHECKED, IDM_RA_TOGGLELEADERBOARDS, TEXT("Enable &Leaderboards"));
-		AppendMenu( hRA_LB, MF_SEPARATOR, NULL, NULL );
-		AppendMenu( hRA_LB, g_bLBDisplayNotification ? MF_CHECKED : MF_UNCHECKED, IDM_RA_TOGGLE_LB_NOTIFICATIONS, TEXT( "Display Challenge Notification" ) );
-		AppendMenu( hRA_LB, g_bLBDisplayCounter ? MF_CHECKED : MF_UNCHECKED, IDM_RA_TOGGLE_LB_COUNTER, TEXT( "Display Time/Score Counter" ) );
-		AppendMenu( hRA_LB, g_bLBDisplayScoreboard ? MF_CHECKED : MF_UNCHECKED, IDM_RA_TOGGLE_LB_SCOREBOARD, TEXT( "Display Rank Scoreboard" ) );
+		AppendMenu(hRA, MF_POPUP, (UINT_PTR)hRA_LB, "Leaderboards");
+		AppendMenu(hRA_LB, g_bLeaderboardsActive ? MF_CHECKED : MF_UNCHECKED, IDM_RA_TOGGLELEADERBOARDS, TEXT("Enable &Leaderboards"));
+		AppendMenu(hRA_LB, MF_SEPARATOR, NULL, NULL);
+		AppendMenu(hRA_LB, g_bLBDisplayNotification ? MF_CHECKED : MF_UNCHECKED, IDM_RA_TOGGLE_LB_NOTIFICATIONS, TEXT("Display Challenge Notification"));
+		AppendMenu(hRA_LB, g_bLBDisplayCounter ? MF_CHECKED : MF_UNCHECKED, IDM_RA_TOGGLE_LB_COUNTER, TEXT("Display Time/Score Counter"));
+		AppendMenu(hRA_LB, g_bLBDisplayScoreboard ? MF_CHECKED : MF_UNCHECKED, IDM_RA_TOGGLE_LB_SCOREBOARD, TEXT("Display Rank Scoreboard"));
 
 		AppendMenu(hRA, MF_SEPARATOR, NULL, NULL);
 		AppendMenu(hRA, MF_STRING, IDM_RA_FILES_ACHIEVEMENTS, TEXT("Achievement &Sets"));
@@ -888,26 +888,26 @@ API void CCONV _RA_LoadPreferences()
 		}
 		else
 		{
-			if ( doc.HasMember( "Username" ) )
-				RAUsers::LocalUser().SetUsername( doc[ "Username" ].GetString() );
-			if ( doc.HasMember( "Token" ) )
-				RAUsers::LocalUser().SetToken( doc[ "Token" ].GetString() );
-			if ( doc.HasMember( "Hardcore Active" ) )
-				g_bHardcoreModeActive = doc[ "Hardcore Active" ].GetBool();
+			if (doc.HasMember("Username"))
+				RAUsers::LocalUser().SetUsername(doc["Username"].GetString());
+			if (doc.HasMember("Token"))
+				RAUsers::LocalUser().SetToken(doc["Token"].GetString());
+			if (doc.HasMember("Hardcore Active"))
+				g_bHardcoreModeActive = doc["Hardcore Active"].GetBool();
 
-			if ( doc.HasMember( "Leaderboards Active" ) )
-				g_bLeaderboardsActive = doc[ "Leaderboards Active" ].GetBool();
-			if ( doc.HasMember( "Leaderboard Notification Display" ) )
-				g_bLBDisplayNotification = doc[ "Leaderboard Notification Display" ].GetBool();
-			if ( doc.HasMember( "Leaderboard Counter Display" ) )
-				g_bLBDisplayCounter = doc[ "Leaderboard Counter Display" ].GetBool();
-			if ( doc.HasMember( "Leaderboard Scoreboard Display" ) )
-				g_bLBDisplayScoreboard = doc[ "Leaderboard Scoreboard Display" ].GetBool();
+			if (doc.HasMember("Leaderboards Active"))
+				g_bLeaderboardsActive = doc["Leaderboards Active"].GetBool();
+			if (doc.HasMember("Leaderboard Notification Display"))
+				g_bLBDisplayNotification = doc["Leaderboard Notification Display"].GetBool();
+			if (doc.HasMember("Leaderboard Counter Display"))
+				g_bLBDisplayCounter = doc["Leaderboard Counter Display"].GetBool();
+			if (doc.HasMember("Leaderboard Scoreboard Display"))
+				g_bLBDisplayScoreboard = doc["Leaderboard Scoreboard Display"].GetBool();
 
-			if ( doc.HasMember( "Num Background Threads" ) )
-				g_nNumHTTPThreads = doc[ "Num Background Threads" ].GetUint();
-			if ( doc.HasMember( "ROM Directory" ) )
-				g_sROMDirLocation = doc[ "ROM Directory" ].GetString();
+			if (doc.HasMember("Num Background Threads"))
+				g_nNumHTTPThreads = doc["Num Background Threads"].GetUint();
+			if (doc.HasMember("ROM Directory"))
+				g_sROMDirLocation = doc["ROM Directory"].GetString();
 		}
 
 		fclose(pf);
@@ -939,15 +939,15 @@ API void CCONV _RA_SavePreferences()
 		doc.SetObject();
 
 		Document::AllocatorType& a = doc.GetAllocator();
-		doc.AddMember( "Username", StringRef( RAUsers::LocalUser().Username().c_str() ), a );
-		doc.AddMember( "Token", StringRef( RAUsers::LocalUser().Token().c_str() ), a );
-		doc.AddMember( "Hardcore Active", g_bHardcoreModeActive, a );
-		doc.AddMember( "Leaderboards Active", g_bLeaderboardsActive, a );
-		doc.AddMember( "Leaderboard Notification Display", g_bLBDisplayNotification, a );
-		doc.AddMember( "Leaderboard Counter Display", g_bLBDisplayCounter, a );
-		doc.AddMember( "Leaderboard Scoreboard Display", g_bLBDisplayScoreboard, a );
-		doc.AddMember( "Num Background Threads", g_nNumHTTPThreads, a );
-		doc.AddMember( "ROM Directory", StringRef( g_sROMDirLocation.c_str() ), a );
+		doc.AddMember("Username", StringRef(RAUsers::LocalUser().Username().c_str()), a);
+		doc.AddMember("Token", StringRef(RAUsers::LocalUser().Token().c_str()), a);
+		doc.AddMember("Hardcore Active", g_bHardcoreModeActive, a);
+		doc.AddMember("Leaderboards Active", g_bLeaderboardsActive, a);
+		doc.AddMember("Leaderboard Notification Display", g_bLBDisplayNotification, a);
+		doc.AddMember("Leaderboard Counter Display", g_bLBDisplayCounter, a);
+		doc.AddMember("Leaderboard Scoreboard Display", g_bLBDisplayScoreboard, a);
+		doc.AddMember("Num Background Threads", g_nNumHTTPThreads, a);
+		doc.AddMember("ROM Directory", StringRef(g_sROMDirLocation.c_str()), a);
 
 		doc.Accept(writer);	//	Save
 
@@ -1041,9 +1041,12 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 		break;
 
 	case IDM_RA_FILES_LOGIN:
-		RA_Dlg_Login::DoModalLogin();
+	{
+		RA_Dlg_Login myLogin;
+		myLogin.DoModal();
 		_RA_SavePreferences();
-		break;
+	}
+	break;
 
 	case IDM_RA_FILES_LOGOUT:
 		RAUsers::LocalUser().Clear();
@@ -1505,5 +1508,5 @@ BOOL RemoveFileIfExists(const std::string& sFilePath)
 
 BOOL CanCausePause()
 {
-	return ( _RA_CausePause != nullptr );
+	return (_RA_CausePause != nullptr);
 }

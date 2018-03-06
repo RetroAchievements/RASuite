@@ -203,6 +203,7 @@
     <ClCompile Include="RA_Condition.cpp" />
     <ClCompile Include="RA_Core.cpp" />
     <ClCompile Include="RA_Defs.cpp" />
+    <ClCompile Include="IRA_Dialog.cpp" />
     <ClCompile Include="RA_Dlg_AchEditor.cpp" />
     <ClCompile Include="RA_Dlg_Achievement.cpp" />
     <ClCompile Include="RA_Dlg_AchievementsReporter.cpp" />
@@ -236,6 +237,7 @@
     <ClInclude Include="RA_Condition.h" />
     <ClInclude Include="RA_Core.h" />
     <ClInclude Include="RA_Defs.h" />
+    <ClInclude Include="IRA_Dialog.h" />
     <ClInclude Include="RA_Dlg_AchEditor.h" />
     <ClInclude Include="RA_Dlg_Achievement.h" />
     <ClInclude Include="RA_Dlg_AchievementsReporter.h" />
