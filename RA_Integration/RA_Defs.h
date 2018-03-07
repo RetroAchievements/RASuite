@@ -1,17 +1,5 @@
 #pragma once
 
-#include <Windows.h>
-#include <WindowsX.h>
-#include <ShlObj.h>
-#include <tchar.h>
-#include <assert.h>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <queue>
-#include <deque>
-#include <map>
-
 #ifndef RA_EXPORTS
 
 //	Version Information is integrated into tags
@@ -62,14 +50,19 @@ extern GetParseErrorFunc GetJSONParseErrorStr;
 #define SIZEOF_ARRAY( ar )	( sizeof( ar ) / sizeof( ar[ 0 ] ) )
 #define SAFE_DELETE( x )	{ if( x != nullptr ) { delete x; x = nullptr; } }
 
-typedef unsigned char	BYTE;
-typedef unsigned long	DWORD;
-typedef int				BOOL;
-typedef DWORD			ARGB;
+#define var auto // .NET style for an auto var
+
+// These already exist
+//typedef unsigned char	BYTE;
+//typedef unsigned long	DWORD;
+//typedef int				BOOL;
+using ARGB = DWORD;
 
 //namespace RA
 //{
+	
 	template<typename T>
+	[[deprecated("The standard includes std::clamp which more or less does this")]]
 	static inline const T& RAClamp( const T& val, const T& lower, const T& upper )
 	{
 		return( val < lower ) ? lower : ( ( val > upper ) ? upper : val );
@@ -199,12 +192,15 @@ typedef DWORD			ARGB;
 		NumAchievementSetTypes
 	};
 	
-	typedef std::vector<BYTE> DataStream;
-	typedef unsigned long ByteAddress;
+	// You could do this instead
+	using DataStream = std::basic_string<BYTE>;
+	
+	
+	using ByteAddress = size_t;
 
-	typedef unsigned int AchievementID;
-	typedef unsigned int LeaderboardID;
-	typedef unsigned int GameID;
+	using AchievementID = size_t;
+	using LeaderboardID = size_t;
+	using GameID        = size_t;
 
 	char* DataStreamAsString( DataStream& stream );
 
@@ -212,7 +208,7 @@ typedef DWORD			ARGB;
 	extern void RADebugLog( const char* sFormat, ... );
 	extern BOOL DirectoryExists( const char* sPath );
 
-	const int SERVER_PING_DURATION = 2*60;
+	constexpr var SERVER_PING_DURATION{ 2 * 60 };
 //};
 //using namespace RA;
 	
@@ -242,7 +238,8 @@ extern std::wstring Widen(const std::wstring& wstr);
 extern std::string Narrow(const char* str);
 extern std::string Narrow(const std::string& wstr);
 
-typedef std::basic_string<TCHAR> tstring;
+using tstring = std::basic_string<TCHAR>;
+
 
 
 #ifdef UNICODE

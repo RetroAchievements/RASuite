@@ -1,6 +1,6 @@
 #pragma once
 
-#include <WTypes.h>
+
 
 class Dlg_RichPresence
 {

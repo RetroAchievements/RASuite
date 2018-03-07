@@ -1,40 +1,66 @@
+#include "common.h"
 #include "RA_Defs.h"
 
-#include <stdio.h>
-#include <Windows.h>
-#include <locale>
-#include <codecvt>
 
 GetParseErrorFunc GetJSONParseErrorStr = GetParseError_En;
+using namespace std;
 
-static_assert(sizeof(BYTE*) == sizeof(char*), "dangerous cast ahead");
+// static_assert(sizeof(BYTE*) == sizeof(char*), "dangerous cast ahead");
 char* DataStreamAsString(DataStream& stream)
 {
-	return reinterpret_cast<char*>(stream.data());
+	// could do this
+	ostringstream oss;
+	for ( auto& i : stream )
+	{
+		oss << i;
+	}
+	return oss.str().data();
 }
 
 std::string Narrow(const wchar_t* wstr)
 {
-	static std::wstring_convert< std::codecvt_utf8_utf16< wchar_t >, wchar_t > converter;
-	return converter.to_bytes(wstr);
+	// could do this
+	ostringstream oss;
+	wstring wstd_str{ wstr };
+	for ( auto& i : wstd_str )
+	{
+		oss << i;
+	}
+	return oss.str();
 }
 
 std::string Narrow(const std::wstring& wstr)
 {
-	static std::wstring_convert< std::codecvt_utf8_utf16< wchar_t >, wchar_t > converter;
-	return converter.to_bytes(wstr);
+	// could do this
+	ostringstream oss;
+	for ( auto& i : wstr )
+	{
+		oss << i;
+	}
+	return oss.str();
 }
 
 std::wstring Widen(const char* str)
 {
-	static std::wstring_convert< std::codecvt_utf8_utf16< wchar_t >, wchar_t > converter;
-	return converter.from_bytes(str);
+	// could do this
+	wostringstream oss;
+	string std_str{ str };
+	for ( auto& i : std_str )
+	{
+		oss << i;
+	}
+	return oss.str();
 }
 
 std::wstring Widen(const std::string& str)
 {
-	static std::wstring_convert< std::codecvt_utf8_utf16< wchar_t >, wchar_t > converter;
-	return converter.from_bytes(str);
+	// could do this
+	wostringstream oss;
+	for ( auto& i : str )
+	{
+		oss << i;
+	}
+	return oss.str();
 }
 
 std::wstring Widen(const wchar_t* wstr)

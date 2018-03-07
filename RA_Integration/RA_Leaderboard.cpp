@@ -1,10 +1,11 @@
+#include "common.h"
 #include "RA_Leaderboard.h"
 #include "RA_MemManager.h"
 #include "RA_PopupWindows.h"
 #include "RA_md5factory.h"
 #include "RA_httpthread.h"
 
-#include <time.h>
+
 
 RA_LeaderboardManager g_LeaderboardManager;
 
@@ -210,13 +211,14 @@ void ValueSet::Clear()
 }
 
 //////////////////////////////////////////////////////////////////////////
-RA_Leaderboard::RA_Leaderboard( const unsigned nLeaderboardID ) :
+RA_Leaderboard::RA_Leaderboard( const LeaderboardID nLeaderboardID ) :
 	m_nID( nLeaderboardID ),
 	m_bStarted( false ),
 	m_bSubmitted( false ),
 	m_format( Format_Value )
 {
 }
+
 
 RA_Leaderboard::~RA_Leaderboard()
 {

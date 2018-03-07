@@ -1,3 +1,4 @@
+#include "common.h"
 /*
   Copyright (C) 1999, 2000, 2002 Aladdin Enterprises.  All rights reserved.
 

@@ -1,9 +1,8 @@
 #pragma once
 
-#include <wtypes.h>
 #include "RA_AchievementOverlay.h"
-#include <vector>
-#include <queue>
+
+
 
 //	Graphic to display current leaderboard progress
 

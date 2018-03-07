@@ -1,10 +1,6 @@
+#include "common.h"
 #include "RA_md5factory.h"
 
-#include <string.h>
-#include <stdio.h>
-
-#include "md5.h"
-#include "RA_Defs.h"
 
 namespace
 {	

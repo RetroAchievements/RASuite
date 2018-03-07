@@ -1,7 +1,6 @@
 #pragma once
 
-#include <wincodec.h>
-#include <WTypes.h>
+
 
 #include "RA_Defs.h"
 

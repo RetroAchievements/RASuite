@@ -1,7 +1,6 @@
 #pragma once
 
-#include <wtypes.h>
-#include <vector>
+
 
 #include "RA_httpthread.h"
 #include "RA_Achievement.h"

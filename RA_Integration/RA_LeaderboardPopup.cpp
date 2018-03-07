@@ -1,7 +1,6 @@
+#include "common.h"
 #include "RA_LeaderboardPopup.h"
 
-#include <windows.h>
-#include <stdio.h>
 
 #include "RA_Achievement.h"
 #include "RA_AchievementOverlay.h"

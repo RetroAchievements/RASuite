@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+
 #include "RA_Condition.h"
 #include "RA_Defs.h"
 

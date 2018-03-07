@@ -1,6 +1,7 @@
+include "common.h"
 #include "RA_Interface.h"
 
-#include <WinHttp.h>
+
 
 
 

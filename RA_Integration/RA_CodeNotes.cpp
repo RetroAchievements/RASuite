@@ -1,6 +1,6 @@
+#include "common.h"
 #include "RA_CodeNotes.h"
 
-#include <Windows.h>
 
 #include "RA_Core.h"
 #include "RA_httpthread.h"
