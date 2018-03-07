@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="IRA_Dialog.cpp">
-      <Filter>Source\Interfaces</Filter>
-    </ClCompile>
     <ClCompile Include="RA_Dlg_RomChecksum.cpp">
       <Filter>Source\Dialogs</Filter>
     </ClCompile>
@@ -100,11 +97,14 @@
     <ClCompile Include="common.cpp">
       <Filter>Source\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="IWindowClass.cpp">
+      <Filter>Source\Dialogs\Bases</Filter>
+    </ClCompile>
+    <ClCompile Include="IRA_Dialog.cpp">
+      <Filter>Source\Dialogs\Bases</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="IRA_Dialog.h">
-      <Filter>Headers\Interfaces</Filter>
-    </ClInclude>
     <ClInclude Include="md5.h">
       <Filter>Headers\Auxiliary</Filter>
     </ClInclude>
@@ -174,35 +174,41 @@
     <ClInclude Include="common.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="RA_Dlg_RichPresence.h">
-      <Filter>Headers\Dialogs\Controllers</Filter>
-    </ClInclude>
     <ClInclude Include="RA_Dlg_RomChecksum.h">
-      <Filter>Headers\Dialogs\Controllers</Filter>
+      <Filter>Headers\Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="RA_Dlg_AchEditor.h">
-      <Filter>Headers\Dialogs\Controllers</Filter>
+      <Filter>Headers\Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="RA_Dlg_Achievement.h">
-      <Filter>Headers\Dialogs\Controllers</Filter>
+      <Filter>Headers\Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="RA_Dlg_AchievementsReporter.h">
-      <Filter>Headers\Dialogs\Controllers</Filter>
+      <Filter>Headers\Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="RA_Dlg_GameLibrary.h">
-      <Filter>Headers\Dialogs\Controllers</Filter>
+      <Filter>Headers\Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="RA_Dlg_GameTitle.h">
-      <Filter>Headers\Dialogs\Controllers</Filter>
+      <Filter>Headers\Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="RA_Dlg_Login.h">
-      <Filter>Headers\Dialogs\Controllers</Filter>
+      <Filter>Headers\Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="RA_Dlg_MemBookmark.h">
-      <Filter>Headers\Dialogs\Controllers</Filter>
+      <Filter>Headers\Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="RA_Dlg_Memory.h">
-      <Filter>Headers\Dialogs\Controllers</Filter>
+      <Filter>Headers\Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="RA_Dlg_RichPresence.h">
+      <Filter>Headers\Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="IRA_Dialog.h">
+      <Filter>Headers\Dialogs\Bases</Filter>
+    </ClInclude>
+    <ClInclude Include="IWindowClass.h">
+      <Filter>Headers\Dialogs\Bases</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -217,9 +223,6 @@
     </Filter>
     <Filter Include="Source\Interfaces">
       <UniqueIdentifier>{50a806cf-214c-4365-a850-2b1ce7c39316}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Headers\Interfaces">
-      <UniqueIdentifier>{b60be05e-8483-4ad0-94ef-af5096da93d3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Dialogs">
       <UniqueIdentifier>{50beddfb-16cc-48c1-8e46-9ca988dadc7b}</UniqueIdentifier>
@@ -245,11 +248,11 @@
     <Filter Include="Headers\Business Logic">
       <UniqueIdentifier>{6d5b622b-2ea1-4a66-862c-0d3ea72d95cf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Headers\Dialogs\Controllers">
-      <UniqueIdentifier>{d8fa57cd-db20-4b2a-a94e-2dc814f5c8b2}</UniqueIdentifier>
+    <Filter Include="Headers\Dialogs\Bases">
+      <UniqueIdentifier>{87fcc908-d0e3-40d3-986f-426ba1d2b504}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Headers\Dialogs\ViewModels">
-      <UniqueIdentifier>{ac44b1b4-a30d-465a-9cf6-ee5c458df127}</UniqueIdentifier>
+    <Filter Include="Source\Dialogs\Bases">
+      <UniqueIdentifier>{656ae874-48a9-4afd-9062-4aaf60ee39eb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

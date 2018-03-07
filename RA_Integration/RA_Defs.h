@@ -4,18 +4,18 @@
 
 //	Version Information is integrated into tags
 
+// Emulators don't use the pch
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <string>
+
+
 #else
 
 //NB. These must NOT be accessible from the emulator!
 //#define RA_INTEGRATION_VERSION	"0.053"
 
 //	RA-Only
-#include "rapidjson/include/rapidjson/document.h"
-#include "rapidjson/include/rapidjson/reader.h"
-#include "rapidjson/include/rapidjson/writer.h"
-#include "rapidjson/include/rapidjson/filestream.h"
-#include "rapidjson/include/rapidjson/stringbuffer.h"
-#include "rapidjson/include/rapidjson/error/en.h"
 using namespace rapidjson;
 extern GetParseErrorFunc GetJSONParseErrorStr;
 
@@ -50,7 +50,7 @@ extern GetParseErrorFunc GetJSONParseErrorStr;
 #define SIZEOF_ARRAY( ar )	( sizeof( ar ) / sizeof( ar[ 0 ] ) )
 #define SAFE_DELETE( x )	{ if( x != nullptr ) { delete x; x = nullptr; } }
 
-#define var auto // .NET style for an auto var
+
 
 // These already exist
 //typedef unsigned char	BYTE;
@@ -208,7 +208,7 @@ using ARGB = DWORD;
 	extern void RADebugLog( const char* sFormat, ... );
 	extern BOOL DirectoryExists( const char* sPath );
 
-	constexpr var SERVER_PING_DURATION{ 2 * 60 };
+	constexpr int SERVER_PING_DURATION{ 2 * 60 };
 //};
 //using namespace RA;
 	

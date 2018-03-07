@@ -1,7 +1,6 @@
 #include "common.h"
 #include "RA_Defs.h"
 
-
 GetParseErrorFunc GetJSONParseErrorStr = GetParseError_En;
 using namespace std;
 

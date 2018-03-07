@@ -1,5 +1,5 @@
 #pragma once
-
+#include "RA_Defs.h"
 
 
 class GameEntry

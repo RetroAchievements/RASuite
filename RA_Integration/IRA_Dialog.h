@@ -3,7 +3,7 @@
 #pragma once
 
 
-#include "RA_Core.h"
+
 
 /// <summary>
 ///		Base class for all RA Dialogs.
@@ -19,11 +19,7 @@
 class IRA_Dialog
 {
 public:
-	IRA_Dialog(int resId, HWND parent = g_RAMainWnd) :
-		ResourceId{ resId },
-		hwnd_parent{ parent }
-	{
-	}
+	IRA_Dialog(int resId, HWND parent = nullptr);
 
 	/// <summary>
 	/// A modal pops up
@@ -34,6 +30,11 @@ public:
 	///		extra functionality for this function.
 	/// </remarks>
 	virtual INT_PTR DoModal( );
+
+	// Like DoModal but for modeless
+	// From what we could tell it's always the same
+	virtual HWND Create(); // CreateDialog
+
 	static INT_PTR CALLBACK MsgQueue(HWND hDlg, UINT uMsg, WPARAM wParam, 
 		LPARAM lParam);
 	virtual INT_PTR CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, 
@@ -123,13 +124,14 @@ public:
 	virtual void OnCancel(HWND hDlg);
 
 	// The HWND is usually the main but could be different
-	virtual HWND MakeControl(int ControlId, HWND hDlg = g_RAMainWnd);
+	virtual HWND MakeControl(int ControlId, HWND hDlg = nullptr);
 protected:
 	// These vars are here to prevent mishaps
 	HWND hDlg{ nullptr };
 	HWND hwnd_parent{ nullptr };
 	HINSTANCE instance{ nullptr };
 	int ResourceId{ 0 };
+	std::string ResourceName{ "" };
 	DLGPROC DlgProc{ nullptr };
 };
 
