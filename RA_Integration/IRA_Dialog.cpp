@@ -1,26 +1,11 @@
 #include "common.h"
 
 #include "IRA_Dialog.h"
-#include "RA_Core.h"
 
-IRA_Dialog::IRA_Dialog(int resId, HWND parent) :
-	ResourceId{resId},
-	instance{g_hThisDLLInst},
-	ResourceName{MAKEINTRESOURCE(resId)}
-{
-	if ( !parent )
-		parent = g_RAMainWnd;
-}
 
 INT_PTR IRA_Dialog::DoModal()
 {
-	return DialogBox(instance, ResourceName.data(), hwnd_parent, DlgProc);
-}
-
-HWND IRA_Dialog::Create()
-{
-	hDlg = CreateDialog(instance, ResourceName.data(), hwnd_parent, DlgProc);
-	return hDlg;
+	return DialogBox(instance, MAKEINTRESOURCE(ResourceId), hwnd_parent, DlgProc);
 }
 
 INT_PTR IRA_Dialog::MsgQueue(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -56,7 +41,6 @@ INT_PTR IRA_Dialog::MsgQueue(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 IRA_Dialog::~IRA_Dialog()
 {
-	OnClose(hDlg);
 	OnClose(hwnd_parent);
 	FreeLibrary(instance);
 }
@@ -65,8 +49,7 @@ IRA_Dialog::~IRA_Dialog()
 // See HANDLE_WM_NCCREATE in WindowsX.h
 BOOL IRA_Dialog::OnNCCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
-	return SetWindowLongPtr(hwnd, GWL_USERDATA, 
-		reinterpret_cast<LONG_PTR>(lpCreateStruct->lpCreateParams));
+	return 0;
 }
 
 void IRA_Dialog::OnNCDestroy(HWND hwnd)
@@ -148,13 +131,7 @@ void IRA_Dialog::OnDestroy(HWND hDlg)
 
 LRESULT IRA_Dialog::OnNotify(HWND hDlg, int idFrom, NMHDR * pnmhdr)
 {
-	// template stuff
-	switch ( pnmhdr->code )
-	{
-	default:
-		break;
-	}
-	return 0;
+	return LRESULT();
 }
 
 void IRA_Dialog::OnTimer(HWND hDlg, UINT id)
@@ -194,8 +171,6 @@ void IRA_Dialog::OnCancel(HWND hDlg)
 }
 HWND IRA_Dialog::MakeControl(int ControlId, HWND hDlg)
 {
-	if ( !hDlg )
-		hDlg = hwnd_parent;
 	return GetDlgItem(hDlg, ControlId);
 }
 #pragma endregion

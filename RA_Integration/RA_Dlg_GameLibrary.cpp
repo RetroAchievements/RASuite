@@ -1,6 +1,7 @@
 #include "common.h"
 #include "RA_Dlg_GameLibrary.h"
 
+
 #include "RA_Core.h"
 #include "RA_Resource.h"
 #include "RA_User.h"

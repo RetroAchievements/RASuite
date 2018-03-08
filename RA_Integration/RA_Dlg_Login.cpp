@@ -17,8 +17,8 @@ RA_Dlg_Login::RA_Dlg_Login() :
 
 RA_Dlg_Login::~RA_Dlg_Login() noexcept
 {
-	OnClose(UsernameCtl);
-	OnClose(PassCtl);
+	OnDestroy(UsernameCtl);
+	OnDestroy(PassCtl);
 }
 
 

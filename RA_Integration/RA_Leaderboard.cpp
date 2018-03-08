@@ -491,7 +491,7 @@ void RA_Leaderboard::Test()
 	}
 	else
 	{
-		if( bCancelOK )
+ 		if( bCancelOK )
 		{
 			m_bStarted = false;
 			g_PopupWindows.LeaderboardPopups().Deactivate( m_nID );

@@ -12,7 +12,7 @@
 // Commented out stuff here is included in Windows.h
 #include <Windows.h>
 #include <commctrl.h>
-#include <commdlg.h>
+// #include <commdlg.h>
 #include <ddraw.h>
 #include <direct.h>
 #include <io.h> //	_access()
@@ -57,26 +57,7 @@
 #include "md5.h"
 
 // Rarely changed project files
-// putting RA_Defs in here is causing problems but most of the warnings come from rapidjson
-#ifndef RA_EXPORTS
-
-//	Version Information is integrated into tags
-
-#else
-
-//NB. These must NOT be accessible from the emulator!
-//#define RA_INTEGRATION_VERSION	"0.053"
-
-//	RA-Only
-#include "rapidjson/include/rapidjson/document.h"
-#include "rapidjson/include/rapidjson/reader.h"
-#include "rapidjson/include/rapidjson/writer.h"
-#include "rapidjson/include/rapidjson/filestream.h"
-#include "rapidjson/include/rapidjson/stringbuffer.h"
-#include "rapidjson/include/rapidjson/error/en.h"
-#endif	//RA_EXPORTS
-
-
+#include "RA_Defs.h"
 #include "RA_Resource.h"
 
 #pragma warning(pop)
