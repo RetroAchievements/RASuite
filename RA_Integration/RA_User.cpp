@@ -1,4 +1,3 @@
-#include "common.h"
 #include "RA_User.h"
 
 #include "RA_Achievement.h"
@@ -171,7 +170,7 @@ void LocalRAUser::ProcessSuccessfulLogin( const std::string& sUser, const std::s
 	//	Used only for persistence: always store in memory (we need it!)
 	SetStoreToken( bRememberLogin );
 
-	m_aFriends.clear();
+ 	m_aFriends.clear();
 
 	LoadOrFetchUserImage();
 	RequestFriendList();

@@ -1,4 +1,3 @@
-#include "common.h"
 #include "RA_GameData.h"
 
 GameData* g_pCurrentGameData = new GameData();

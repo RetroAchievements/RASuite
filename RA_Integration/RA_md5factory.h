@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "RA_Defs.h"
 
 extern std::string RAGenerateMD5( const std::string& sStringToMD5 );

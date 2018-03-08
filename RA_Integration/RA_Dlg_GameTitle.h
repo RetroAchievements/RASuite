@@ -1,6 +1,9 @@
 #pragma once
 
+#include <wtypes.h>
+#include <map>
 
+#include "RA_Defs.h"
 
 class Dlg_GameTitle
 {

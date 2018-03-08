@@ -1,4 +1,3 @@
-#include "common.h"
 #include "RA_Core.h"
 
 #include "RA_Achievement.h"
@@ -30,7 +29,10 @@
 #include "RA_Dlg_RomChecksum.h"
 #include "RA_Dlg_MemBookmark.h"
 
-	
+#include <locale>
+#include <codecvt>
+#include <direct.h>
+#include <io.h>		//	_access()
 
 
 std::string g_sKnownRAVersion;

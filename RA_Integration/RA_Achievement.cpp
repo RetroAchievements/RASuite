@@ -1,11 +1,18 @@
-#include "common.h"
 #include "RA_Achievement.h"
 
+#include <windows.h>
+#include <commctrl.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <memory.h>
+#include <assert.h>
+#include <io.h>
+#include <sstream>
 
 #include "RA_Dlg_Achievement.h"
 #include "RA_Dlg_GameTitle.h"
 
-
+#include "md5.h"
 #include "RA_md5factory.h"
 
 #include "RA_MemManager.h"

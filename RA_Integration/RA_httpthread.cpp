@@ -1,4 +1,3 @@
-#include "common.h"
 #include "RA_httpthread.h"
 
 #include "RA_Defs.h"
@@ -10,7 +9,10 @@
 #include "RA_GameData.h"
 #include "RA_RichPresence.h"
 
-
+#include <winhttp.h>
+#include <fstream>
+#include <time.h>
+#include <algorithm>	//	std::replace
 
 
 const char* RequestTypeToString[] = 

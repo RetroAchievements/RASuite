@@ -2,7 +2,8 @@
 
 #include "RA_Achievement.h"
 
-
+#include <wtypes.h>
+#include <assert.h>
 
 const int MAX_TEXT_ITEM_SIZE = 80;
 
@@ -18,7 +19,7 @@ public:
 	{
 		ID,
 		Title,
-	Points,
+    Points,
 		Author,
 		Achieved,
 		Active=Achieved,
@@ -56,7 +57,7 @@ private:
 	void RemoveAchievement( HWND hList, int nIter );
 	size_t AddAchievement( HWND hList, const Achievement& Ach );
 
-	INT_PTR CommitAchievements( HWND hDlg );
+	INT_PTR Dlg_Achievements::CommitAchievements( HWND hDlg );
 
 	void UpdateSelectedAchievementButtons(const Achievement* Cheevo);
 

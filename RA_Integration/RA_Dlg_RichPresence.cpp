@@ -1,7 +1,7 @@
-#include "common.h"
 #include "RA_Dlg_RichPresence.h"
 
 #include "RA_Core.h"
+#include "RA_Resource.h"
 #include "RA_RichPresence.h"
 
 Dlg_RichPresence g_RichPresenceDialog;

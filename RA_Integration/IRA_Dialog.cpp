@@ -1,4 +1,6 @@
-#include "common.h"
+#include <Windows.h>
+#include <WindowsX.h>
+#include <CommCtrl.h>
 
 #include "IRA_Dialog.h"
 
@@ -37,16 +39,18 @@ INT_PTR IRA_Dialog::MsgQueue(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	default:
 		return ira->DialogProc(hDlg, uMsg, wParam, lParam);
 	}
+
+	delete ira;
 }
 
 IRA_Dialog::~IRA_Dialog()
 {
-	OnClose(hwnd_parent);
+	OnDestroy(hwnd_parent);
 	FreeLibrary(instance);
 }
 
-// HANDLE_WM_NCCREATE
-// See HANDLE_WM_NCCREATE in WindowsX.h
+
+
 BOOL IRA_Dialog::OnNCCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
 	return 0;
@@ -69,51 +73,8 @@ void IRA_Dialog::OnChar(HWND hDlg, TCHAR ch, int cRepeat)
 {
 }
 
-// mainly for templating
 void IRA_Dialog::OnKeyDown(HWND hDlg, UINT vk, BOOL fDown, int cRepeat, UINT flags)
 {
-	if ( fDown != TRUE )
-		throw std::invalid_argument{ "Key is not down" };
-
-	switch ( vk )
-	{
-	case VK_ACCEPT:
-	case VK_LBUTTON:
-	case VK_RBUTTON:
-	case VK_CANCEL:
-	case VK_MBUTTON:
-	case VK_XBUTTON1:
-	case VK_XBUTTON2:
-	case VK_BACK:
-	case VK_TAB:
-	case VK_CLEAR:
-	case VK_RETURN:
-	case VK_SHIFT:
-	case VK_CONTROL:
-	case VK_MENU:
-	case VK_PAUSE:
-	case VK_CAPITAL:
-	case VK_FINAL:
-	case VK_ESCAPE:
-	case VK_SPACE:
-	case VK_PRIOR:
-	case VK_NEXT:
-	case VK_END:
-	case VK_HOME:
-	case VK_LEFT:
-	case VK_UP:
-	case VK_RIGHT:
-	case VK_DOWN:
-	case VK_SELECT:
-	case VK_PRINT:
-	case VK_EXECUTE:
-	case VK_SNAPSHOT:
-	case VK_INSERT:
-	case VK_DELETE:
-	case VK_HELP:
-	default:
-		break;
-	}
 }
 
 void IRA_Dialog::OnLButtonUp(HWND hDlg, int x, int y, UINT keyFlags)
@@ -126,7 +87,7 @@ void IRA_Dialog::OnMouseWheel(HWND hDlg, int xPos, int yPos, int zDelta, UINT fw
 
 void IRA_Dialog::OnDestroy(HWND hDlg)
 {
-	PostQuitMessage(EXIT_SUCCESS);
+	DestroyWindow(hDlg);
 }
 
 LRESULT IRA_Dialog::OnNotify(HWND hDlg, int idFrom, NMHDR * pnmhdr)

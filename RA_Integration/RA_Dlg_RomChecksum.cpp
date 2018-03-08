@@ -1,7 +1,6 @@
-#include "common.h"
 #include "RA_Dlg_RomChecksum.h"
 
-
+#include "RA_Resource.h"
 #include "RA_Core.h"
 
 RA_Dlg_RomChecksum::RA_Dlg_RomChecksum() :

@@ -1,6 +1,10 @@
-#include "common.h"
 #include "RA_Dlg_GameTitle.h"
 
+//#include <windowsx.h>
+//#include <stdio.h>
+//#include <sstream>
+
+#include "RA_Defs.h"
 #include "RA_Core.h"
 #include "RA_Resource.h"
 #include "RA_User.h"

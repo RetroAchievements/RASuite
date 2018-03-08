@@ -1,4 +1,3 @@
-#include "common.h"
 #include "RA_MemManager.h"
 
 #include "RA_Core.h"

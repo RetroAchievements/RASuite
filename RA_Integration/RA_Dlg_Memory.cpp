@@ -1,4 +1,3 @@
-#include "common.h"
 #include "RA_Dlg_Memory.h"
 
 #include "RA_Achievement.h"
@@ -32,8 +31,6 @@ namespace
 		{ "GREATER THAN/EQUAL" },
 		{ "NOT EQUAL" } };
 }
-
-using namespace std;
 
 Dlg_Memory g_MemoryDialog;
 
@@ -894,8 +891,7 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 			{
 				Col.iOrder = i;
 				Col.iSubItem = i;
-				// There was an error here about conversions
-				Col.pszText = string{ "Search Result" }.data();
+				Col.pszText = _T( "Search Result" );
 				Col.cx = rc.right - rc.left - 24;
 				ListView_InsertColumn( GetDlgItem( hDlg, IDC_RA_MEM_LIST ), i, &Col );
 			}

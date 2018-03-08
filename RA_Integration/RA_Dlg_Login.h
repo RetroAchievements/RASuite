@@ -2,8 +2,9 @@
 #define RA_DLG_LOGIN_H
 #pragma once
 
-
+#include <wtypes.h>
 #include "IRA_Dialog.h"
+
 
 class RA_Dlg_Login : public IRA_Dialog
 {

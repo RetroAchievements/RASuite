@@ -1,9 +1,9 @@
-#include "common.h"
 #include <wincodec.h>
 #include <WTypes.h>
 #include <windows.h>
 #include <windowsx.h>
-
+#include <commdlg.h>
+#include <stdio.h>
 
 #include "RA_Defs.h"
 #include "RA_Core.h"

@@ -1,4 +1,3 @@
-#include "common.h"
 #include "RA_PopupWindows.h"
 
 PopupWindows g_PopupWindows;

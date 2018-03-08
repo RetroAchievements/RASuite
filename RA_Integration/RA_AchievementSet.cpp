@@ -1,5 +1,4 @@
-#include "common.h"
-//#pragma once // why is this here?
+#pragma once
 
 #include "RA_AchievementSet.h"
 #include "RA_Core.h"
@@ -177,13 +176,13 @@ void AchievementSet::Test()
 			//	Reverse find where I am in the list:
 			unsigned int nOffset = 0;
 			for( nOffset = 0; nOffset < g_pActiveAchievements->NumAchievements(); ++nOffset )
-			{
-				if( &ach == &g_pActiveAchievements->GetAchievement( nOffset ) )
-					break;
-			}
+ 			{
+ 				if( &ach == &g_pActiveAchievements->GetAchievement( nOffset ) )
+ 					break;
+ 			}
 
-			ASSERT( nOffset < NumAchievements() );
-			if( nOffset < NumAchievements() )
+ 			ASSERT( nOffset < NumAchievements() );
+ 			if( nOffset < NumAchievements() )
 			{
 				g_AchievementsDialog.ReloadLBXData( nOffset );
 

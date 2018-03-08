@@ -1,5 +1,5 @@
 #pragma once
-
+#include <vector>
 #include "RA_Defs.h"
 #include "RA_Condition.h"
 
@@ -91,7 +91,7 @@ public:
 	void Clear();
 
 	//	Helper: tbd; refactor *into* RA_Formattable
-	static std::string FormatScore( FormatType nType, int nScoreIn );
+	static std::string RA_Leaderboard::FormatScore( FormatType nType, int nScoreIn );
 	std::string FormatScore( int nScoreIn ) const;
 	void Reset();
 

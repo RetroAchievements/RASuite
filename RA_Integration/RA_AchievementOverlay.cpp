@@ -1,4 +1,3 @@
-#include "common.h"
 #include "RA_AchievementOverlay.h"
 
 #include "RA_Interface.h"
@@ -13,7 +12,7 @@
 #include "RA_Leaderboard.h"
 #include "RA_GameData.h"
 
-
+#include <time.h>
 
 namespace
 {

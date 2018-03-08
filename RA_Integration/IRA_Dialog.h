@@ -2,7 +2,7 @@
 #define RA_DIALOG_H
 #pragma once
 
-
+#include <wtypes.h>
 #include "RA_Core.h"
 
 /// <summary>
@@ -45,54 +45,12 @@ public:
 	virtual BOOL OnInitDialog(HWND hDlg, HWND hDlgFocus, LPARAM lParam) = 0;
 	virtual void OnCommand(HWND hDlg, int id, HWND hDlgCtl, 
 		UINT codeNotify) = 0;
-
-	/// <summary>
-	/// Closes a dialog.
-	/// NB: If the dialog is not a modal use DestroyWindow
-	/// </summary>
-	/// <param name="hDlg"></param>
-	virtual void OnClose(HWND hDlg);
-
-	/// <summary>
-	/// Called when <c>WM_NCCREATE</c> is posted.
-	/// </summary>
-	/// <param name="hwnd">
-	/// The handle to a window, for us it's invisible.
-	/// </param>
-	/// <param name="lpCreateStruct">
-	/// The initial parameters used to initilize the window, maps to
-	/// <c>lParam</c> in DialogProc.
-	/// </param>
-	/// <returns></returns>
+	void OnClose(HWND hDlg);
 	BOOL OnNCCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
-
 	void OnNCDestroy(HWND hwnd);
 	virtual void OnPaint(HWND hDlg);
 	virtual BOOL OnEraseBkgnd(HWND hDlg, HDC hdc);
 	virtual void OnChar(HWND hDlg, TCHAR ch, int cRepeat);
-
-	// Doesn't do anything here unless there's a repetivitve pattern
-	// Mainly a template
-	// HANDLE_WM_KEYDOWN
-	/// <summary>
-	/// Posted to the window with the keyboard focus when a nonsystem key is
-	/// pressed. A nonsystem key is a key that is pressed when the ALT key is
-	/// not pressed.
-	/// </summary>
-	/// <seealso cref="HANDLE_WM_KEYDOWN" />
-	/// <param name="hDlg">Handle to the dialog</param>
-	/// <param name="vk">
-	/// Virtual KeyCode, maps to <c>wParam</c> of the <see cref="DialogProc" />.
-	/// </param>
-	/// <param name="fDown">Always <c>TRUE</c>.</param>
-	/// <param name="cRepeat">
-	/// Amount of times a keycode should repeat. Maps to the <c>LOWORD</c>
-	/// portion of <c>lParam</c> in <see cref="DialogProc" />.
-	/// </param>
-	/// <param name="flags">
-	/// Can include previous key-state or transition flags. Maps to the
-	/// <c>HIWORD</c> portion of <c>lParam</c> in <see cref="DialogProc" />.
-	/// </param>
 	virtual void OnKeyDown(HWND hDlg, UINT vk, BOOL fDown, int cRepeat, 
 		UINT flags);
 	virtual void OnLButtonUp(HWND hDlg, int x, int y, UINT keyFlags);
@@ -125,12 +83,10 @@ public:
 	// The HWND is usually the main but could be different
 	virtual HWND MakeControl(int ControlId, HWND hDlg = g_RAMainWnd);
 protected:
-	// These vars are here to prevent mishaps
-	HWND hDlg{ nullptr };
 	HWND hwnd_parent{ nullptr };
-	HINSTANCE instance{ nullptr };
+	HINSTANCE instance{ g_hThisDLLInst };
 	int ResourceId{ 0 };
-	DLGPROC DlgProc{ nullptr };
+	DLGPROC DlgProc{ MsgQueue };
 };
 
 #endif // !RA_Dialog_H
