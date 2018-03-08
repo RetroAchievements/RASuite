@@ -11,18 +11,12 @@ class RA_Dlg_Login : public IRA_Dialog
 	/*static INT_PTR CALLBACK RA_Dlg_LoginProc( HWND, UINT, WPARAM, LPARAM );*/
 public:
 	RA_Dlg_Login();
-	~RA_Dlg_Login() noexcept;
+	~RA_Dlg_Login() noexcept = default;
 
 	// Inherited via IRA_Dialog
 	virtual INT_PTR CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, 
 		LPARAM lParam) override;
-	virtual BOOL OnInitDialog(HWND hDlg, HWND hDlgFocus, 
-		LPARAM lParam) override;
-	virtual void OnCommand(HWND hDlg, int id, HWND hDlgCtl, 
-		UINT codeNotify) override;
+	BOOL OnInitDialog(HWND hDlg, HWND hDlgFocus, LPARAM lParam) override;
+	void OnCommand(HWND hDlg, int id, HWND hDlgCtl,	UINT codeNotify) override;
 	void OnOK(HWND hDlg) override;
-private:
-	int ResId{ IDD_RA_LOGIN };
-	HWND UsernameCtl{ nullptr };
-	HWND PassCtl{ nullptr };
 };

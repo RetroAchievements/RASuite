@@ -22,12 +22,15 @@
 //#define RA_INTEGRATION_VERSION	"0.053"
 
 //	RA-Only
+#pragma warning(push, 1)
 #include "rapidjson/include/rapidjson/document.h"
 #include "rapidjson/include/rapidjson/reader.h"
 #include "rapidjson/include/rapidjson/writer.h"
 #include "rapidjson/include/rapidjson/filestream.h"
 #include "rapidjson/include/rapidjson/stringbuffer.h"
 #include "rapidjson/include/rapidjson/error/en.h"
+#pragma warning(pop)
+
 using namespace rapidjson;
 extern GetParseErrorFunc GetJSONParseErrorStr;
 
@@ -69,153 +72,153 @@ typedef DWORD			ARGB;
 
 //namespace RA
 //{
-	template<typename T>
-	static inline const T& RAClamp( const T& val, const T& lower, const T& upper )
+template<typename T>
+static inline const T& RAClamp(const T& val, const T& lower, const T& upper)
+{
+	return(val < lower) ? lower : ((val > upper) ? upper : val);
+}
+
+class RARect : public RECT
+{
+public:
+	RARect() {}
+	RARect(LONG nX, LONG nY, LONG nW, LONG nH)
 	{
-		return( val < lower ) ? lower : ( ( val > upper ) ? upper : val );
+		left = nX;
+		right = nX + nW;
+		top = nY;
+		bottom = nY + nH;
 	}
-	
-	class RARect : public RECT
+
+public:
+	inline int Width() const { return(right - left); }
+	inline int Height() const { return(bottom - top); }
+};
+
+class RASize
+{
+public:
+	RASize() : m_nWidth(0), m_nHeight(0) {}
+	RASize(const RASize& rhs) : m_nWidth(rhs.m_nWidth), m_nHeight(rhs.m_nHeight) {}
+	RASize(int nW, int nH) : m_nWidth(nW), m_nHeight(nH) {}
+
+public:
+	inline int Width() const { return m_nWidth; }
+	inline int Height() const { return m_nHeight; }
+	inline void SetWidth(int nW) { m_nWidth = nW; }
+	inline void SetHeight(int nH) { m_nHeight = nH; }
+
+private:
+	int m_nWidth;
+	int m_nHeight;
+};
+
+const RASize RA_BADGE_PX(64, 64);
+const RASize RA_USERPIC_PX(64, 64);
+
+class ResizeContent
+{
+public:
+	enum AlignType
 	{
-	public:
-		RARect() {}
-		RARect( LONG nX, LONG nY, LONG nW, LONG nH )
+		NO_ALIGN,
+		ALIGN_RIGHT,
+		ALIGN_BOTTOM,
+		ALIGN_BOTTOM_RIGHT
+	};
+
+public:
+	HWND hwnd;
+	POINT pLT;
+	POINT pRB;
+	AlignType nAlignType;
+	int nDistanceX;
+	int nDistanceY;
+	bool bResize;
+
+	ResizeContent(HWND parentHwnd, HWND contentHwnd, AlignType newAlignType, bool isResize)
+	{
+		hwnd = contentHwnd;
+		nAlignType = newAlignType;
+		bResize = isResize;
+
+		RARect rect;
+		GetWindowRect(hwnd, &rect);
+
+		pLT.x = rect.left;	pLT.y = rect.top;
+		pRB.x = rect.right; pRB.y = rect.bottom;
+
+		ScreenToClient(parentHwnd, &pLT);
+		ScreenToClient(parentHwnd, &pRB);
+
+		GetWindowRect(parentHwnd, &rect);
+		nDistanceX = rect.Width() - pLT.x;
+		nDistanceY = rect.Height() - pLT.y;
+
+		if ( bResize )
 		{
-			left = nX;
-			right = nX + nW;
-			top = nY;
-			bottom = nY + nH;
+			nDistanceX -= (pRB.x - pLT.x);
+			nDistanceY -= (pRB.y - pLT.y);
+		}
+	}
+
+	void Resize(int width, int height)
+	{
+		int xPos, yPos;
+
+		switch ( nAlignType )
+		{
+		case ResizeContent::ALIGN_RIGHT:
+			xPos = width - nDistanceX - (bResize ? pLT.x : 0);
+			yPos = bResize ? (pRB.y - pLT.x) : pLT.y;
+			break;
+		case ResizeContent::ALIGN_BOTTOM:
+			xPos = bResize ? (pRB.x - pLT.x) : pLT.x;
+			yPos = height - nDistanceY - (bResize ? pLT.y : 0);
+			break;
+		case ResizeContent::ALIGN_BOTTOM_RIGHT:
+			xPos = width - nDistanceX - (bResize ? pLT.x : 0);
+			yPos = height - nDistanceY - (bResize ? pLT.y : 0);
+			break;
+		default:
+			xPos = bResize ? (pRB.x - pLT.x) : pLT.x;
+			yPos = bResize ? (pRB.y - pLT.x) : pLT.y;
+			break;
 		}
 
-	public:
-		inline int Width() const		{ return( right - left ); }
-		inline int Height() const		{ return( bottom - top ); }
-	};
+		if ( !bResize )
+			SetWindowPos(hwnd, NULL, xPos, yPos, NULL, NULL, SWP_NOSIZE | SWP_NOZORDER);
+		else
+			SetWindowPos(hwnd, NULL, 0, 0, xPos, yPos, SWP_NOMOVE | SWP_NOZORDER);
+	}
+};
 
-	class RASize
-	{
-	public:
-		RASize() : m_nWidth( 0 ), m_nHeight( 0 ) {}
-		RASize( const RASize& rhs ) : m_nWidth( rhs.m_nWidth ), m_nHeight( rhs.m_nHeight ) {}
-		RASize( int nW, int nH ) : m_nWidth( nW ), m_nHeight( nH ) {}
+enum AchievementSetType
+{
+	Core,
+	Unofficial,
+	Local,
 
-	public:
-		inline int Width() const		{ return m_nWidth; }
-		inline int Height() const		{ return m_nHeight; }
-		inline void SetWidth( int nW )	{ m_nWidth = nW; }
-		inline void SetHeight( int nH )	{ m_nHeight = nH; }
+	NumAchievementSetTypes
+};
 
-	private:
-		int m_nWidth;
-		int m_nHeight;
-	};
+typedef std::vector<BYTE> DataStream;
+typedef unsigned long ByteAddress;
 
-	const RASize RA_BADGE_PX( 64, 64 );
-	const RASize RA_USERPIC_PX( 64, 64 );
+typedef unsigned int AchievementID;
+typedef unsigned int LeaderboardID;
+typedef unsigned int GameID;
 
-	class ResizeContent
-	{
-	public:
-		enum AlignType
-		{
-			NO_ALIGN,
-			ALIGN_RIGHT,
-			ALIGN_BOTTOM,
-			ALIGN_BOTTOM_RIGHT
-		};
+char* DataStreamAsString(DataStream& stream);
 
-	public:
-		HWND hwnd;
-		POINT pLT;
-		POINT pRB;
-		AlignType nAlignType;
-		int nDistanceX;
-		int nDistanceY;
-		bool bResize;
+extern void RADebugLogNoFormat(const char* data);
+extern void RADebugLog(const char* sFormat, ...);
+extern BOOL DirectoryExists(const char* sPath);
 
-		ResizeContent( HWND parentHwnd, HWND contentHwnd, AlignType newAlignType, bool isResize )
-		{
-			hwnd = contentHwnd;
-			nAlignType = newAlignType;
-			bResize = isResize;
-			
-			RARect rect;
-			GetWindowRect( hwnd, &rect );
-
-			pLT.x = rect.left;	pLT.y = rect.top;
-			pRB.x = rect.right; pRB.y = rect.bottom;
-
-			ScreenToClient( parentHwnd, &pLT );
-			ScreenToClient( parentHwnd, &pRB );
-
-			GetWindowRect ( parentHwnd, &rect );
-			nDistanceX = rect.Width() - pLT.x;
-			nDistanceY = rect.Height() - pLT.y;
-			
-			if ( bResize )
-			{
-				nDistanceX -= (pRB.x - pLT.x);
-				nDistanceY -= (pRB.y - pLT.y);
-			}
-		}
-
-		void Resize(int width, int height)
-		{
-			int xPos, yPos;
-
-			switch ( nAlignType )
-			{
-				case ResizeContent::ALIGN_RIGHT:
-					xPos = width - nDistanceX - ( bResize ? pLT.x : 0 );
-					yPos = bResize ? ( pRB.y - pLT.x ) : pLT.y;
-					break;
-				case ResizeContent::ALIGN_BOTTOM:
-					xPos = bResize ? ( pRB.x - pLT.x ) : pLT.x;
-					yPos = height - nDistanceY - ( bResize ? pLT.y : 0 );
-					break;
-				case ResizeContent::ALIGN_BOTTOM_RIGHT:
-					xPos = width - nDistanceX - ( bResize ? pLT.x : 0 );
-					yPos = height - nDistanceY - ( bResize ? pLT.y : 0 );
-					break;
-				default:
-					xPos = bResize ? ( pRB.x - pLT.x ) : pLT.x;
-					yPos = bResize ? ( pRB.y - pLT.x ) : pLT.y;
-					break;
-			}
-
-			if ( !bResize )
-				SetWindowPos( hwnd, NULL, xPos, yPos, NULL, NULL, SWP_NOSIZE | SWP_NOZORDER );
-			else
-				SetWindowPos( hwnd, NULL, 0, 0, xPos, yPos, SWP_NOMOVE | SWP_NOZORDER );
-		}
-	};
-
-	enum AchievementSetType
-	{
-		Core,
-		Unofficial,
-		Local,
-
-		NumAchievementSetTypes
-	};
-	
-	typedef std::vector<BYTE> DataStream;
-	typedef unsigned long ByteAddress;
-
-	typedef unsigned int AchievementID;
-	typedef unsigned int LeaderboardID;
-	typedef unsigned int GameID;
-
-	char* DataStreamAsString( DataStream& stream );
-
-	extern void RADebugLogNoFormat( const char* data );
-	extern void RADebugLog( const char* sFormat, ... );
-	extern BOOL DirectoryExists( const char* sPath );
-
-	const int SERVER_PING_DURATION = 2*60;
+const int SERVER_PING_DURATION = 2 * 60;
 //};
 //using namespace RA;
-	
+
 #define RA_LOG RADebugLog
 
 #ifdef _DEBUG
@@ -225,7 +228,7 @@ typedef DWORD			ARGB;
 #undef ASSERT
 #define ASSERT( x ) {}
 #endif
-	
+
 #ifndef UNUSED
 #define UNUSED( x ) ( x );
 #endif
@@ -252,3 +255,29 @@ typedef std::basic_string<TCHAR> tstring;
 #define NativeStr(x) Narrow(x)
 #define NativeStrType std::string
 #endif
+
+// Don't feel like casting non-stop
+// There's also standard literals for strings on clock types
+
+// Use it if you need an unsigned int 
+// Not using _s because that's the literal for std::string
+// usage: auto a{19_z};
+constexpr std::size_t operator "" _z(unsigned long long n)
+{
+	return n;
+}
+
+// Use it if you need a signed int
+// usage: auto a{9_i};
+constexpr std::intptr_t operator "" _i(unsigned long long n)
+{
+	return static_cast<std::intptr_t>(n);
+}
+
+
+
+
+
+
+
+

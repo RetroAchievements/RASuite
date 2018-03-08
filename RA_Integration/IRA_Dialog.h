@@ -3,7 +3,7 @@
 #pragma once
 
 #include <wtypes.h>
-#include "RA_Core.h"
+
 
 /// <summary>
 /// Base class for all RA Dialogs.
@@ -18,20 +18,20 @@
 class IRA_Dialog
 {
 public:
-	IRA_Dialog(int resId, HWND parent = g_RAMainWnd) :
-		ResourceId{ resId },
-		hwnd_parent{ parent }
-	{
-	}
+	// I can't figure out another way to do this
+	// basically just for those "four" dialogs in RA_Core you have to put false
+	IRA_Dialog(int resId, bool isModal = true/*, HWND parent = nullptr*/);
 	virtual INT_PTR DoModal(); // Most of the time doesn't need to be changed
+	// for the modeless, always the same for us so no overloads
+	virtual HWND Create();
 	static INT_PTR CALLBACK MsgQueue(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual INT_PTR CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
 	virtual ~IRA_Dialog();
 
 
 #pragma region Windows Message Handlers
-	virtual BOOL OnInitDialog(HWND hDlg, HWND hDlgFocus, LPARAM lParam) = 0;
-	virtual void OnCommand(HWND hDlg, int id, HWND hDlgCtl, UINT codeNotify) = 0;
+	virtual BOOL OnInitDialog(HWND hDlg, HWND hDlgFocus, LPARAM lParam);
+	virtual void OnCommand(HWND hDlg, int id, HWND hDlgCtl, UINT codeNotify);
 	void OnClose(HWND hDlg);
 	BOOL OnNCCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
 	void OnNCDestroy(HWND hwnd);
@@ -51,7 +51,7 @@ public:
 	virtual void OnSize(HWND hDlg, UINT state, int cx, int cy);
 
 #pragma endregion
-
+	// th
 
 	/// <summary>
 	/// Called when an OK button is pressed.
@@ -65,14 +65,14 @@ public:
 	/// <param name="hDlg">The h dialog.</param>
 	virtual void OnCancel(HWND hDlg);
 
-	// The HWND is usually the main but could be different
-	virtual HWND MakeControl(int ControlId, HWND hDlg = g_RAMainWnd);
 protected:
-	HWND hwnd_parent{ nullptr };
-	HINSTANCE instance{ g_hThisDLLInst };
 	int ResourceId{ 0 };
-	DLGPROC DlgProc{ MsgQueue };
+	static long storage;
+	bool is_modal{ true };
 };
+
+// Function alias, MSFT functions are too long
+#define GetWnd GetActiveWindow()
 
 #endif // !RA_Dialog_H
 

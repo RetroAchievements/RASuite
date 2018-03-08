@@ -8,63 +8,33 @@
 #include "RA_httpthread.h"
 #include "RA_PopupWindows.h"
 
-//static 
-//BOOL RA_Dlg_Login::DoModalLogin()
-//{
-//	return DialogBox( g_hThisDLLInst, MAKEINTRESOURCE(IDD_RA_LOGIN), g_RAMainWnd, RA_Dlg_Login::RA_Dlg_LoginProc );
-//} 
-
-//INT_PTR CALLBACK RA_Dlg_Login::RA_Dlg_LoginProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
-//{
-//	switch( uMsg )
-//	{
-//	case WM_INITDIALOG:
-//
-//		
-//
-//	case WM_COMMAND:
-//		
-//		break;
-//
-//	case WM_CLOSE:
-//		EndDialog( hDlg, TRUE );
-//		return TRUE;
-//	}
-//
-//	return FALSE;
-//}
 
 RA_Dlg_Login::RA_Dlg_Login() : 
-	IRA_Dialog{ ResId },
-	UsernameCtl{ MakeControl(IDC_RA_USERNAME) },
-	PassCtl{ MakeControl(IDC_RA_PASSWORD) }
+	IRA_Dialog{ IDD_RA_LOGIN }
 {
-}
+	// It probably doesn't like it C++ way
 
-RA_Dlg_Login::~RA_Dlg_Login() noexcept
-{
-	OnDestroy(UsernameCtl);
-	OnDestroy(PassCtl);
 }
 
 
+
+// This function will never be called since it's handled in the Message Queue
 INT_PTR RA_Dlg_Login::DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	switch (uMsg)
-	{
-		HANDLE_MSG(hDlg, WM_INITDIALOG, OnInitDialog);
-		HANDLE_MSG(hDlg, WM_COMMAND, OnCommand);
-		HANDLE_MSG(hDlg, WM_CLOSE, OnClose);
-	}
 	return 0;
 }
 
 BOOL RA_Dlg_Login::OnInitDialog(HWND hDlg, HWND hDlgFocus, LPARAM lParam)
 {
-	SetWindowText(UsernameCtl, NativeStr(RAUsers::LocalUser().Username()).c_str());
+	auto UsernameCtl = GetDlgItem(hDlg, IDC_RA_USERNAME);
+	
+
+	SetWindowText(UsernameCtl, 
+		NativeStr(RAUsers::LocalUser().Username()).c_str());
 
 	if (RAUsers::LocalUser().Username().length() > 2)
 	{
+		auto PassCtl = GetDlgItem(hDlg, IDC_RA_PASSWORD);
 		SetFocus(PassCtl);
 		return FALSE;	//	Must return FALSE if setting to a non-default active control.
 	}
@@ -136,13 +106,19 @@ void RA_Dlg_Login::OnOK(HWND hDlg)
 			sResponseTitle = "Error logging in!";
 		}
 
-		MessageBox(hDlg, NativeStr(sResponse).c_str(), NativeStr(sResponseTitle).c_str(), MB_OK);
+		// My implementation seems to need MessageBox to be a child
+		// Figured this out, hDlg is the handle to IRA_Dialog
+		// but the RA_Login spans it's own window
+		MessageBox(GetActiveWindow(), NativeStr(sResponse).c_str(),
+			NativeStr(sResponseTitle).c_str(), MB_OK);
 
+		auto test{ RAUsers::LocalUser().IsLoggedIn() };
 		//	If we are now logged in
 		if (RAUsers::LocalUser().IsLoggedIn())
 		{
 			//	Close this dialog
-			OnClose(hDlg);
+			IRA_Dialog::OnOK(hDlg);
+			return;
 		}
 		return;
 	}

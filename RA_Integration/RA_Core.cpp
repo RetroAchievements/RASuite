@@ -1168,8 +1168,11 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 		break;
 
 	case IDM_RA_FILES_LOGIN:
-		RA_Dlg_Login::DoModalLogin();
+	{
+		RA_Dlg_Login myLogin;
+		myLogin.DoModal();
 		_RA_SavePreferences();
+	}
 		break;
 
 	case IDM_RA_FILES_LOGOUT:
