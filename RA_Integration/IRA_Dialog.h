@@ -24,46 +24,69 @@ public:
 	virtual INT_PTR DoModal(); // Most of the time doesn't need to be changed
 	// for the modeless, always the same for us so no overloads
 	virtual HWND Create();
-	static INT_PTR CALLBACK MsgQueue(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK MsgQueue(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual INT_PTR CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
 	virtual ~IRA_Dialog();
 
 
 #pragma region Windows Message Handlers
-	virtual BOOL OnInitDialog(HWND hDlg, HWND hDlgFocus, LPARAM lParam);
-	virtual void OnCommand(HWND hDlg, int id, HWND hDlgCtl, UINT codeNotify);
-	void OnClose(HWND hDlg);
+	virtual BOOL OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam);
+	virtual void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify);
+	void OnClose(HWND hwnd);
 	BOOL OnNCCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct);
 	void OnNCDestroy(HWND hwnd);
-	virtual void OnPaint(HWND hDlg);
-	virtual BOOL OnEraseBkgnd(HWND hDlg, HDC hdc);
-	virtual void OnChar(HWND hDlg, TCHAR ch, int cRepeat);
-	virtual void OnKeyDown(HWND hDlg, UINT vk, BOOL fDown, int cRepeat, UINT flags);
-	virtual void OnLButtonUp(HWND hDlg, int x, int y, UINT keyFlags);
-	virtual void OnMouseWheel(HWND hDlg, int xPos, int yPos, int zDelta, UINT fwKeys);
-	void OnDestroy(HWND hDlg);
-	virtual LRESULT OnNotify(HWND hDlg, int idFrom, NMHDR* pnmhdr);
+	virtual void OnPaint(HWND hwnd);
+	virtual BOOL OnEraseBkgnd(HWND hwnd, HDC hdc);
+	virtual void OnChar(HWND hwnd, TCHAR ch, int cRepeat);
+	virtual void OnKeyDown(HWND hwnd, UINT vk, BOOL fDown, int cRepeat, UINT flags);
+	virtual void OnLButtonUp(HWND hwnd, int x, int y, UINT keyFlags);
+	virtual void OnMouseWheel(HWND hwnd, int xPos, int yPos, int zDelta, UINT fwKeys);
+	void OnDestroy(HWND hwnd);
+	virtual LRESULT OnNotify(HWND hwnd, int idFrom, NMHDR* pnmhdr);
 
-	virtual void OnTimer(HWND hDlg, UINT id);
-	virtual void OnGetMinMaxInfo(HWND hDlg, LPMINMAXINFO lpMinMaxInfo);
-	virtual void OnDrawItem(HWND hDlg, const DRAWITEMSTRUCT* lpDrawItem);
-	virtual void OnMeasureItem(HWND hDlg, MEASUREITEMSTRUCT* lpMeasureItem);
-	virtual void OnSize(HWND hDlg, UINT state, int cx, int cy);
+	virtual void OnTimer(HWND hwnd, UINT id);
+	virtual void OnGetMinMaxInfo(HWND hwnd, LPMINMAXINFO lpMinMaxInfo);
+	virtual void OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem);
+	virtual void OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem);
+	virtual void OnSize(HWND hwnd, UINT state, int cx, int cy);
 
+	virtual void OnActivate(HWND hwnd, UINT state, HWND hwndActDeact, BOOL fMinimized);
+	virtual void OnActivateApp(HWND hwnd, BOOL fActivate, DWORD dwThreadId);
+	virtual void OnCancelMode(HWND hwnd);
+	virtual HBRUSH OnCtlColorBtn(HWND hwnd, HDC hdc, HWND hwndChild, int type);
+	virtual HBRUSH OnCtlColorDlg(HWND hwnd, HDC hdc, HWND hwndChild, int type);
+	virtual HBRUSH OnCtlColorEdit(HWND hwnd, HDC hdc, HWND hwndChild, int type);
+	virtual HBRUSH OnCtlColorListbox(HWND hwnd, HDC hdc, HWND hwndChild, int type);
+	virtual HBRUSH OnCtlColorMsgbox(HWND hwnd, HDC hdc, HWND hwndChild, int type);
+	virtual HBRUSH OnCtlColorScrollbar(HWND hwnd, HDC hdc, HWND hwndChild, int type);
+	virtual HBRUSH OnCtlColorStatic(HWND hwnd, HDC hdc, HWND hwndChild, int type);
+	virtual void OnEnable(HWND hwnd, BOOL fEnable = 1);
+	virtual HFONT OnGetFont(HWND hwnd);
+	virtual INT OnGetText(HWND hwnd, int cchTextMax, LPTSTR lpszText);
+	virtual INT OnGetTextLength(HWND hwnd);
+	virtual void OnKillFocus(HWND hwnd, HWND hwndNewFocus);
+	virtual BOOL OnNCActivate(HWND hwnd, BOOL fActive, HWND hwndActDeact, BOOL fMinimized);
+	virtual void OnQuit(HWND hwnd, int exitCode);
+	virtual void OnSetFocus(HWND hwnd, HWND hwndOldFocus);
+	virtual void OnSetFont(HWND hwndCtl, HFONT hfont, BOOL fRedraw);
+	virtual void OnSetText(HWND hwnd, LPCTSTR lpszText);
+	virtual void OnShowWindow(HWND hwnd, BOOL fShow, UINT status);
+	virtual void OnWindowPosChanged(HWND hwnd, const LPWINDOWPOS lpwpos);
+	virtual BOOL OnWindowPosChanging(HWND hwnd, LPWINDOWPOS lpwpos);
 #pragma endregion
 	// th
 
 	/// <summary>
 	/// Called when an OK button is pressed.
 	/// </summary>
-	/// <param name="hDlg">The h dialog.</param>
-	virtual void OnOK(HWND hDlg);
+	/// <param name="hwnd">The h dialog.</param>
+	virtual void OnOK(HWND hwnd);
 
 	/// <summary>
 	/// Called when a cancel button is pressed.
 	/// </summary>
-	/// <param name="hDlg">The h dialog.</param>
-	virtual void OnCancel(HWND hDlg);
+	/// <param name="hwnd">The h dialog.</param>
+	virtual void OnCancel(HWND hwnd);
 
 protected:
 	int ResourceId{ 0 };

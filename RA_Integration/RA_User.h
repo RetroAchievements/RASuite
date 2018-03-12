@@ -117,3 +117,9 @@ private:
 	static LocalRAUser ms_LocalUser;
 	static std::map<std::string, RAUser*> UserDatabase;
 };
+
+
+// Shortcuts
+#define RA_USERNAME_LENGTH RAUsers::LocalUser().Username().length()
+#define RA_USERNAME        RAUsers::LocalUser().Username()
+#define CRA_USERNAME       NativeStr(RAUsers::LocalUser().Username()).c_str()

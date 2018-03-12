@@ -97,6 +97,9 @@
     <ClCompile Include="RA_Core.cpp">
       <Filter>Source\Logic</Filter>
     </ClCompile>
+    <ClCompile Include="IRA_WndClass.cpp">
+      <Filter>Source\Window Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IRA_Dialog.h">
@@ -198,6 +201,9 @@
     <ClInclude Include="RA_Core.h">
       <Filter>Headers\Logic</Filter>
     </ClInclude>
+    <ClInclude Include="IRA_WndClass.h">
+      <Filter>Headers\Window Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">
@@ -227,6 +233,12 @@
     <Filter Include="Source\Utils">
       <UniqueIdentifier>{d21b8fc8-5ff4-4d90-ae0a-6a06e2c41380}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Window Classes">
+      <UniqueIdentifier>{3a2445bb-9e6b-4d06-82d6-00cf6ef33dc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Window Classes">
+      <UniqueIdentifier>{32adf534-3efd-418b-b007-88508be0ca6b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="RA_Shared.rc">
@@ -235,5 +247,8 @@
     <ResourceCompile Include="RA_Version.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Notes.txt" />
   </ItemGroup>
 </Project>

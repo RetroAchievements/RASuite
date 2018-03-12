@@ -264,7 +264,7 @@ typedef std::basic_string<TCHAR> tstring;
 // usage: auto a{19_z};
 constexpr std::size_t operator "" _z(unsigned long long n)
 {
-	return n;
+	return static_cast<std::size_t>(n);
 }
 
 // Use it if you need a signed int

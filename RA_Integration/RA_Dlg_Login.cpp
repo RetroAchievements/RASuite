@@ -12,8 +12,6 @@
 RA_Dlg_Login::RA_Dlg_Login() : 
 	IRA_Dialog{ IDD_RA_LOGIN }
 {
-	// It probably doesn't like it C++ way
-
 }
 
 
@@ -26,16 +24,12 @@ INT_PTR RA_Dlg_Login::DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 BOOL RA_Dlg_Login::OnInitDialog(HWND hDlg, HWND hDlgFocus, LPARAM lParam)
 {
-	auto UsernameCtl = GetDlgItem(hDlg, IDC_RA_USERNAME);
-	
 
-	SetWindowText(UsernameCtl, 
-		NativeStr(RAUsers::LocalUser().Username()).c_str());
+	SetWindowText(GetDlgItem(hDlg, IDC_RA_USERNAME), CRA_USERNAME);
 
-	if (RAUsers::LocalUser().Username().length() > 2)
+	if (RA_USERNAME_LENGTH > 2)
 	{
-		auto PassCtl = GetDlgItem(hDlg, IDC_RA_PASSWORD);
-		SetFocus(PassCtl);
+		SetFocus(GetDlgItem(hDlg, IDC_RA_PASSWORD));
 		return FALSE;	//	Must return FALSE if setting to a non-default active control.
 	}
 	else
@@ -126,11 +120,11 @@ void RA_Dlg_Login::OnOK(HWND hDlg)
 	{
 		if (!doc.HasParseError() && doc.HasMember("Error"))
 		{
-			MessageBox(hDlg, NativeStr(std::string("Server error: ") + std::string(doc["Error"].GetString())).c_str(), TEXT("Error!"), MB_OK);
+			MessageBox(GetWnd, NativeStr(std::string("Server error: ") + std::string(doc["Error"].GetString())).c_str(), TEXT("Error!"), MB_OK);
 		}
 		else
 		{
-			MessageBox(hDlg, TEXT("Unknown error connecting... please try again!"), TEXT("Error!"), MB_OK);
+			MessageBox(GetWnd, TEXT("Unknown error connecting... please try again!"), TEXT("Error!"), MB_OK);
 		}
 
 		return;	//	==Handled
