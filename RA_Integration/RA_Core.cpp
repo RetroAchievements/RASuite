@@ -1226,8 +1226,8 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 
 	case IDM_RA_GETROMCHECKSUM:
 	{
-		RA_Dlg_RomChecksum::DoModalDialog();
-		//MessageBox( nullptr, ( std::string( "Current ROM MD5: " ) + g_sCurrentROMMD5 ).c_str(), "Get ROM Checksum", MB_OK );
+		RA_Dlg_RomChecksum checksum_dlg;
+		checksum_dlg.DoModal();
 		break;
 	}
 	//if( g_pActiveAchievements->NumAchievements() == 0 )

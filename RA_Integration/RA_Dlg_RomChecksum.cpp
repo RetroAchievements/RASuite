@@ -3,52 +3,54 @@
 #include "RA_Resource.h"
 #include "RA_Core.h"
 
-//static 
-BOOL RA_Dlg_RomChecksum::DoModalDialog()
-{
-	return DialogBox( g_hThisDLLInst, MAKEINTRESOURCE( IDD_RA_ROMCHECKSUM ), g_RAMainWnd, RA_Dlg_RomChecksum::RA_Dlg_RomChecksumProc );
-} 
 
-INT_PTR CALLBACK RA_Dlg_RomChecksum::RA_Dlg_RomChecksumProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lParam )
+RA_Dlg_RomChecksum::RA_Dlg_RomChecksum() :
+	IRA_Dialog{ IDD_RA_ROMCHECKSUM }
 {
-	switch( nMsg )
+}
+
+BOOL RA_Dlg_RomChecksum::OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
+{
+	OnSetText(GetDlgItem(hwnd, IDC_RA_ROMCHECKSUMTEXT), 
+		NativeStr(std::string("ROM Checksum: ") + g_sCurrentROMMD5).c_str());
+	return 0;
+}
+
+void RA_Dlg_RomChecksum::OnCommand(HWND hwnd, int id, HWND hwndCtl,
+	UINT codeNotify)
+{
+	switch ( id )
 	{
-	case WM_INITDIALOG:
-		SetDlgItemText( hDlg, IDC_RA_ROMCHECKSUMTEXT, NativeStr( std::string( "ROM Checksum: " ) + g_sCurrentROMMD5 ).c_str() );
-		return FALSE;
-
-	case WM_COMMAND:
-		switch( wParam )
-		{
-		case IDOK:
-			EndDialog( hDlg, TRUE );
-			return TRUE;
-
-		case IDC_RA_COPYCHECKSUMCLIPBOARD:
-			{
-				//	Allocate memory to be managed by the clipboard
-				HGLOBAL hMem = GlobalAlloc( GMEM_MOVEABLE, g_sCurrentROMMD5.length() + 1 );
-				memcpy( GlobalLock( hMem ), g_sCurrentROMMD5.c_str(), g_sCurrentROMMD5.length() + 1 );
-				GlobalUnlock( hMem );
-
-				OpenClipboard( nullptr );
-				EmptyClipboard();
-				SetClipboardData( CF_TEXT, hMem );
-				CloseClipboard();
-
-				//MessageBeep( 0xffffffff );
-			}
-			return TRUE;
-
-		default:
-			return FALSE;
-		}
-
-	case WM_CLOSE:
-		EndDialog( hDlg, TRUE );
-		return TRUE;
-
-	default:
-		return FALSE;
+	case IDOK:
+		OnOK(hwnd);
+		break;
+	case IDC_RA_COPYCHECKSUMCLIPBOARD:
+		OnCopyChecksum();
 	}
 }
+
+
+
+
+void RA_Dlg_RomChecksum::OnCopyChecksum()
+{
+	//	Allocate memory to be managed by the clipboard
+	HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, g_sCurrentROMMD5.length() + 1);
+	memcpy(GlobalLock(hMem), g_sCurrentROMMD5.c_str(), g_sCurrentROMMD5.length() + 1);
+	GlobalUnlock(hMem);
+
+	OpenClipboard(nullptr);
+	EmptyClipboard();
+	SetClipboardData(CF_TEXT, hMem);
+	CloseClipboard();
+
+	//MessageBeep( 0xffffffff );
+}
+
+INT_PTR RA_Dlg_RomChecksum::DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, 
+	LPARAM lParam)
+{
+	return 0;
+}
+
+

@@ -24,8 +24,12 @@ public:
 	virtual INT_PTR DoModal(); // Most of the time doesn't need to be changed
 	// for the modeless, always the same for us so no overloads
 	virtual HWND Create();
-	static INT_PTR CALLBACK MsgQueue(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	virtual INT_PTR CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
+	static INT_PTR CALLBACK MsgQueue(HWND hwnd, UINT uMsg, WPARAM wParam, 
+		LPARAM lParam);
+
+	// This is here in-case we want to process user-defined messages
+	virtual INT_PTR CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam,
+		LPARAM lParam) = 0;
 	virtual ~IRA_Dialog();
 
 
