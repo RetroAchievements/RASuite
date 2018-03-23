@@ -111,7 +111,8 @@ PostArgs PrevArgs;
 
 BOOL RequestObject::ParseResponseToJSON( Document& rDocOut )
 {
-	rDocOut.Parse( DataStreamAsString( GetResponse() ) );
+	// OK, here's the damn problem! Needs to be const char*
+	rDocOut.Parse(DataStreamAsString(GetResponse()).c_str());
 
 	if( rDocOut.HasParseError() )
 		RA_LOG( "Possible parse issue on response, %s (%s)\n", GetJSONParseErrorStr( rDocOut.GetParseError() ), RequestTypeToString[ m_nType ] );
@@ -245,7 +246,7 @@ BOOL RAWeb::DoBlockingRequest( RequestType nType, const PostArgs& PostData, Docu
 	{
 		if( response.size() > 0 )
 		{
-			JSONResponseOut.Parse( DataStreamAsString( response ) );
+			JSONResponseOut.Parse( DataStreamAsString( response ).c_str() );
 			//LogJSON( JSONResponseOut );	//	Already logged during DoBlockingRequest()?
 
 			if( JSONResponseOut.HasParseError() )
@@ -290,41 +291,41 @@ BOOL RAWeb::DoBlockingHttpGet( const std::string& sRequestedPage, DataStream& Re
 	size_t nTemp;
 	mbstowcs_s( &nTemp, wClientNameBuffer, 1024, sClientName.c_str(), sClientName.length()+1 );
 
- 	// Use WinHttpOpen to obtain a session handle.
- 	HINTERNET hSession = WinHttpOpen( wClientNameBuffer, 
- 		WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
- 		WINHTTP_NO_PROXY_NAME, 
- 		WINHTTP_NO_PROXY_BYPASS, 0);
+	// Use WinHttpOpen to obtain a session handle.
+	HINTERNET hSession = WinHttpOpen( wClientNameBuffer, 
+		WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+		WINHTTP_NO_PROXY_NAME, 
+		WINHTTP_NO_PROXY_BYPASS, 0);
  
- 	// Specify an HTTP server.
+	// Specify an HTTP server.
 	if( hSession != NULL )
 	{
- 		HINTERNET hConnect = WinHttpConnect( hSession, Widen( bIsImageRequest ? RA_HOST_IMG_URL : RA_HOST_URL ).c_str(), INTERNET_DEFAULT_HTTP_PORT, 0 );
+		HINTERNET hConnect = WinHttpConnect( hSession, Widen( bIsImageRequest ? RA_HOST_IMG_URL : RA_HOST_URL ).c_str(), INTERNET_DEFAULT_HTTP_PORT, 0 );
  
- 		// Create an HTTP Request handle.
- 		if( hConnect != NULL )
+		// Create an HTTP Request handle.
+		if( hConnect != NULL )
 		{
 			WCHAR wBuffer[1024];
 			mbstowcs_s( &nTemp, wBuffer, 1024, sRequestedPage.c_str(), strlen( sRequestedPage.c_str() )+1 );
 
- 			HINTERNET hRequest = WinHttpOpenRequest( hConnect, 
- 				L"GET", 
- 				wBuffer, 
- 				NULL, 
- 				WINHTTP_NO_REFERER, 
- 				WINHTTP_DEFAULT_ACCEPT_TYPES,
- 				0);
+			HINTERNET hRequest = WinHttpOpenRequest( hConnect, 
+				L"GET", 
+				wBuffer, 
+				NULL, 
+				WINHTTP_NO_REFERER, 
+				WINHTTP_DEFAULT_ACCEPT_TYPES,
+				0);
  
- 			// Send a Request.
- 			if( hRequest != NULL )
- 			{
- 				BOOL bResults = WinHttpSendRequest( hRequest, 
- 					L"Content-Type: application/x-www-form-urlencoded",
- 					0, 
- 					WINHTTP_NO_REQUEST_DATA, //WINHTTP_NO_REQUEST_DATA,
- 					0, 
- 					0,
- 					0);
+			// Send a Request.
+			if( hRequest != NULL )
+			{
+				BOOL bResults = WinHttpSendRequest( hRequest, 
+					L"Content-Type: application/x-www-form-urlencoded",
+					0, 
+					WINHTTP_NO_REQUEST_DATA, //WINHTTP_NO_REQUEST_DATA,
+					0, 
+					0,
+					0);
 
 				if( WinHttpReceiveResponse( hRequest, NULL ) )
 				{
@@ -477,12 +478,12 @@ BOOL RAWeb::DoBlockingHttpPost( const std::string& sRequestedPage, const std::st
 	if( ResponseOut.size() > 0 )
 	{
 		Document doc;
-		doc.Parse( DataStreamAsString( ResponseOut ) );
+		doc.Parse( DataStreamAsString( ResponseOut ).c_str() );
 
 		if( doc.HasParseError() )
 		{
 			RA_LOG( "Cannot parse JSON!\n" );
-			RA_LOG( DataStreamAsString( ResponseOut ) );
+			RA_LOG( DataStreamAsString( ResponseOut ).c_str());
 			RA_LOG( "\n" );
 		}
 		else
@@ -634,7 +635,7 @@ BOOL RAWeb::DoBlockingImageUpload( UploadType nType, const std::string& sFilenam
 	DataStream response;
 	if( ::DoBlockingImageUpload( nType, sFilename, response ) )
 	{
-		ResponseOut.Parse(DataStreamAsString(response));
+		ResponseOut.Parse(DataStreamAsString(response).c_str());
 		if( !ResponseOut.HasParseError() )
 		{
 			return TRUE;

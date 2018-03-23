@@ -1,16 +1,27 @@
 #pragma once
 
+// We don't need all of it
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <WindowsX.h>
 #include <ShlObj.h>
 #include <tchar.h>
-#include <assert.h>
-#include <string>
-#include <sstream>
-#include <vector>
 #include <queue>
-#include <deque>
 #include <map>
+
+// just in-case
+#ifdef WIN32_LEAN_AND_MEAN
+#include <ShellAPI.h>
+#include <MMSystem.h>
+#endif // WIN32_LEAN_AND_MEAN
+
+
+// Using a pch is too complicated now, just gonna try to reduce includes
+#include <fstream>
+
+// the C98 version has fixed params and might cause errors on parsing 
+#define TINYFORMAT_USE_VARIADIC_TEMPLATES 
+#include "tinyformat.h"
 
 #ifndef RA_EXPORTS
 
@@ -24,11 +35,22 @@
 //	RA-Only
 #pragma warning(push, 1)
 #include "rapidjson/include/rapidjson/document.h"
-#include "rapidjson/include/rapidjson/reader.h"
 #include "rapidjson/include/rapidjson/writer.h"
 #include "rapidjson/include/rapidjson/filestream.h"
-#include "rapidjson/include/rapidjson/stringbuffer.h"
+#include "rapidjson/include/rapidjson/ostreamwrapper.h"
+#include "rapidjson/include/rapidjson/istreamwrapper.h"
 #include "rapidjson/include/rapidjson/error/en.h"
+
+// super strech
+#include "rapidjson/include/rapidjson/filereadstream.h"
+#include "rapidjson/include/rapidjson/filewritestream.h"
+
+
+
+
+
+
+
 #pragma warning(pop)
 
 using namespace rapidjson;
@@ -202,20 +224,41 @@ enum AchievementSetType
 	NumAchievementSetTypes
 };
 
-typedef std::vector<BYTE> DataStream;
+using DataStream = std::basic_string<BYTE>;
 typedef unsigned long ByteAddress;
 
 typedef unsigned int AchievementID;
 typedef unsigned int LeaderboardID;
 typedef unsigned int GameID;
 
-char* DataStreamAsString(DataStream& stream);
+// just call c_str() as needed
+std::string DataStreamAsString(const DataStream& stream);
 
 extern void RADebugLogNoFormat(const char* data);
-extern void RADebugLog(const char* sFormat, ...);
+
+
+// This function was a disaster
+template<typename... Args>
+void RADebugLog(const char* fmt, const Args&... args)
+{
+	// it couldn't deduce it
+	std::string buf{ tfm::format(fmt, args...) };
+
+#ifdef _DEBUG
+	OutputDebugString(buf.c_str());
+#endif // _DEBUG
+
+	//SetCurrentDirectory( g_sHomeDir.c_str() );//?
+	// RAII
+	std::ofstream ofile{ RA_LOG_FILENAME, std::ios::app };
+
+	// it wasn't writing a newline
+	ofile << buf << "\r\n"; // does it really need this?
+}
+
 extern BOOL DirectoryExists(const char* sPath);
 
-const int SERVER_PING_DURATION = 2 * 60;
+constexpr int SERVER_PING_DURATION = 2 * 60;
 //};
 //using namespace RA;
 
@@ -275,8 +318,14 @@ constexpr std::intptr_t operator "" _i(unsigned long long n)
 }
 
 
-
-
+// NOW I remember
+template<typename CharT = char>
+std::basic_string<CharT> TimeToString(time_t the_time) noexcept
+{
+	std::basic_ostringstream<CharT> oss;
+	ss << the_time;
+	return ss.str();
+}
 
 
 

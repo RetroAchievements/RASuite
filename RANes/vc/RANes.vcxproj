@@ -114,7 +114,7 @@
       <AdditionalManifestFiles>$(ProjectDir)../src/drivers/win/fceu_x86.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command>copy ..\..\RA_Integration\RA_Integration_d.dll . &amp;&amp; copy ..\..\RA_Integration\RA_Integration_d.pdb . &amp;&amp; xcopy /y /d "$(ProjectDir)\..\src\drivers\win\7z.dll" "$(OutDir)" &amp;&amp; xcopy /y /d "$(ProjectDir)\..\src\drivers\win\lua\win32\MT\lua5.1.dll" "$(OutDir)"
+      <Command>xcopy /y /d "$(ProjectDir)\..\src\drivers\win\7z.dll" "$(OutDir)" &amp;&amp; xcopy /y /d "$(ProjectDir)\..\src\drivers\win\lua\win32\MT\lua5.1.dll" "$(OutDir)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

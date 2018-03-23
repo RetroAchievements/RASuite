@@ -5,6 +5,8 @@
 #include "RA_AchievementOverlay.h"
 #include "RA_ImageFactory.h"
 
+
+
 namespace
 {
 	const float POPUP_DIST_Y_TO_PCT = 0.856f;		//	Where on screen to end up

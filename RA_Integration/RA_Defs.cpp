@@ -1,45 +1,63 @@
 #include "RA_Defs.h"
 
-#include <stdio.h>
-#include <Windows.h>
-#include <locale>
-#include <codecvt>
-
 GetParseErrorFunc GetJSONParseErrorStr = GetParseError_En;
 
-static_assert(sizeof(BYTE*) == sizeof(char*), "dangerous cast ahead");
-char* DataStreamAsString(DataStream& stream)
+std::string DataStreamAsString(const DataStream& stream)
 {
-	return reinterpret_cast<char*>(stream.data());
+	std::ostringstream oss;
+
+	for ( auto& i : stream )
+		oss << i;
+
+	// Test
+	return oss.str(); // ok it's definitly showing how it should be
 }
 
 std::string Narrow(const wchar_t* wstr)
 {
-	static std::wstring_convert< std::codecvt_utf8_utf16< wchar_t >, wchar_t > converter;
-	return converter.to_bytes(wstr);
+	std::ostringstream out;
+	std::wstring swstr{ wstr };
+
+	for ( auto& i : swstr )
+		out << i;
+
+	return out.str();
 }
 
 std::string Narrow(const std::wstring& wstr)
 {
-	static std::wstring_convert< std::codecvt_utf8_utf16< wchar_t >, wchar_t > converter;
-	return converter.to_bytes(wstr);
+	std::ostringstream out;
+
+	for ( auto& i : wstr )
+		out << i;
+
+	return out.str();
 }
 
 std::wstring Widen(const char* str)
 {
-	static std::wstring_convert< std::codecvt_utf8_utf16< wchar_t >, wchar_t > converter;
-	return converter.from_bytes(str);
+	std::wostringstream out;
+	std::string sstr{ str };
+
+	for ( auto& i : sstr )
+		out << i;
+
+	return out.str();
 }
 
 std::wstring Widen(const std::string& str)
 {
-	static std::wstring_convert< std::codecvt_utf8_utf16< wchar_t >, wchar_t > converter;
-	return converter.from_bytes(str);
+	std::wostringstream out;
+
+	for ( auto& i : str )
+		out << i;
+
+	return out.str();
 }
 
 std::wstring Widen(const wchar_t* wstr)
 {
-	return std::wstring(wstr);
+	return std::wstring{ wstr };
 }
 
 std::wstring Widen(const std::wstring& wstr)
@@ -49,7 +67,7 @@ std::wstring Widen(const std::wstring& wstr)
 
 std::string Narrow(const char* str)
 {
-	return std::string(str);
+	return std::string{ str };
 }
 
 std::string Narrow(const std::string& str)
@@ -59,46 +77,15 @@ std::string Narrow(const std::string& str)
 
 void RADebugLogNoFormat(const char* data)
 {
+#ifdef _DEBUG
 	OutputDebugString(NativeStr(data).c_str());
+#endif // _DEBUG
 
-	//SetCurrentDirectory( g_sHomeDir.c_str() );//?
-	FILE* pf = NULL;
-	if (fopen_s(&pf, RA_LOG_FILENAME, "a") == 0)
-	{
-		fwrite(data, sizeof(char), strlen(data), pf);
-		fclose(pf);
-	}
+	// streams are safer, and just as fast, but take more space
+	std::ofstream ofile{ RA_LOG_FILENAME, std::ios::app };
+	ofile << data << "\r\n"; // does it really need this?
 }
 
-void RADebugLog(const char* format, ...)
-{
-	char buf[4096];
-	char* p = buf;
-
-	va_list args;
-	va_start(args, format);
-	int n = _vsnprintf_s(p, 4096, sizeof buf - 3, format, args); // buf-3 is room for CR/LF/NUL
-	va_end(args);
-
-	p += (n < 0) ? sizeof buf - 3 : n;
-
-	while ((p > buf) && (isspace(p[-1])))
-		*--p = '\0';
-
-	*p++ = '\r';
-	*p++ = '\n';
-	*p = '\0';
-
-	OutputDebugString(NativeStr(buf).c_str());
-
-	//SetCurrentDirectory( g_sHomeDir.c_str() );//?
-	FILE* pf = NULL;
-	if (fopen_s(&pf, RA_LOG_FILENAME, "a") == 0)
-	{
-		fwrite(buf, sizeof(char), strlen(buf), pf);
-		fclose(pf);
-	}
-}
 
 BOOL DirectoryExists(const char* sPath)
 {
