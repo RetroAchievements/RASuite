@@ -119,7 +119,10 @@ private:
 };
 
 
-// Shortcuts
+// Shortcuts, these are too long to type out
 #define RA_USERNAME_LENGTH RAUsers::LocalUser().Username().length()
-#define RA_USERNAME        RAUsers::LocalUser().Username()
-#define CRA_USERNAME       NativeStr(RAUsers::LocalUser().Username()).c_str()
+#define RAUSER_NAME        RAUsers::LocalUser().Username()
+#define CRAUSER_NAME       NativeStr(RAUsers::LocalUser().Username()).c_str()
+#define RAUSER_TOKEN       RAUsers::LocalUser().Token()
+#define RAUSER_LOGON       RAUsers::LocalUser().IsLoggedIn()
+

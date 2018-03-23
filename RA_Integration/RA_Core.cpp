@@ -362,12 +362,16 @@ API int CCONV _RA_OnLoadNewRom(const BYTE* pROM, unsigned int nROMSize)
 			nGameID = static_cast<GameID>(doc["GameID"].GetUint());
 			if ( nGameID == 0 )	//	Unknown
 			{
-				RA_LOG("Could not recognise game with MD5 %s\n", g_sCurrentROMMD5.c_str());
+				RA_LOG("Could not recognise game with MD5 %s\n",
+					g_sCurrentROMMD5.c_str());
 				char buffer[64];
 				ZeroMemory(buffer, 64);
 				RA_GetEstimatedGameTitle(buffer);
 				std::string sEstimatedGameTitle(buffer);
-				Dlg_GameTitle::DoModalDialog(g_hThisDLLInst, g_RAMainWnd, g_sCurrentROMMD5, sEstimatedGameTitle, nGameID);
+
+				Dlg_GameTitle game_title;
+				game_title.GetInfoFromModal(g_sCurrentROMMD5, 
+					sEstimatedGameTitle, nGameID);
 			}
 			else
 			{
@@ -379,7 +383,8 @@ API int CCONV _RA_OnLoadNewRom(const BYTE* pROM, unsigned int nROMSize)
 			//	Some other fatal error... panic?
 			ASSERT(!"Unknown error from requestgameid.php");
 
-			MessageBox(g_RAMainWnd, NativeStr("Error from " RA_HOST_URL "!\n").c_str(), TEXT("Error returned!"), MB_OK);
+			MessageBox(g_RAMainWnd, NativeStr("Error from " RA_HOST_URL 
+				"!\n").c_str(), TEXT("Error returned!"), MB_OK);
 		}
 	}
 
@@ -1462,6 +1467,7 @@ BOOL _ReadTil(const char nChar, char buffer[], unsigned int nSize, DWORD* pChars
 	return ((*pCharsReadOut) > 0);
 }
 
+// I'm sure there's a better way to do this but we'll leave it for now
 char* _ReadStringTil(char nChar, char*& pOffsetInOut, BOOL bTerminate)
 {
 	char* pStartString = pOffsetInOut;

@@ -11,7 +11,7 @@ RA_Dlg_RomChecksum::RA_Dlg_RomChecksum() :
 
 BOOL RA_Dlg_RomChecksum::OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
 {
-	OnSetText(GetDlgItem(hwnd, IDC_RA_ROMCHECKSUMTEXT), 
+	SetText(GetDlgItem(hwnd, IDC_RA_ROMCHECKSUMTEXT), 
 		NativeStr(std::string("ROM Checksum: ") + g_sCurrentROMMD5).c_str());
 	return 0;
 }

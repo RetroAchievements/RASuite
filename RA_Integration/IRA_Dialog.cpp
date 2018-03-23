@@ -56,7 +56,7 @@ INT_PTR IRA_Dialog::MsgQueue(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		HANDLE_MSG(hwnd, WM_ERASEBKGND, ira->OnEraseBkgnd);
 		HANDLE_MSG(hwnd, WM_GETFONT, ira->OnGetFont);
 		HANDLE_MSG(hwnd, WM_GETMINMAXINFO, ira->OnGetMinMaxInfo);
-		HANDLE_MSG(hwnd, WM_GETTEXT, ira->OnGetText);
+		HANDLE_MSG(hwnd, WM_GETTEXT, ira->GetText);
 		HANDLE_MSG(hwnd, WM_GETTEXTLENGTH, ira->OnGetTextLength);
 		HANDLE_MSG(hwnd, WM_INITDIALOG, ira->OnInitDialog);
 		HANDLE_MSG(hwnd, WM_KEYDOWN, ira->OnKeyDown);
@@ -72,7 +72,7 @@ INT_PTR IRA_Dialog::MsgQueue(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		HANDLE_MSG(hwnd, WM_QUIT, ira->OnQuit);
 		HANDLE_MSG(hwnd, WM_SETFOCUS, ira->OnSetFocus);
 		HANDLE_MSG(hwnd, WM_SETFONT, ira->OnSetFont);
-		HANDLE_MSG(hwnd, WM_SETTEXT, ira->OnSetText);
+		HANDLE_MSG(hwnd, WM_SETTEXT, ira->SetText);
 		HANDLE_MSG(hwnd, WM_SHOWWINDOW, ira->OnShowWindow);
 		HANDLE_MSG(hwnd, WM_SIZE, ira->OnSize);
 		HANDLE_MSG(hwnd, WM_TIMER, ira->OnTimer);
@@ -231,7 +231,7 @@ HFONT IRA_Dialog::OnGetFont(HWND hwnd)
 	return GetWindowFont(hwnd);
 }
 
-INT IRA_Dialog::OnGetText(HWND hwnd, int cchTextMax, LPTSTR lpszText)
+INT IRA_Dialog::GetText(HWND hwnd, int cchTextMax, LPTSTR lpszText)
 {
 	return GetWindowText(hwnd, lpszText, cchTextMax);
 }
@@ -260,10 +260,11 @@ void IRA_Dialog::OnSetFocus(HWND hwnd, HWND hwndOldFocus)
 
 void IRA_Dialog::OnSetFont(HWND hwndCtl, HFONT hfont, BOOL fRedraw)
 {
-	SetWindowFont(hwndCtl, hfont, fRedraw);
+	if(!hfont)
+		SetWindowFont(hwndCtl, hfont, fRedraw);
 }
 
-void IRA_Dialog::OnSetText(HWND hwnd, LPCTSTR lpszText)
+void IRA_Dialog::SetText(HWND hwnd, LPCTSTR lpszText)
 {
 	SetWindowText(hwnd, lpszText);
 }

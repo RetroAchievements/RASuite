@@ -25,7 +25,7 @@ INT_PTR RA_Dlg_Login::DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
 BOOL RA_Dlg_Login::OnInitDialog(HWND hDlg, HWND hDlgFocus, LPARAM lParam)
 {
 
-	SetWindowText(GetDlgItem(hDlg, IDC_RA_USERNAME), CRA_USERNAME);
+	SetWindowText(GetDlgItem(hDlg, IDC_RA_USERNAME), CRAUSER_NAME);
 
 	if (RA_USERNAME_LENGTH > 2)
 	{

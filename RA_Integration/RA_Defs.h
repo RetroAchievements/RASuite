@@ -32,6 +32,10 @@
 //NB. These must NOT be accessible from the emulator!
 //#define RA_INTEGRATION_VERSION	"0.053"
 
+
+#define RAPIDJSON_HAS_STDSTRING 1
+
+
 //	RA-Only
 #pragma warning(push, 1)
 #include "rapidjson/include/rapidjson/document.h"
