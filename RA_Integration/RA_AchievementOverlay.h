@@ -74,7 +74,7 @@ public:
 public:
 	void Initialize( const Achievement* pAchIn );
 	void Clear();
-	static void CB_OnReceiveData( void* pRequestObject );
+	//static void CB_OnReceiveData( void* pRequestObject );
 	void OnReceiveData( Document& doc );
 	
 	bool HasData() const											{ return m_bHasData; }
@@ -109,7 +109,7 @@ public:
 	~AchievementOverlay();
 
 	void Initialize( HINSTANCE hInst );
-	void InstallHINSTANCE( HINSTANCE hInst );
+	//void InstallHINSTANCE( HINSTANCE hInst );
 
 	void Activate();
 	void Deactivate();
@@ -125,6 +125,8 @@ public:
 	void OnLoad_NewRom();
 	void OnUserPicDownloaded( const char* sUsername );
 
+
+	// These functions can be significatnly reduced in parameters but we'll do that later
 	void DrawAchievementsPage( HDC hDC, int nDX, int nDY, const RECT& rcTarget ) const;
 	void DrawAchievementExaminePage( HDC hDC, int nDX, int nDY, const RECT& rcTarget ) const;
 	void DrawMessagesPage( HDC hDC, int nDX, int nDY, const RECT& rcTarget ) const;
@@ -145,7 +147,7 @@ public:
 	
 	void InitDirectX();
 	void ResetDirectX();
-	void CloseDirectX();
+	//void CloseDirectX();
 	void Flip(HWND hWnd);
 
 	void InstallNewsArticlesFromFile();
@@ -206,11 +208,51 @@ extern "C"
 	API extern void _RA_OnPaint( HWND hWnd );
 }
 
-extern const COLORREF COL_TEXT;
-extern const COLORREF COL_TEXT_HIGHLIGHT;
-extern const COLORREF COL_SELECTED;
-extern const COLORREF COL_WHITE;
-extern const COLORREF COL_BLACK;
-extern const COLORREF COL_POPUP;
-extern const COLORREF COL_POPUP_BG;
-extern const COLORREF COL_POPUP_SHADOW;
+namespace ra {
+	// put these here because of redef errors, constant expressions are fine
+
+
+	/// <summary>Might as well give these strongly typed names.</summary>
+	/// <remarks>
+	///   Used google to convert rgb to hex. Used https://goo.gl/UTsQwh to
+	///   convert from hex to name.
+	///	  Converted to hex first because the hue would be incosistent otherwise.
+	/// </remarks>
+	enum class color : COLORREF
+	{
+		black           = RGB(0, 0, 0),
+		blackcurrant    = RGB(22, 22, 60), // dark shade of violet
+		dark_green      = RGB(0, 40, 0),
+		green           = RGB(0, 128, 0),
+		grey            = RGB(128, 128, 128),
+		light_grey      = RGB(212, 212, 212),
+		lime            = RGB(0, 212, 0),
+		maroon          = RGB(80, 0, 0), // dark shade of brown
+		orange          = RGB(255, 165, 0),
+		navy            = RGB(17, 102, 221),
+		nero            = RGB(32, 32, 32), // dark shade of grey
+		prussian_blue   = RGB(0, 0, 40),
+		red             = RGB(255, 0, 0),
+		safety_orange   = RGB(251, 102, 0),
+		suva_grey       = RGB(137, 137, 137),
+		very_light_grey = RGB(202, 202, 202),
+		white           = RGB(255, 255, 255),
+	};
+
+	constexpr auto COL_TEXT{ etoi(color::navy) };
+	constexpr auto COL_TEXT_HIGHLIGHT{ etoi(color::safety_orange) };
+	constexpr auto COL_SELECTED{ etoi(color::white) };
+	constexpr auto COL_TEXT_LOCKED{ etoi(color::suva_grey) };
+	constexpr auto COL_SELECTED_LOCKED{ etoi(color::very_light_grey) };
+	constexpr auto COL_BLACK{ etoi(color::black) };
+	constexpr auto COL_WHITE{ etoi(color::white) };
+	constexpr auto COL_BAR{ etoi(color::dark_green) };
+	constexpr auto COL_BAR_BG{ etoi(color::lime) };
+	constexpr auto COL_POPUP{ etoi(color::prussian_blue) };
+	constexpr auto COL_POPUP_BG{ etoi(color::light_grey) };
+	constexpr auto COL_POPUP_SHADOW{ etoi(color::black) };
+	constexpr auto COL_USER_FRAME_BG{ etoi(color::nero) };
+	constexpr auto COL_SELECTED_BOX_BG{ etoi(color::blackcurrant) };
+	constexpr auto COL_WARNING{ etoi(color::red) };
+	constexpr auto COL_WARNING_BG{ etoi(color::maroon) };
+} // namespace ra

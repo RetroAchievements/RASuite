@@ -40,9 +40,9 @@ enum BookmarkSubItems
 	NumColumns
 };
 
-INT_PTR CALLBACK Dlg_MemBookmark::s_MemBookmarkDialogProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
+INT_PTR CALLBACK Dlg_MemBookmark::s_MemBookmarkDialogProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
-	return g_MemBookmarkDialog.MemBookmarkDialogProc( hDlg, uMsg, wParam, lParam );
+	return g_MemBookmarkDialog.MemBookmarkDialogProc( hwnd, uMsg, wParam, lParam );
 }
 
 long _stdcall EditProcBM( HWND hwnd, UINT nMsg, WPARAM wParam, LPARAM lParam )
@@ -97,7 +97,7 @@ long _stdcall EditProcBM( HWND hwnd, UINT nMsg, WPARAM wParam, LPARAM lParam )
 	return CallWindowProc( EOldProcBM, hwnd, nMsg, wParam, lParam );
 }
 
-INT_PTR Dlg_MemBookmark::MemBookmarkDialogProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
+INT_PTR Dlg_MemBookmark::MemBookmarkDialogProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	PMEASUREITEMSTRUCT pmis;
 	PDRAWITEMSTRUCT pdis;
@@ -111,9 +111,9 @@ INT_PTR Dlg_MemBookmark::MemBookmarkDialogProc( HWND hDlg, UINT uMsg, WPARAM wPa
 	{
 		case WM_INITDIALOG:
 		{
-			GenerateResizes( hDlg );
+			GenerateResizes( hwnd );
 
-			m_hMemBookmarkDialog = hDlg;
+			m_hMemBookmarkDialog = hwnd;
 			hList = GetDlgItem( m_hMemBookmarkDialog, IDC_RA_LBX_ADDRESSES );
 
 			SetupColumns( hList );
@@ -125,7 +125,7 @@ INT_PTR Dlg_MemBookmark::MemBookmarkDialogProc( HWND hDlg, UINT uMsg, WPARAM wPa
 				ImportFromFile( file );
 			}
 
-			RestoreWindowPosition( hDlg, "Memory Bookmarks", true, false );
+			RestoreWindowPosition( hwnd, "Memory Bookmarks", true, false );
 			return TRUE;
 		}
 
@@ -139,18 +139,18 @@ INT_PTR Dlg_MemBookmark::MemBookmarkDialogProc( HWND hDlg, UINT uMsg, WPARAM wPa
 		case WM_SIZE:
 		{
 			RARect winRect;
-			GetWindowRect( hDlg, &winRect );
+			GetWindowRect( hwnd, &winRect );
 
 			for ( ResizeContent content : vDlgMemBookmarkResize )
 				content.Resize( winRect.Width(), winRect.Height() );
 
-			//InvalidateRect( hDlg, NULL, TRUE );
-			RememberWindowSize(hDlg, "Memory Bookmarks");
+			//InvalidateRect( hwnd, NULL, TRUE );
+			RememberWindowSize(hwnd, "Memory Bookmarks");
 		}
 		break;
 
 		case WM_MOVE:
-			RememberWindowPosition(hDlg, "Memory Bookmarks");
+			RememberWindowPosition(hwnd, "Memory Bookmarks");
 			break;
 
 		case WM_MEASUREITEM:
@@ -171,7 +171,7 @@ INT_PTR Dlg_MemBookmark::MemBookmarkDialogProc( HWND hDlg, UINT uMsg, WPARAM wPa
 				case ODA_SELECT:
 				case ODA_DRAWENTIRE:
 
-					hList = GetDlgItem( hDlg, IDC_RA_LBX_ADDRESSES );
+					hList = GetDlgItem( hwnd, IDC_RA_LBX_ADDRESSES );
 
 					ListView_GetItemRect( hList, pdis->itemID, &rcBounds, LVIR_BOUNDS );
 					ListView_GetItemRect( hList, pdis->itemID, &rcLabel, LVIR_LABEL );
@@ -305,7 +305,7 @@ INT_PTR Dlg_MemBookmark::MemBookmarkDialogProc( HWND hDlg, UINT uMsg, WPARAM wPa
 				case IDC_RA_LBX_ADDRESSES:
 					if ( ( (LPNMHDR)lParam )->code == NM_CLICK )
 					{
-						hList = GetDlgItem( hDlg, IDC_RA_LBX_ADDRESSES );
+						hList = GetDlgItem( hwnd, IDC_RA_LBX_ADDRESSES );
 
 						nSelect = ListView_GetNextItem( hList, -1, LVNI_FOCUSED );
 
@@ -314,7 +314,7 @@ INT_PTR Dlg_MemBookmark::MemBookmarkDialogProc( HWND hDlg, UINT uMsg, WPARAM wPa
 					}
 					else if ( ( (LPNMHDR)lParam )->code == NM_DBLCLK )
 					{
-						hList = GetDlgItem( hDlg, IDC_RA_LBX_ADDRESSES );
+						hList = GetDlgItem( hwnd, IDC_RA_LBX_ADDRESSES );
 
 						LPNMITEMACTIVATE pOnClick = (LPNMITEMACTIVATE)lParam;
 
@@ -342,7 +342,7 @@ INT_PTR Dlg_MemBookmark::MemBookmarkDialogProc( HWND hDlg, UINT uMsg, WPARAM wPa
 				case IDOK:
 				case IDCLOSE:
 				case IDCANCEL:
-					EndDialog( hDlg, true );
+					EndDialog( hwnd, true );
 					return TRUE;
 
 				case IDC_RA_ADD_BOOKMARK:
@@ -354,7 +354,7 @@ INT_PTR Dlg_MemBookmark::MemBookmarkDialogProc( HWND hDlg, UINT uMsg, WPARAM wPa
 				}
 				case IDC_RA_DEL_BOOKMARK:
 				{
-					HWND hList = GetDlgItem( hDlg, IDC_RA_LBX_ADDRESSES );
+					HWND hList = GetDlgItem( hwnd, IDC_RA_LBX_ADDRESSES );
 					int nSel = ListView_GetNextItem( hList, -1, LVNI_SELECTED );
 
 					if ( nSel != -1 )
@@ -389,7 +389,7 @@ INT_PTR Dlg_MemBookmark::MemBookmarkDialogProc( HWND hDlg, UINT uMsg, WPARAM wPa
 				{
 					if ( m_vBookmarks.size() > 0 )
 					{
-						hList = GetDlgItem( hDlg, IDC_RA_LBX_ADDRESSES );
+						hList = GetDlgItem( hwnd, IDC_RA_LBX_ADDRESSES );
 						unsigned int uSelectedCount = ListView_GetSelectedCount( hList );
 
 						if ( uSelectedCount > 0 )
@@ -405,7 +405,7 @@ INT_PTR Dlg_MemBookmark::MemBookmarkDialogProc( HWND hDlg, UINT uMsg, WPARAM wPa
 				{
 					if ( m_vBookmarks.size() > 0 )
 					{
-						hList = GetDlgItem( hDlg, IDC_RA_LBX_ADDRESSES );
+						hList = GetDlgItem( hwnd, IDC_RA_LBX_ADDRESSES );
 						int idx = -1;
 						for ( MemBookmark* bookmark : m_vBookmarks )
 						{
@@ -423,7 +423,7 @@ INT_PTR Dlg_MemBookmark::MemBookmarkDialogProc( HWND hDlg, UINT uMsg, WPARAM wPa
 				{
 					if ( m_vBookmarks.size() > 0 )
 					{
-						hList = GetDlgItem( hDlg, IDC_RA_LBX_ADDRESSES );
+						hList = GetDlgItem( hwnd, IDC_RA_LBX_ADDRESSES );
 						unsigned int uSelectedCount = ListView_GetSelectedCount( hList );
 
 						if ( uSelectedCount > 0 )
@@ -865,31 +865,31 @@ void Dlg_MemBookmark::OnLoad_NewRom()
 	}
 }
 
-void Dlg_MemBookmark::GenerateResizes( HWND hDlg )
+void Dlg_MemBookmark::GenerateResizes( HWND hwnd )
 {
 	RARect windowRect;
-	GetWindowRect ( hDlg, &windowRect );
+	GetWindowRect ( hwnd, &windowRect );
 	pDlgMemBookmarkMin.x = windowRect.Width();
 	pDlgMemBookmarkMin.y = windowRect.Height();
 
-	vDlgMemBookmarkResize.push_back ( ResizeContent( hDlg,
-		GetDlgItem( hDlg, IDC_RA_LBX_ADDRESSES ), ResizeContent::ALIGN_BOTTOM_RIGHT, TRUE ) );
+	vDlgMemBookmarkResize.push_back ( ResizeContent( hwnd,
+		GetDlgItem( hwnd, IDC_RA_LBX_ADDRESSES ), ResizeContent::ALIGN_BOTTOM_RIGHT, TRUE ) );
 
-	vDlgMemBookmarkResize.push_back ( ResizeContent( hDlg,
-		GetDlgItem( hDlg, IDC_RA_ADD_BOOKMARK ), ResizeContent::ALIGN_RIGHT, FALSE ) );
-	vDlgMemBookmarkResize.push_back ( ResizeContent( hDlg,
-		GetDlgItem( hDlg, IDC_RA_DEL_BOOKMARK ), ResizeContent::ALIGN_RIGHT, FALSE ) );
-	vDlgMemBookmarkResize.push_back ( ResizeContent( hDlg,
-		GetDlgItem( hDlg, IDC_RA_CLEAR_CHANGE ), ResizeContent::ALIGN_RIGHT, FALSE ) );
+	vDlgMemBookmarkResize.push_back ( ResizeContent( hwnd,
+		GetDlgItem( hwnd, IDC_RA_ADD_BOOKMARK ), ResizeContent::ALIGN_RIGHT, FALSE ) );
+	vDlgMemBookmarkResize.push_back ( ResizeContent( hwnd,
+		GetDlgItem( hwnd, IDC_RA_DEL_BOOKMARK ), ResizeContent::ALIGN_RIGHT, FALSE ) );
+	vDlgMemBookmarkResize.push_back ( ResizeContent( hwnd,
+		GetDlgItem( hwnd, IDC_RA_CLEAR_CHANGE ), ResizeContent::ALIGN_RIGHT, FALSE ) );
 
-	vDlgMemBookmarkResize.push_back ( ResizeContent( hDlg,
-		GetDlgItem( hDlg, IDC_RA_FREEZE ), ResizeContent::ALIGN_BOTTOM_RIGHT, FALSE ) );
-	vDlgMemBookmarkResize.push_back ( ResizeContent( hDlg,
-		GetDlgItem( hDlg, IDC_RA_DECIMALBOOKMARK ), ResizeContent::ALIGN_BOTTOM_RIGHT, FALSE ) );
-	vDlgMemBookmarkResize.push_back ( ResizeContent( hDlg,
-		GetDlgItem( hDlg, IDC_RA_SAVEBOOKMARK ), ResizeContent::ALIGN_BOTTOM_RIGHT, FALSE ) );
-	vDlgMemBookmarkResize.push_back ( ResizeContent( hDlg,
-		GetDlgItem( hDlg, IDC_RA_LOADBOOKMARK ), ResizeContent::ALIGN_BOTTOM_RIGHT, FALSE ) );
+	vDlgMemBookmarkResize.push_back ( ResizeContent( hwnd,
+		GetDlgItem( hwnd, IDC_RA_FREEZE ), ResizeContent::ALIGN_BOTTOM_RIGHT, FALSE ) );
+	vDlgMemBookmarkResize.push_back ( ResizeContent( hwnd,
+		GetDlgItem( hwnd, IDC_RA_DECIMALBOOKMARK ), ResizeContent::ALIGN_BOTTOM_RIGHT, FALSE ) );
+	vDlgMemBookmarkResize.push_back ( ResizeContent( hwnd,
+		GetDlgItem( hwnd, IDC_RA_SAVEBOOKMARK ), ResizeContent::ALIGN_BOTTOM_RIGHT, FALSE ) );
+	vDlgMemBookmarkResize.push_back ( ResizeContent( hwnd,
+		GetDlgItem( hwnd, IDC_RA_LOADBOOKMARK ), ResizeContent::ALIGN_BOTTOM_RIGHT, FALSE ) );
 }
 
 BOOL Dlg_MemBookmark::EditLabel ( int nItem, int nSubItem )

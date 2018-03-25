@@ -1,22 +1,38 @@
+#ifndef RA_DLG_LOGIN_H
+#define RA_DLG_LOGIN_H
 #pragma once
 
-#include <wtypes.h>
+
 #include "IRA_Dialog.h"
-#include "RA_Resource.h"
-
-class RA_Dlg_Login : public IRA_Dialog
+namespace ra {
+class Dlg_Login : public IRA_Dialog
 {
-	// Old functions
-	/*static BOOL DoModalLogin();*/
-	/*static INT_PTR CALLBACK RA_Dlg_LoginProc( HWND, UINT, WPARAM, LPARAM );*/
-public:
-	RA_Dlg_Login();
-	~RA_Dlg_Login() noexcept = default;
 
-	// Inherited via IRA_Dialog
-	virtual INT_PTR CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, 
+public:
+	Dlg_Login();
+
+	/// <inheritdoc />
+	virtual INT_PTR CALLBACK DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 		LPARAM lParam) override;
-	BOOL OnInitDialog(HWND hDlg, HWND hDlgFocus, LPARAM lParam) override;
-	void OnCommand(HWND hDlg, int id, HWND hDlgCtl,	UINT codeNotify) override;
-	void OnOK(HWND hDlg) override;
+
+	/// <inheritdoc />
+	BOOL OnInitDialog(HWND hwnd, HWND hDlgFocus, LPARAM lParam) override;
+
+	/// <inheritdoc />
+	void OnCommand(HWND hwnd, int id, HWND hDlgCtl, UINT codeNotify) override;
+
+	/// <inheritdoc />
+	void OnOK(HWND hwnd) override;
+
+	/// <inheritdoc />
+	void OnNCDestroy(HWND hwnd) override;
+
+private:
+	// Do not initilize these in the constructor, it won't work
+	HWND hUsername{ nullptr };
+	HWND hPassword{ nullptr };
+	HWND hSavePassword{ nullptr };
 };
+} // end namespace ra
+
+#endif // !RA_DLG_LOGIN_H

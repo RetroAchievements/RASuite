@@ -852,7 +852,7 @@ typedef const FormatList& FormatListRef;
 
 namespace detail {
 
-// Format list subclass with fixed storage to avoid dynamic allocation
+// Format list subclass with fixed lStorage_ to avoid dynamic allocation
 template<int N>
 class FormatListN : public FormatList
 {

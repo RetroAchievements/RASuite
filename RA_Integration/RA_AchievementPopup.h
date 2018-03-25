@@ -41,10 +41,10 @@ private:
 
 class AchievementPopup
 {
+	using MessagePopups = std::queue<MessagePopup>;
 public:
-
-public:
-	AchievementPopup();
+	// Might throw because of queue
+	AchievementPopup() = default;
 
 	void Update( ControllerInput input, float fDelta, bool bFullScreen, bool bPaused );
 	void Render( HDC hDC, RECT& rcDest );
@@ -60,8 +60,8 @@ public:
 	void PlayAudio();
 
 private:
-	std::queue<MessagePopup> m_vMessages;
-	float m_fTimer;
+	MessagePopups m_vMessages;
+	float m_fTimer{ 0.0f };
 };
 
 //extern AchievementPopup g_PopupWindow;

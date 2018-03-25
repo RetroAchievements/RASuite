@@ -136,10 +136,10 @@ md5_process(md5_state_t *pms, const md5_byte_t *data /*[64]*/)
 	c = pms->abcd[2], d = pms->abcd[3];
     md5_word_t t;
 #if BYTE_ORDER > 0
-    /* Define storage only for big-endian CPUs. */
+    /* Define lStorage_ only for big-endian CPUs. */
     md5_word_t X[16];
 #else
-    /* Define storage for little-endian or both types of CPUs. */
+    /* Define lStorage_ for little-endian or both types of CPUs. */
     md5_word_t xbuf[16];
     const md5_word_t *X;
 #endif

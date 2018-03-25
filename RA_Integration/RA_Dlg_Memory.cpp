@@ -67,7 +67,7 @@ std::string ByteAddressToString(ByteAddress nAddr)
 	return std::string(buffer);
 }
 
-INT_PTR CALLBACK MemoryViewerControl::s_MemoryDrawProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK MemoryViewerControl::s_MemoryDrawProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
 	{
@@ -79,7 +79,7 @@ INT_PTR CALLBACK MemoryViewerControl::s_MemoryDrawProc(HWND hDlg, UINT uMsg, WPA
 		return TRUE;
 
 	case WM_PAINT:
-		RenderMemViewer(hDlg);
+		RenderMemViewer(hwnd);
 		return 0;
 
 	case WM_ERASEBKGND:
@@ -103,7 +103,7 @@ INT_PTR CALLBACK MemoryViewerControl::s_MemoryDrawProc(HWND hDlg, UINT uMsg, WPA
 		return(!OnEditInput(static_cast<UINT>(LOWORD(wParam))));
 	}
 
-	return DefWindowProc(hDlg, uMsg, wParam, lParam);
+	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	//return FALSE;
 }
 
@@ -776,9 +776,9 @@ void Dlg_Memory::Init()
 }
 
 //static
-INT_PTR CALLBACK Dlg_Memory::s_MemoryProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK Dlg_Memory::s_MemoryProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	return g_MemoryDialog.MemoryProc(hDlg, uMsg, wParam, lParam);
+	return g_MemoryDialog.MemoryProc(hwnd, uMsg, wParam, lParam);
 }
 
 void Dlg_Memory::ClearLogOutput()
@@ -789,7 +789,7 @@ void Dlg_Memory::ClearLogOutput()
 }
 
 
-INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lParam )
+INT_PTR Dlg_Memory::MemoryProc( HWND hwnd, UINT nMsg, WPARAM wParam, LPARAM lParam )
 {
 	switch ( nMsg )
 	{
@@ -797,18 +797,18 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 		{
 			if ( ( g_MemManager.NumMemoryBanks() == 0 ) || ( g_MemManager.TotalBankSize() == 0 ) )
 			{
-				SetDlgItemText( hDlg, IDC_RA_MEMBITS, TEXT( "" ) );
+				SetDlgItemText( hwnd, IDC_RA_MEMBITS, TEXT( "" ) );
 				return FALSE;
 			}
 
 			// Update Search Results
-			InvalidateRect( GetDlgItem( hDlg, IDC_RA_MEM_LIST ), NULL, TRUE );
+			InvalidateRect( GetDlgItem( hwnd, IDC_RA_MEM_LIST ), NULL, TRUE );
 
 			// Display Bits
-			bool bView8Bit = ( SendDlgItemMessage( hDlg, IDC_RA_MEMVIEW8BIT, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
+			bool bView8Bit = ( SendDlgItemMessage( hwnd, IDC_RA_MEMVIEW8BIT, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
 			if ( !bView8Bit )
 			{
-				SetDlgItemText( hDlg, IDC_RA_MEMBITS, TEXT( "" ) );
+				SetDlgItemText( hwnd, IDC_RA_MEMBITS, TEXT( "" ) );
 				return FALSE;
 			}
 
@@ -831,54 +831,54 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 					static_cast<int>( ( nVal & ( 1 << 1 ) ) != 0 ),
 					static_cast<int>( ( nVal & ( 1 << 0 ) ) != 0 ) );
 
-				GetDlgItemText( hDlg, IDC_RA_MEMBITS, nativeBuffer, 1024 );
+				GetDlgItemText( hwnd, IDC_RA_MEMBITS, nativeBuffer, 1024 );
 				if ( _tcscmp( sDesc, nativeBuffer ) != 0 )
-					SetDlgItemText( hDlg, IDC_RA_MEMBITS, sDesc );
+					SetDlgItemText( hwnd, IDC_RA_MEMBITS, sDesc );
 			}
 		}
 		return FALSE;
 
 		case WM_INITDIALOG:
 		{
-			g_MemoryDialog.m_hWnd = hDlg;
+			g_MemoryDialog.m_hWnd = hwnd;
 
-			GenerateResizes( hDlg );
+			GenerateResizes( hwnd );
 
-			CheckDlgButton( hDlg, IDC_RA_CBO_SEARCHALL, BST_CHECKED );
-			CheckDlgButton( hDlg, IDC_RA_CBO_SEARCHCUSTOM, BST_UNCHECKED );
-			EnableWindow( GetDlgItem( hDlg, IDC_RA_SEARCHRANGE ), FALSE );
-			CheckDlgButton( hDlg, IDC_RA_CBO_SEARCHSYSTEMRAM, BST_UNCHECKED );
-			CheckDlgButton( hDlg, IDC_RA_CBO_SEARCHGAMERAM, BST_UNCHECKED );
-			CheckDlgButton( hDlg, IDC_RA_CBO_GIVENVAL, BST_UNCHECKED );
-			CheckDlgButton( hDlg, IDC_RA_CBO_LASTKNOWNVAL, BST_CHECKED );
-			EnableWindow( GetDlgItem( hDlg, IDC_RA_TESTVAL ), FALSE );
+			CheckDlgButton( hwnd, IDC_RA_CBO_SEARCHALL, BST_CHECKED );
+			CheckDlgButton( hwnd, IDC_RA_CBO_SEARCHCUSTOM, BST_UNCHECKED );
+			EnableWindow( GetDlgItem( hwnd, IDC_RA_SEARCHRANGE ), FALSE );
+			CheckDlgButton( hwnd, IDC_RA_CBO_SEARCHSYSTEMRAM, BST_UNCHECKED );
+			CheckDlgButton( hwnd, IDC_RA_CBO_SEARCHGAMERAM, BST_UNCHECKED );
+			CheckDlgButton( hwnd, IDC_RA_CBO_GIVENVAL, BST_UNCHECKED );
+			CheckDlgButton( hwnd, IDC_RA_CBO_LASTKNOWNVAL, BST_CHECKED );
+			EnableWindow( GetDlgItem( hwnd, IDC_RA_TESTVAL ), FALSE );
 
 			for ( size_t i = 0; i < NumComparisonTypes; ++i )
-				ComboBox_AddString( GetDlgItem( hDlg, IDC_RA_CBO_CMPTYPE ), NativeStr( COMPARISONTYPE_STR[ i ] ).c_str() );
+				ComboBox_AddString( GetDlgItem( hwnd, IDC_RA_CBO_CMPTYPE ), NativeStr( COMPARISONTYPE_STR[ i ] ).c_str() );
 
-			ComboBox_SetCurSel( GetDlgItem( hDlg, IDC_RA_CBO_CMPTYPE ), 0 );
+			ComboBox_SetCurSel( GetDlgItem( hwnd, IDC_RA_CBO_CMPTYPE ), 0 );
 
 			//	Update timer proc
-			SetTimer( hDlg, 1, 1, (TIMERPROC)s_MemoryProc );
+			SetTimer( hwnd, 1, 1, (TIMERPROC)s_MemoryProc );
 
-			EnableWindow( GetDlgItem( hDlg, IDC_RA_DOTEST ), g_MemManager.NumCandidates() > 0 );
+			EnableWindow( GetDlgItem( hwnd, IDC_RA_DOTEST ), g_MemManager.NumCandidates() > 0 );
 
-			SetDlgItemText( hDlg, IDC_RA_WATCHING, TEXT( "0x0000" ) );
+			SetDlgItemText( hwnd, IDC_RA_WATCHING, TEXT( "0x0000" ) );
 
-			SendMessage( GetDlgItem( hDlg, IDC_RA_MEMBITS ), WM_SETFONT, reinterpret_cast<WPARAM>( GetStockObject( SYSTEM_FIXED_FONT ) ), TRUE );
-			SendMessage( GetDlgItem( hDlg, IDC_RA_MEMBITS_TITLE ), WM_SETFONT, reinterpret_cast<WPARAM>( GetStockObject( SYSTEM_FIXED_FONT ) ), TRUE );
+			SendMessage( GetDlgItem( hwnd, IDC_RA_MEMBITS ), WM_SETFONT, reinterpret_cast<WPARAM>( GetStockObject( SYSTEM_FIXED_FONT ) ), TRUE );
+			SendMessage( GetDlgItem( hwnd, IDC_RA_MEMBITS_TITLE ), WM_SETFONT, reinterpret_cast<WPARAM>( GetStockObject( SYSTEM_FIXED_FONT ) ), TRUE );
 
 			//	8-bit by default:
-			CheckDlgButton( hDlg, IDC_RA_CBO_4BIT, BST_UNCHECKED );
-			CheckDlgButton( hDlg, IDC_RA_CBO_8BIT, BST_CHECKED );
-			CheckDlgButton( hDlg, IDC_RA_CBO_16BIT, BST_UNCHECKED );
-			CheckDlgButton( hDlg, IDC_RA_CBO_32BIT, BST_UNCHECKED );
+			CheckDlgButton( hwnd, IDC_RA_CBO_4BIT, BST_UNCHECKED );
+			CheckDlgButton( hwnd, IDC_RA_CBO_8BIT, BST_CHECKED );
+			CheckDlgButton( hwnd, IDC_RA_CBO_16BIT, BST_UNCHECKED );
+			CheckDlgButton( hwnd, IDC_RA_CBO_32BIT, BST_UNCHECKED );
 
-			CheckDlgButton( hDlg, IDC_RA_MEMVIEW8BIT, BST_CHECKED );
-			CheckDlgButton( hDlg, IDC_RA_MEMVIEW16BIT, BST_UNCHECKED );
-			CheckDlgButton( hDlg, IDC_RA_MEMVIEW32BIT, BST_UNCHECKED );
+			CheckDlgButton( hwnd, IDC_RA_MEMVIEW8BIT, BST_CHECKED );
+			CheckDlgButton( hwnd, IDC_RA_MEMVIEW16BIT, BST_UNCHECKED );
+			CheckDlgButton( hwnd, IDC_RA_MEMVIEW32BIT, BST_UNCHECKED );
 
-			MemoryProc( hDlg, WM_COMMAND, IDC_RA_CBO_8BIT, 0 );		//	Imitate a buttonpress of '8-bit'
+			MemoryProc( hwnd, WM_COMMAND, IDC_RA_CBO_8BIT, 0 );		//	Imitate a buttonpress of '8-bit'
 			g_MemoryDialog.OnLoad_NewRom();
 
 			// Add a single column for list view
@@ -886,18 +886,18 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 			LVCOLUMN Col;
 			Col.mask = LVCF_FMT | LVCF_ORDER | LVCF_SUBITEM | LVCF_TEXT | LVCF_WIDTH;
 			Col.fmt = LVCFMT_CENTER;
-			GetWindowRect( GetDlgItem( hDlg, IDC_RA_MEM_LIST ), &rc );
+			GetWindowRect( GetDlgItem( hwnd, IDC_RA_MEM_LIST ), &rc );
 			for ( int i = 0; i < 1; i++ )
 			{
 				Col.iOrder = i;
 				Col.iSubItem = i;
 				Col.pszText = _T( "Search Result" );
 				Col.cx = rc.right - rc.left - 24;
-				ListView_InsertColumn( GetDlgItem( hDlg, IDC_RA_MEM_LIST ), i, &Col );
+				ListView_InsertColumn( GetDlgItem( hwnd, IDC_RA_MEM_LIST ), i, &Col );
 			}
-			ListView_SetExtendedListViewStyle( GetDlgItem( hDlg, IDC_RA_MEM_LIST ), LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER );
+			ListView_SetExtendedListViewStyle( GetDlgItem( hwnd, IDC_RA_MEM_LIST ), LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER );
 
-			CheckDlgButton ( hDlg, IDC_RA_RESULTS_HIGHLIGHT, BST_CHECKED );
+			CheckDlgButton ( hwnd, IDC_RA_RESULTS_HIGHLIGHT, BST_CHECKED );
 
 			//	Fetch banks
 			ClearBanks();
@@ -905,7 +905,7 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 			for ( size_t i = 0; i < bankIDs.size(); ++i )
 				AddBank( bankIDs[ i ] );
 
-			RestoreWindowPosition( hDlg, "Memory Inspector", true, false );
+			RestoreWindowPosition( hwnd, "Memory Inspector", true, false );
 			return TRUE;
 		}
 
@@ -920,7 +920,7 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 			HWND hListbox;
 
 			pDIS = (LPDRAWITEMSTRUCT)lParam;
-			hListbox = GetDlgItem( hDlg, IDC_RA_MEM_LIST );
+			hListbox = GetDlgItem( hwnd, IDC_RA_MEM_LIST );
 			if ( pDIS->hwndItem == hListbox )
 			{
 				if ( pDIS->itemID == -1 )
@@ -960,7 +960,7 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 							SetTextColor( pDIS->hDC, GetSysColor( COLOR_HIGHLIGHTTEXT ) );
 							color = GetSysColor( COLOR_HIGHLIGHT );
 						}
-						else if ( SendMessage ( GetDlgItem( hDlg, IDC_RA_RESULTS_HIGHLIGHT ), BM_GETCHECK, 0, 0 ) )
+						else if ( SendMessage ( GetDlgItem( hwnd, IDC_RA_RESULTS_HIGHLIGHT ), BM_GETCHECK, 0, 0 ) )
 						{
 							SetTextColor( pDIS->hDC, GetSysColor( COLOR_WINDOWTEXT ) );
 							if ( !CompareSearchResult( nVal, currentResult.m_nLastKnownValue ) )
@@ -998,7 +998,7 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 				{
 					if ( ( (LPNMHDR)lParam )->code == NM_CLICK )
 					{
-						int nSelect = ListView_GetNextItem( GetDlgItem( hDlg, IDC_RA_MEM_LIST ), -1, LVNI_FOCUSED );
+						int nSelect = ListView_GetNextItem( GetDlgItem( hwnd, IDC_RA_MEM_LIST ), -1, LVNI_FOCUSED );
 
 						if ( nSelect == -1 )
 							break;
@@ -1007,20 +1007,20 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 							TCHAR nString[ 1024 ];
 							ByteAddress nAddr = m_SearchResults[ m_nPage ].m_ResultCandidate[ nSelect - 2 ].m_nAddr;
 							_stprintf_s( nString, 1024, "0x%06x", nAddr );
-							ComboBox_SetText( GetDlgItem( hDlg, IDC_RA_WATCHING ), nString );
+							ComboBox_SetText( GetDlgItem( hwnd, IDC_RA_WATCHING ), nString );
 
 							const CodeNotes::CodeNoteObj* pSavedNote = m_CodeNotes.FindCodeNote( nAddr );
 							if ( ( pSavedNote != nullptr ) && ( pSavedNote->Note().length() > 0 ) )
-								SetDlgItemText( hDlg, IDC_RA_MEMSAVENOTE, pSavedNote->Note().c_str() );
+								SetDlgItemText( hwnd, IDC_RA_MEMSAVENOTE, pSavedNote->Note().c_str() );
 							else
-								SetDlgItemText( hDlg, IDC_RA_MEMSAVENOTE, "" );
+								SetDlgItemText( hwnd, IDC_RA_MEMSAVENOTE, "" );
 
 							MemoryViewerControl::setAddress( ( nAddr & ~( 0xf ) ) - ( (int)( MemoryViewerControl::m_nDisplayedLines / 2 ) << 4 ) + ( 0x50 ) );
 
 							Invalidate();
 						}
 						else
-							ListView_SetItemState( GetDlgItem( hDlg, IDC_RA_MEM_LIST ), -1, LVIF_STATE, LVIS_SELECTED );
+							ListView_SetItemState( GetDlgItem( hwnd, IDC_RA_MEM_LIST ), -1, LVIF_STATE, LVIS_SELECTED );
 					}
 				}
 			}
@@ -1038,17 +1038,17 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 		case WM_SIZE:
 		{
 			RARect winRect;
-			GetWindowRect( hDlg, &winRect );
+			GetWindowRect( hwnd, &winRect );
 
 			for ( ResizeContent content : vDlgMemoryResize )
 				content.Resize( winRect.Width(), winRect.Height() );
 
-			RememberWindowSize( hDlg, "Memory Inspector" );
+			RememberWindowSize( hwnd, "Memory Inspector" );
 		}
 		return TRUE;
 
 		case WM_MOVE:
-			RememberWindowPosition( hDlg, "Memory Inspector" );
+			RememberWindowPosition( hwnd, "Memory Inspector" );
 			break;
 
 		case WM_COMMAND:
@@ -1063,7 +1063,7 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 					if ( g_MemManager.TotalBankSize() == 0 )
 						return TRUE;	//	Handled
 
-					ComparisonType nCmpType = static_cast<ComparisonType>( ComboBox_GetCurSel( GetDlgItem( hDlg, IDC_RA_CBO_CMPTYPE ) ) );
+					ComparisonType nCmpType = static_cast<ComparisonType>( ComboBox_GetCurSel( GetDlgItem( hwnd, IDC_RA_CBO_CMPTYPE ) ) );
 
 					while ( m_SearchResults.size() > m_nPage + 1 )
 						m_SearchResults.pop_back();
@@ -1079,14 +1079,14 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 						m_nPage--;
 					}
 
-					EnableWindow( GetDlgItem( hDlg, IDC_RA_RESULTS_BACK ), TRUE );
-					EnableWindow( GetDlgItem( hDlg, IDC_RA_RESULTS_FORWARD ), FALSE );
+					EnableWindow( GetDlgItem( hwnd, IDC_RA_RESULTS_BACK ), TRUE );
+					EnableWindow( GetDlgItem( hwnd, IDC_RA_RESULTS_FORWARD ), FALSE );
 
 					unsigned int nValueQuery = 0;
 
 					{
 						TCHAR nativeBuffer[ 1024 ];
-						if ( GetDlgItemText( hDlg, IDC_RA_TESTVAL, nativeBuffer, 1024 ) )
+						if ( GetDlgItemText( hwnd, IDC_RA_TESTVAL, nativeBuffer, 1024 ) )
 						{
 							tstring buffer = nativeBuffer;
 							//	Read hex or dec
@@ -1131,9 +1131,9 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 						}
 					}
 
-					ListView_SetItemCount( GetDlgItem( hDlg, IDC_RA_MEM_LIST ), m_SearchResults[ m_nPage ].m_ResultCandidate.size() + 2 );
+					ListView_SetItemCount( GetDlgItem( hwnd, IDC_RA_MEM_LIST ), m_SearchResults[ m_nPage ].m_ResultCandidate.size() + 2 );
 
-					EnableWindow( GetDlgItem( hDlg, IDC_RA_DOTEST ), g_MemManager.NumCandidates() > 0 );
+					EnableWindow( GetDlgItem( hwnd, IDC_RA_DOTEST ), g_MemManager.NumCandidates() > 0 );
 				}
 				return TRUE;
 
@@ -1143,8 +1143,8 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 				{
 					Invalidate();	//	Cause the MemoryViewerControl to refresh
 
-					bool bView8Bit = ( SendDlgItemMessage( hDlg, IDC_RA_MEMVIEW8BIT, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
-					SetDlgItemText( hDlg, IDC_RA_MEMBITS_TITLE, bView8Bit ? TEXT( "Bits: 7 6 5 4 3 2 1 0" ) : TEXT( "" ) );
+					bool bView8Bit = ( SendDlgItemMessage( hwnd, IDC_RA_MEMVIEW8BIT, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
+					SetDlgItemText( hwnd, IDC_RA_MEMBITS_TITLE, bView8Bit ? TEXT( "Bits: 7 6 5 4 3 2 1 0" ) : TEXT( "" ) );
 
 					MemoryViewerControl::destroyEditCaret();
 					return FALSE;
@@ -1155,10 +1155,10 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 				case IDC_RA_CBO_16BIT:
 				case IDC_RA_CBO_32BIT:
 				{
-					bool b4BitSet = ( SendDlgItemMessage( hDlg, IDC_RA_CBO_4BIT, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
-					bool b8BitSet = ( SendDlgItemMessage( hDlg, IDC_RA_CBO_8BIT, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
-					bool b16BitSet = ( SendDlgItemMessage( hDlg, IDC_RA_CBO_16BIT, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
-					bool b32BitSet = ( SendDlgItemMessage( hDlg, IDC_RA_CBO_32BIT, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
+					bool b4BitSet = ( SendDlgItemMessage( hwnd, IDC_RA_CBO_4BIT, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
+					bool b8BitSet = ( SendDlgItemMessage( hwnd, IDC_RA_CBO_8BIT, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
+					bool b16BitSet = ( SendDlgItemMessage( hwnd, IDC_RA_CBO_16BIT, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
+					bool b32BitSet = ( SendDlgItemMessage( hwnd, IDC_RA_CBO_32BIT, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
 
 					ComparisonVariableSize nCompSize = Nibble_Lower;	//	or upper, doesn't really matter
 					if ( b4BitSet )
@@ -1188,7 +1188,7 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 						m_SearchResults[ m_nPage ].m_sFirstLine =
 							"Cleared: (" + NativeStr( std::string( COMPARISONVARIABLESIZE_STR[ nCompSize ] ) ) +
 							") mode. Aware of " + NativeStr( std::to_string( g_MemManager.NumCandidates() ) ) + " RAM locations.";
-						EnableWindow( GetDlgItem( hDlg, IDC_RA_DOTEST ), g_MemManager.NumCandidates() > 0 );
+						EnableWindow( GetDlgItem( hwnd, IDC_RA_DOTEST ), g_MemManager.NumCandidates() > 0 );
 					}
 					else
 					{
@@ -1204,26 +1204,26 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 				}
 
 				case ID_OK:
-					EndDialog( hDlg, TRUE );
+					EndDialog( hwnd, TRUE );
 					return TRUE;
 
 				case IDC_RA_CBO_GIVENVAL:
 				case IDC_RA_CBO_LASTKNOWNVAL:
-					EnableWindow( GetDlgItem( hDlg, IDC_RA_TESTVAL ), ( IsDlgButtonChecked( hDlg, IDC_RA_CBO_GIVENVAL ) == BST_CHECKED ) );
-					g_MemManager.SetUseLastKnownValue( IsDlgButtonChecked( hDlg, IDC_RA_CBO_GIVENVAL ) == BST_UNCHECKED );
+					EnableWindow( GetDlgItem( hwnd, IDC_RA_TESTVAL ), ( IsDlgButtonChecked( hwnd, IDC_RA_CBO_GIVENVAL ) == BST_CHECKED ) );
+					g_MemManager.SetUseLastKnownValue( IsDlgButtonChecked( hwnd, IDC_RA_CBO_GIVENVAL ) == BST_UNCHECKED );
 					return TRUE;
 
 				case IDC_RA_CBO_SEARCHALL:
 				case IDC_RA_CBO_SEARCHCUSTOM:
 				case IDC_RA_CBO_SEARCHSYSTEMRAM:
 				case IDC_RA_CBO_SEARCHGAMERAM:
-					EnableWindow( GetDlgItem( hDlg, IDC_RA_SEARCHRANGE ), IsDlgButtonChecked( hDlg, IDC_RA_CBO_SEARCHCUSTOM ) == BST_CHECKED );
+					EnableWindow( GetDlgItem( hwnd, IDC_RA_SEARCHRANGE ), IsDlgButtonChecked( hwnd, IDC_RA_CBO_SEARCHCUSTOM ) == BST_CHECKED );
 					return TRUE;
 
 				case IDC_RA_ADDNOTE:
 				{
-					HWND hMemWatch = GetDlgItem( hDlg, IDC_RA_WATCHING );
-					HWND hMemDescription = GetDlgItem( hDlg, IDC_RA_MEMSAVENOTE );
+					HWND hMemWatch = GetDlgItem( hwnd, IDC_RA_WATCHING );
+					HWND hMemDescription = GetDlgItem( hwnd, IDC_RA_MEMSAVENOTE );
 
 					TCHAR sAddressWide[ 16 ];
 					ComboBox_GetText( hMemWatch, sAddressWide, 16 );
@@ -1233,7 +1233,7 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 						return FALSE;
 
 					TCHAR sNewNoteWide[ 512 ];
-					GetDlgItemText( hDlg, IDC_RA_MEMSAVENOTE, sNewNoteWide, 512 );
+					GetDlgItemText( hwnd, IDC_RA_MEMSAVENOTE, sNewNoteWide, 512 );
 					const std::string sNewNote = Narrow( sNewNoteWide );
 
 					const ByteAddress nAddr = static_cast<ByteAddress>( std::strtoul( sAddress.c_str() + 2, nullptr, 16 ) );
@@ -1255,7 +1255,7 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 								pSavedNote->Author().c_str(),
 								sNewNote.c_str() );
 
-							if ( MessageBox( hDlg, NativeStr( sWarning ).c_str(), TEXT( "Warning: overwrite note?" ), MB_YESNO ) == IDYES )
+							if ( MessageBox( hwnd, NativeStr( sWarning ).c_str(), TEXT( "Warning: overwrite note?" ), MB_YESNO ) == IDYES )
 								m_CodeNotes.Add( nAddr, RAUsers::LocalUser().Username(), sNewNote );
 						}
 						else
@@ -1275,22 +1275,22 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 
 				case IDC_RA_REMNOTE:
 				{
-					HWND hMemWatch = GetDlgItem( hDlg, IDC_RA_WATCHING );
-					HWND hMemDescription = GetDlgItem( hDlg, IDC_RA_MEMSAVENOTE );
+					HWND hMemWatch = GetDlgItem( hwnd, IDC_RA_WATCHING );
+					HWND hMemDescription = GetDlgItem( hwnd, IDC_RA_MEMSAVENOTE );
 
 					TCHAR sAddressWide[ 16 ];
 					ComboBox_GetText( hMemWatch, sAddressWide, 16 );
 					const std::string sAddress = Narrow( sAddressWide );
 
 					TCHAR sDescriptionWide[ 1024 ];
-					GetDlgItemText( hDlg, IDC_RA_MEMSAVENOTE, sDescriptionWide, 1024 );
+					GetDlgItemText( hwnd, IDC_RA_MEMSAVENOTE, sDescriptionWide, 1024 );
 					const std::string sDescription = Narrow( sDescriptionWide );
 
 					ByteAddress nAddr = static_cast<ByteAddress>( std::strtoul( sAddress.c_str() + 2, nullptr, 16 ) );
 
 					m_CodeNotes.Remove( nAddr );
 
-					SetDlgItemText( hDlg, IDC_RA_MEMSAVENOTE, TEXT( "" ) );
+					SetDlgItemText( hwnd, IDC_RA_MEMSAVENOTE, TEXT( "" ) );
 
 					int nIndex = ComboBox_FindString( hMemWatch, -1, NativeStr( sAddress ).c_str() );
 					if ( nIndex != CB_ERR )
@@ -1324,7 +1324,7 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 				case IDC_RA_OPENBOOKMARKS:
 				{
 					if ( g_MemBookmarkDialog.GetHWND() == NULL )
-						g_MemBookmarkDialog.InstallHWND( CreateDialog( g_hThisDLLInst, MAKEINTRESOURCE( IDD_RA_MEMBOOKMARK ), hDlg, g_MemBookmarkDialog.s_MemBookmarkDialogProc ) );
+						g_MemBookmarkDialog.InstallHWND( CreateDialog( g_hThisDLLInst, MAKEINTRESOURCE( IDD_RA_MEMBOOKMARK ), hwnd, g_MemBookmarkDialog.s_MemBookmarkDialogProc ) );
 					if ( g_MemBookmarkDialog.GetHWND() != NULL )
 						ShowWindow( g_MemBookmarkDialog.GetHWND(), SW_SHOW );
 
@@ -1349,19 +1349,19 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 						}
 
 						if ( m_nPage != 0 )
-							EnableWindow( GetDlgItem( hDlg, IDC_RA_RESULTS_FORWARD ), TRUE );
+							EnableWindow( GetDlgItem( hwnd, IDC_RA_RESULTS_FORWARD ), TRUE );
 						else
-							EnableWindow( GetDlgItem( hDlg, IDC_RA_RESULTS_BACK ), FALSE );
+							EnableWindow( GetDlgItem( hwnd, IDC_RA_RESULTS_BACK ), FALSE );
 
-						ListView_SetItemCount( GetDlgItem( hDlg, IDC_RA_MEM_LIST ), m_SearchResults[ m_nPage ].m_nCount + 2 );
+						ListView_SetItemCount( GetDlgItem( hwnd, IDC_RA_MEM_LIST ), m_SearchResults[ m_nPage ].m_nCount + 2 );
 					}
 					else
 					{
 						g_MemManager.ResetAll( m_nCompareSize, m_nStart, m_nEnd );
 
 						g_MemManager.ChangeNumCandidates ( m_SearchResults[ m_nPage ].m_nCount );
-						EnableWindow( GetDlgItem( hDlg, IDC_RA_RESULTS_BACK ), FALSE );
-						ListView_SetItemCount( GetDlgItem( hDlg, IDC_RA_MEM_LIST ), 1 );
+						EnableWindow( GetDlgItem( hwnd, IDC_RA_RESULTS_BACK ), FALSE );
+						ListView_SetItemCount( GetDlgItem( hwnd, IDC_RA_MEM_LIST ), 1 );
 					}
 
 					return FALSE;
@@ -1386,13 +1386,13 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 					if ( m_nPage == m_SearchResults.size() - 1 )
 						EnableWindow( GetDlgItem( m_hWnd, IDC_RA_RESULTS_FORWARD ), FALSE );
 
-					ListView_SetItemCount( GetDlgItem( hDlg, IDC_RA_MEM_LIST ), m_SearchResults[ m_nPage ].m_nCount + 2 );
+					ListView_SetItemCount( GetDlgItem( hwnd, IDC_RA_MEM_LIST ), m_SearchResults[ m_nPage ].m_nCount + 2 );
 					return FALSE;
 				}
 
 				case IDC_RA_RESULTS_REMOVE:
 				{
-					HWND hList = GetDlgItem( hDlg, IDC_RA_MEM_LIST );
+					HWND hList = GetDlgItem( hwnd, IDC_RA_MEM_LIST );
 					int nSel = ListView_GetNextItem( hList, -1, LVNI_SELECTED );
 
 					if ( nSel != -1 )
@@ -1442,7 +1442,7 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 					{
 						case CBN_SELCHANGE:
 						{
-							HWND hMemWatch = GetDlgItem( hDlg, IDC_RA_WATCHING );
+							HWND hMemWatch = GetDlgItem( hwnd, IDC_RA_WATCHING );
 							int nSel = ComboBox_GetCurSel( hMemWatch );
 							if ( nSel != CB_ERR )
 							{
@@ -1452,7 +1452,7 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 									ByteAddress nAddr = static_cast<ByteAddress>( std::strtoul( Narrow( sAddr ).c_str(), nullptr, 16 ) );
 									const CodeNotes::CodeNoteObj* pSavedNote = m_CodeNotes.FindCodeNote( nAddr );
 									if ( pSavedNote != NULL && pSavedNote->Note().length() > 0 )
-										SetDlgItemText( hDlg, IDC_RA_MEMSAVENOTE, NativeStr( pSavedNote->Note() ).c_str() );
+										SetDlgItemText( hwnd, IDC_RA_MEMSAVENOTE, NativeStr( pSavedNote->Note() ).c_str() );
 
 									MemoryViewerControl::setAddress( ( nAddr & ~( 0xf ) ) - ( (int)( MemoryViewerControl::m_nDisplayedLines / 2 ) << 4 ) + ( 0x50 ) );
 								}
@@ -1466,7 +1466,7 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 							OnWatchingMemChange();
 
 							TCHAR sAddrBuffer[ 64 ];
-							GetDlgItemText( hDlg, IDC_RA_WATCHING, sAddrBuffer, 64 );
+							GetDlgItemText( hwnd, IDC_RA_WATCHING, sAddrBuffer, 64 );
 							ByteAddress nAddr = static_cast<ByteAddress>( std::strtoul( Narrow( sAddrBuffer ).c_str(), nullptr, 16 ) );
 							MemoryViewerControl::setAddress( ( nAddr & ~( 0xf ) ) - ( (int)( MemoryViewerControl::m_nDisplayedLines / 2 ) << 4 ) + ( 0x50 ) );
 							return TRUE;
@@ -1474,7 +1474,7 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 
 						default:
 							return FALSE;
-							//return DefWindowProc( hDlg, nMsg, wParam, lParam );
+							//return DefWindowProc( hwnd, nMsg, wParam, lParam );
 					}
 
 				case IDC_RA_MEMBANK:
@@ -1504,7 +1504,7 @@ INT_PTR Dlg_Memory::MemoryProc( HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lPar
 		}
 
 		case WM_CLOSE:
-			EndDialog( hDlg, 0 );
+			EndDialog( hwnd, 0 );
 			return TRUE;
 
 		default:
@@ -1931,13 +1931,13 @@ bool Dlg_Memory::CompareSearchResult( unsigned int nCurVal, unsigned int nPrevVa
 	return bResult;
 }
 
-void Dlg_Memory::GenerateResizes(HWND hDlg)
+void Dlg_Memory::GenerateResizes(HWND hwnd)
 {
 	RARect windowRect;
-	GetWindowRect(hDlg, &windowRect);
+	GetWindowRect(hwnd, &windowRect);
 	pDlgMemoryMin.x = windowRect.Width();
 	pDlgMemoryMin.y = windowRect.Height();
 
-	vDlgMemoryResize.push_back ( ResizeContent( hDlg,
-		GetDlgItem( hDlg, IDC_RA_MEMTEXTVIEWER ), ResizeContent::ALIGN_BOTTOM, TRUE ) );
+	vDlgMemoryResize.push_back ( ResizeContent( hwnd,
+		GetDlgItem( hwnd, IDC_RA_MEMTEXTVIEWER ), ResizeContent::ALIGN_BOTTOM, TRUE ) );
 }

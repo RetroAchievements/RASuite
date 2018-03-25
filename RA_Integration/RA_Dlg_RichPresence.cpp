@@ -6,15 +6,15 @@
 
 Dlg_RichPresence g_RichPresenceDialog;
 
-INT_PTR CALLBACK Dlg_RichPresence::RichPresenceDialogProc(HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK Dlg_RichPresence::RichPresenceDialogProc(HWND hwnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch ( nMsg )
 	{
 	case WM_INITDIALOG:
 	{
-		SendMessage( GetDlgItem( hDlg, IDC_RA_RICHPRESENCERESULTTEXT ), WM_SETFONT, (WPARAM)m_hFont, NULL );
+		SendMessage( GetDlgItem( hwnd, IDC_RA_RICHPRESENCERESULTTEXT ), WM_SETFONT, (WPARAM)m_hFont, NULL );
 
-		RestoreWindowPosition( hDlg, "Rich Presence Monitor", true, true );
+		RestoreWindowPosition( hwnd, "Rich Presence Monitor", true, true );
 		return TRUE;
 	}
 
@@ -33,7 +33,7 @@ INT_PTR CALLBACK Dlg_RichPresence::RichPresenceDialogProc(HWND hDlg, UINT nMsg, 
 		case IDCLOSE:
 		case IDCANCEL:
 			StopTimer();
-			EndDialog( hDlg, true );
+			EndDialog( hwnd, true );
 			return TRUE;
 
 		default:
@@ -43,15 +43,15 @@ INT_PTR CALLBACK Dlg_RichPresence::RichPresenceDialogProc(HWND hDlg, UINT nMsg, 
 
 	case WM_DESTROY:
 		StopTimer();
-		EndDialog( hDlg, true );
+		EndDialog( hwnd, true );
 		return FALSE;
 
 	case WM_MOVE:
-		RememberWindowPosition(hDlg, "Rich Presence Monitor");
+		RememberWindowPosition(hwnd, "Rich Presence Monitor");
 		break;
 
 	case WM_SIZE:
-		RememberWindowSize(hDlg, "Rich Presence Monitor");
+		RememberWindowSize(hwnd, "Rich Presence Monitor");
 		break;
 	}
 
@@ -59,9 +59,9 @@ INT_PTR CALLBACK Dlg_RichPresence::RichPresenceDialogProc(HWND hDlg, UINT nMsg, 
 }
 
 //static 
-INT_PTR CALLBACK Dlg_RichPresence::s_RichPresenceDialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK Dlg_RichPresence::s_RichPresenceDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	return g_RichPresenceDialog.RichPresenceDialogProc( hDlg, uMsg, wParam, lParam );
+	return g_RichPresenceDialog.RichPresenceDialogProc( hwnd, uMsg, wParam, lParam );
 }
 
 Dlg_RichPresence::Dlg_RichPresence()

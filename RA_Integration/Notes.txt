@@ -2,7 +2,37 @@ Windows Messages
 ================
 *numbers in parenthesis are the message number
 *we are ordering by alphabet to make it easier to use the Message Cracker
+*default message handlers found to only be non-recursive with defwindowproc 
+ will have (dwp) next to it, you may need to override
 
+
+
+Make a default handler
+-----------------------
+
+
+*We'll order these by number
+Already Handled
+---------------
+6   — WM_ACTIVATE
+7   — WM_SETFOCUS (dwp)
+8   — WM_KILLFOCUS
+15  — WM_PAINT
+20  — WM_ERASEBKGND
+24  — WM_SHOWWINDOW (dwp)
+28  — WM_ACTIVATEAPP
+48  — WM_SETFONT
+70  — WM_WINDOWPOSCHANGING (dwp)
+71  — WM_WINDOWPOSCHANGED (dwp)
+78  — WM_NOTIFY
+127 — WM_GETICON
+134 — WM_NCACTIVATE (dwp)
+273 — WM_COMMAND
+309 — WM_CTLCOLORBTN - buttons appear
+310 — WM_CTLCOLORDLG - Modal Dialogs appear
+307 — WM_CTLCOLOREDIT
+308 — WM_CTLCOLORLISTBOX
+312 — WM_CTLCOLORSTATIC
 
 Message Crackers don't exist
 ----------------------------
@@ -16,34 +46,6 @@ WM_NULL(0)
 WM_PRINTCLIENT(792)
 WM_QUERYUISTATE(297)
 WM_UPDATEUISTATE(296)
-
-
-Make a default handler
------------------------
-
-
-*We'll order these by number
-Already Handled
----------------
-6   — WM_ACTIVATE
-7   — WM_SETFOCUS
-8   — WM_KILLFOCUS
-15  — WM_PAINT
-20  — WM_ERASEBKGND
-24  — WM_SHOWWINDOW
-28  — WM_ACTIVATEAPP
-48  — WM_SETFONT
-70  — WM_WINDOWPOSCHANGING
-71  — WM_WINDOWPOSCHANGED
-78  — WM_NOTIFY
-127 — WM_GETICON
-273 — WM_COMMAND
-309 — WM_CTLCOLORBTN - buttons appear
-310 — WM_CTLCOLORDLG - Modal Dialogs appear
-307 — WM_CTLCOLOREDIT
-308 — WM_CTLCOLORLISTBOX
-312 — WM_CTLCOLORSTATIC
-
 
 
 

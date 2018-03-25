@@ -424,7 +424,7 @@ BOOL AchievementSet::LoadFromFile( GameID nGameID )
 	errno_t nErr = fopen_s(&pFile, sFilename.c_str(), "r");
 	if (pFile != nullptr)
 	{
-		//	Store this: we are now assuming this is the correct checksum if we have a file for it
+		//	Store this: we are now assuming this is the correct m_hChecksum if we have a file for it
 		g_pCurrentGameData->SetGameID(nGameID);
 
 		if (m_nSetType == Local)

@@ -106,20 +106,20 @@ int Dlg_AchievementsReporter::AddAchievementToListBox(HWND hList, const Achievem
 	return item.iItem;
 }
 
-INT_PTR CALLBACK Dlg_AchievementsReporter::AchievementsReporterProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK Dlg_AchievementsReporter::AchievementsReporterProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
 	{
 	case WM_INITDIALOG:
 	{
-		HWND hList = GetDlgItem(hDlg, IDC_RA_REPORTBROKENACHIEVEMENTSLIST);
+		HWND hList = GetDlgItem(hwnd, IDC_RA_REPORTBROKENACHIEVEMENTSLIST);
 		SetupColumns(hList);
 
 		for (size_t i = 0; i < g_pActiveAchievements->NumAchievements(); ++i)
 			AddAchievementToListBox(hList, &g_pActiveAchievements->GetAchievement(i));
 
 		ListView_SetExtendedListViewStyle(hList, LVS_EX_CHECKBOXES | LVS_EX_HEADERDRAGDROP);
-		SetDlgItemText(hDlg, IDC_RA_BROKENACH_BUGREPORTER, NativeStr(RAUsers::LocalUser().Username()).c_str());
+		SetDlgItemText(hwnd, IDC_RA_BROKENACH_BUGREPORTER, NativeStr(RAUsers::LocalUser().Username()).c_str());
 	}
 	return FALSE;
 
@@ -128,10 +128,10 @@ INT_PTR CALLBACK Dlg_AchievementsReporter::AchievementsReporterProc(HWND hDlg, U
 		{
 		case IDOK:
 		{
-			HWND hList = GetDlgItem(hDlg, IDC_RA_REPORTBROKENACHIEVEMENTSLIST);
+			HWND hList = GetDlgItem(hwnd, IDC_RA_REPORTBROKENACHIEVEMENTSLIST);
 
-			const bool bProblem1Sel = (IsDlgButtonChecked(hDlg, IDC_RA_PROBLEMTYPE1) == BST_CHECKED);
-			const bool bProblem2Sel = (IsDlgButtonChecked(hDlg, IDC_RA_PROBLEMTYPE2) == BST_CHECKED);
+			const bool bProblem1Sel = (IsDlgButtonChecked(hwnd, IDC_RA_PROBLEMTYPE1) == BST_CHECKED);
+			const bool bProblem2Sel = (IsDlgButtonChecked(hwnd, IDC_RA_PROBLEMTYPE2) == BST_CHECKED);
 
 			if ((bProblem1Sel == false) && (bProblem2Sel == false))
 			{
@@ -169,7 +169,7 @@ INT_PTR CALLBACK Dlg_AchievementsReporter::AchievementsReporterProc(HWND hDlg, U
 			}
 
 			TCHAR sBugReportCommentIn[4096];
-			GetDlgItemText(hDlg, IDC_RA_BROKENACHIEVEMENTREPORTCOMMENT, sBugReportCommentIn, 4096);
+			GetDlgItemText(hwnd, IDC_RA_BROKENACHIEVEMENTREPORTCOMMENT, sBugReportCommentIn, 4096);
 			std::string sBugReportComment = Narrow(sBugReportCommentIn);
 
 			//	Intentionally MBCS
@@ -220,8 +220,8 @@ INT_PTR CALLBACK Dlg_AchievementsReporter::AchievementsReporterProc(HWND hDlg, U
 						"\n"
 						"Thanks again!");
 
-					MessageBox(hDlg, NativeStr(buffer).c_str(), TEXT("Success!"), MB_OK);
-					EndDialog(hDlg, TRUE);
+					MessageBox(hwnd, NativeStr(buffer).c_str(), TEXT("Success!"), MB_OK);
+					EndDialog(hwnd, TRUE);
 					return TRUE;
 				}
 				else
@@ -233,13 +233,13 @@ INT_PTR CALLBACK Dlg_AchievementsReporter::AchievementsReporterProc(HWND hDlg, U
 						"Response From Server:\n"
 						"\n"
 						"Error code: %d", doc.GetParseError());
-					MessageBox(hDlg, NativeStr(buffer).c_str(), TEXT("Error from server!"), MB_OK);
+					MessageBox(hwnd, NativeStr(buffer).c_str(), TEXT("Error from server!"), MB_OK);
 					return FALSE;
 				}
 			}
 			else
 			{
-				MessageBox(hDlg,
+				MessageBox(hwnd,
 					TEXT("Failed!\n")
 					TEXT("\n")
 					TEXT("Cannot reach server... are you online?\n")
@@ -251,13 +251,13 @@ INT_PTR CALLBACK Dlg_AchievementsReporter::AchievementsReporterProc(HWND hDlg, U
 		break;
 
 		case IDCANCEL:
-			EndDialog(hDlg, TRUE);
+			EndDialog(hwnd, TRUE);
 			return TRUE;
 		}
 		return FALSE;
 
 	case WM_CLOSE:
-		EndDialog(hDlg, FALSE);
+		EndDialog(hwnd, FALSE);
 		return TRUE;
 
 	default:

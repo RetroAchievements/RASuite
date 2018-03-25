@@ -7,8 +7,9 @@
 #include <ShlObj.h>
 #include <tchar.h>
 #include <queue>
+#include <array>
 #include <map>
-
+#include <chrono>
 // just in-case
 #ifdef WIN32_LEAN_AND_MEAN
 #include <ShellAPI.h>
@@ -22,6 +23,8 @@
 // the C98 version has fixed params and might cause errors on parsing 
 #define TINYFORMAT_USE_VARIADIC_TEMPLATES 
 #include "tinyformat.h"
+
+#define _RA ::ra::
 
 #ifndef RA_EXPORTS
 
@@ -48,18 +51,16 @@
 // super strech
 #include "rapidjson/include/rapidjson/filereadstream.h"
 #include "rapidjson/include/rapidjson/filewritestream.h"
-
-
-
-
-
-
-
 #pragma warning(pop)
 
 using namespace rapidjson;
 extern GetParseErrorFunc GetJSONParseErrorStr;
 
+using namespace std::string_literals;
+using namespace std::chrono_literals;
+
+namespace ra{} // just so it doesn't complain
+using namespace ra;
 #endif	//RA_EXPORTS
 
 
@@ -91,18 +92,13 @@ extern GetParseErrorFunc GetJSONParseErrorStr;
 #define SIZEOF_ARRAY( ar )	( sizeof( ar ) / sizeof( ar[ 0 ] ) )
 #define SAFE_DELETE( x )	{ if( x != nullptr ) { delete x; x = nullptr; } }
 
-typedef unsigned char	BYTE;
-typedef unsigned long	DWORD;
-typedef int				BOOL;
-typedef DWORD			ARGB;
+using ARGB = DWORD;
 
 //namespace RA
 //{
-template<typename T>
-static inline const T& RAClamp(const T& val, const T& lower, const T& upper)
-{
-	return(val < lower) ? lower : ((val > upper) ? upper : val);
-}
+
+// The function that was here (RAClamp) has a function in the standard
+// (std::clamp)
 
 class RARect : public RECT
 {
@@ -120,6 +116,8 @@ public:
 	inline int Width() const { return(right - left); }
 	inline int Height() const { return(bottom - top); }
 };
+
+
 
 class RASize
 {
@@ -228,12 +226,12 @@ enum AchievementSetType
 	NumAchievementSetTypes
 };
 
-using DataStream = std::basic_string<BYTE>;
-typedef unsigned long ByteAddress;
-
-typedef unsigned int AchievementID;
-typedef unsigned int LeaderboardID;
-typedef unsigned int GameID;
+// Sematic reasons
+using DataStream    = std::basic_string<BYTE>;
+using ByteAddress   = std::size_t;
+using AchievementID = std::size_t;
+using LeaderboardID = std::size_t;
+using GameID        = std::size_t;
 
 // just call c_str() as needed
 std::string DataStreamAsString(const DataStream& stream);
@@ -241,28 +239,18 @@ std::string DataStreamAsString(const DataStream& stream);
 extern void RADebugLogNoFormat(const char* data);
 
 
-// This function was a disaster
+// This function was a disaster, all those lines into two...
 template<typename... Args>
 void RADebugLog(const char* fmt, const Args&... args)
 {
 	// it couldn't deduce it
 	std::string buf{ tfm::format(fmt, args...) };
-
-#ifdef _DEBUG
-	OutputDebugString(buf.c_str());
-#endif // _DEBUG
-
-	//SetCurrentDirectory( g_sHomeDir.c_str() );//?
-	// RAII
-	std::ofstream ofile{ RA_LOG_FILENAME, std::ios::app };
-
-	// it wasn't writing a newline
-	ofile << buf << "\r\n"; // does it really need this?
+	RADebugLogNoFormat(buf.c_str());
 }
 
 extern BOOL DirectoryExists(const char* sPath);
 
-constexpr int SERVER_PING_DURATION = 2 * 60;
+constexpr int SERVER_PING_DURATION{ 2 * 60 };
 //};
 //using namespace RA;
 
@@ -292,7 +280,7 @@ extern std::wstring Widen(const std::wstring& wstr);
 extern std::string Narrow(const char* str);
 extern std::string Narrow(const std::string& wstr);
 
-typedef std::basic_string<TCHAR> tstring;
+using tstring = std::basic_string<TCHAR>;
 
 
 #ifdef UNICODE
@@ -321,8 +309,10 @@ constexpr std::intptr_t operator "" _i(unsigned long long n)
 	return static_cast<std::intptr_t>(n);
 }
 
+namespace ra {
 
-// NOW I remember
+
+// NOW I remember, you can use std::to_string now as well.
 template<typename CharT = char>
 std::basic_string<CharT> TimeToString(time_t the_time) noexcept
 {
@@ -331,6 +321,14 @@ std::basic_string<CharT> TimeToString(time_t the_time) noexcept
 	return ss.str();
 }
 
+template<typename Enum, class = std::enable_if_t<std::is_enum_v<Enum>>>
+constexpr auto etoi(Enum e) -> typename std::underlying_type_t<Enum>
+{
+	return static_cast<std::underlying_type_t<Enum>>(e);
+}
 
+// alias
+template<typename Enum>
+constexpr auto to_integral = etoi<Enum>;
 
-
+} // namespace ra

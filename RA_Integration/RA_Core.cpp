@@ -369,8 +369,8 @@ API int CCONV _RA_OnLoadNewRom(const BYTE* pROM, unsigned int nROMSize)
 				RA_GetEstimatedGameTitle(buffer);
 				std::string sEstimatedGameTitle(buffer);
 
-				Dlg_GameTitle game_title;
-				game_title.GetInfoFromModal(g_sCurrentROMMD5, 
+				_RA Dlg_GameTitle gametitle_dlg;
+				gametitle_dlg.GetInfoFromModal(g_sCurrentROMMD5,
 					sEstimatedGameTitle, nGameID);
 			}
 			else
@@ -1050,7 +1050,7 @@ void _FetchMyProgressFromWeb()
 		_WriteBufferToFile(RA_MY_PROGRESS_FILENAME, Response);
 }
 
-void RestoreWindowPosition(HWND hDlg, const char* sDlgKey, bool bToRight, bool bToBottom)
+void RestoreWindowPosition(HWND hwnd, const char* sDlgKey, bool bToRight, bool bToBottom)
 {
 	WindowPosition new_pos;
 	WindowPosition* pos;
@@ -1064,7 +1064,7 @@ void RestoreWindowPosition(HWND hDlg, const char* sDlgKey, bool bToRight, bool b
 	}
 
 	RECT rc;
-	GetWindowRect(hDlg, &rc);
+	GetWindowRect(hwnd, &rc);
 	const int nDlgWidth = rc.right - rc.left;
 	if ( pos->nWidth != WindowPosition::nUnset && pos->nWidth < nDlgWidth )
 		pos->nWidth = WindowPosition::nUnset;
@@ -1106,7 +1106,7 @@ void RestoreWindowPosition(HWND hDlg, const char* sDlgKey, bool bToRight, bool b
 		}
 	}
 
-	SetWindowPos(hDlg, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, 0);
+	SetWindowPos(hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, 0);
 
 	pos->bLoaded = true;
 
@@ -1114,7 +1114,7 @@ void RestoreWindowPosition(HWND hDlg, const char* sDlgKey, bool bToRight, bool b
 		g_mWindowPositions[std::string(sDlgKey)] = new_pos;
 }
 
-void RememberWindowPosition(HWND hDlg, const char* sDlgKey)
+void RememberWindowPosition(HWND hwnd, const char* sDlgKey)
 {
 	WindowPositionMap::iterator iter = g_mWindowPositions.find(std::string(sDlgKey));
 	if ( iter == g_mWindowPositions.end() )
@@ -1127,13 +1127,13 @@ void RememberWindowPosition(HWND hDlg, const char* sDlgKey)
 	GetWindowRect(g_RAMainWnd, &rcMainWindow);
 
 	RECT rc;
-	GetWindowRect(hDlg, &rc);
+	GetWindowRect(hwnd, &rc);
 
 	iter->second.nLeft = rc.left - rcMainWindow.left;
 	iter->second.nTop = rc.top - rcMainWindow.top;
 }
 
-void RememberWindowSize(HWND hDlg, const char* sDlgKey)
+void RememberWindowSize(HWND hwnd, const char* sDlgKey)
 {
 	WindowPositionMap::iterator iter = g_mWindowPositions.find(std::string(sDlgKey));
 	if ( iter == g_mWindowPositions.end() )
@@ -1143,7 +1143,7 @@ void RememberWindowSize(HWND hDlg, const char* sDlgKey)
 		return;
 
 	RECT rc;
-	GetWindowRect(hDlg, &rc);
+	GetWindowRect(hwnd, &rc);
 
 	iter->second.nWidth = rc.right - rc.left;
 	iter->second.nHeight = rc.bottom - rc.top;
@@ -1176,7 +1176,7 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 
 	case IDM_RA_FILES_LOGIN:
 	{
-		RA_Dlg_Login myLogin;
+		_RA Dlg_Login myLogin;
 		myLogin.DoModal();
 		_RA_SavePreferences();
 	}
@@ -1233,7 +1233,7 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 
 	case IDM_RA_GETROMCHECKSUM:
 	{
-		RA_Dlg_RomChecksum checksum_dlg;
+		_RA Dlg_RomChecksum checksum_dlg;
 		checksum_dlg.DoModal();
 		break;
 	}

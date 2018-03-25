@@ -5,7 +5,7 @@ GameData* g_pCurrentGameData = new GameData();
 void GameData::ParseData(const Document& doc)
 {
 	m_nGameID = doc["ID"].GetUint();
-	m_sGameTitle = doc["Title"].GetString();
+	m_hGameTitle = doc["Title"].GetString();
 	m_sRichPresencePatch = doc["RichPresencePatch"].IsNull() ? "" : doc["RichPresencePatch"].GetString();
 
 	//m_nConsoleID = doc["ConsoleID"].GetUint();

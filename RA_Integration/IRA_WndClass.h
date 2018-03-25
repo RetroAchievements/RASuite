@@ -5,20 +5,22 @@
 #include <WTypes.h>
 
 
-/// <summary>
-///   Extremely simple window class, derive to make specialized versions
-/// </summary>
-/// <seealso cref="WNDCLASSEX" />
-class IRA_WndClass : protected WNDCLASSEX
-{
-public:
-	IRA_WndClass(LPCTSTR className) noexcept;
-	virtual ~IRA_WndClass() noexcept;
+namespace ra {
+	/// <summary>
+	///   Extremely simple window class, derive to make specialized versions
+	/// </summary>
+	/// <seealso cref="WNDCLASSEX" />
+	class IRA_WndClass : protected WNDCLASSEX
+	{
+	public:
+		IRA_WndClass(LPCTSTR className) noexcept;
+		virtual ~IRA_WndClass() noexcept;
 
 
-	virtual bool Register() noexcept;
-	virtual LPCTSTR className() const noexcept { return lpszClassName; }
-};
+		virtual bool Register() noexcept;
+		virtual LPCTSTR className() const noexcept { return lpszClassName; }
+	};
+} // namespace ra
 
 #endif // !IRA_WINDOWCLASS_H
 

@@ -124,7 +124,7 @@ void LocalRAUser::AttemptLogin( bool bBlocking )
 	else
 	{
 		//	Push dialog to get them to login!
-		RA_Dlg_Login myLogin;
+		_RA Dlg_Login myLogin;
 		myLogin.DoModal();
 		_RA_SavePreferences();
 	}
@@ -170,7 +170,7 @@ void LocalRAUser::ProcessSuccessfulLogin( const std::string& sUser, const std::s
 	//	Used only for persistence: always store in memory (we need it!)
 	SetStoreToken( bRememberLogin );
 
- 	m_aFriends.clear();
+	m_aFriends.clear();
 
 	LoadOrFetchUserImage();
 	RequestFriendList();
@@ -287,3 +287,32 @@ RAUser* LocalRAUser::FindFriend( const std::string& sName )
 	}
 	return nullptr;
 }
+
+namespace ra {
+	auto username_length() noexcept
+		-> decltype(RAUsers::LocalUser().Username().length())
+	{
+		return RAUsers::LocalUser().Username().length();
+	} // end function username_length
+
+	auto username() noexcept -> decltype(RAUsers::LocalUser().Username())
+	{
+		return RAUsers::LocalUser().Username();
+	} // end function username
+
+	auto cusername() noexcept -> decltype(username().c_str())
+	{
+		return username().c_str();
+	} // end function cusername
+
+	auto user_token() noexcept  -> decltype(RAUsers::LocalUser().Token())
+	{
+		return RAUsers::LocalUser().Token();
+	} // end function user_token
+
+	auto user_loggedin() noexcept  -> decltype(RAUsers::LocalUser().IsLoggedIn())
+	{
+		return RAUsers::LocalUser().IsLoggedIn();
+	} // end function user_loggedin
+
+} // namespace ra

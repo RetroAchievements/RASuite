@@ -12,16 +12,18 @@
 #include "RA_Leaderboard.h"
 #include "RA_GameData.h"
 
-#include <time.h>
+#include "RA_Defs.h"
 
-namespace
+namespace ra
 {
-	const float PAGE_TRANSITION_IN = (-0.2f);
-	const float PAGE_TRANSITION_OUT = (0.2f);
-	const int NUM_MESSAGES_TO_DRAW = 4;
-	const char* FONT_TO_USE = "Tahoma";
+	using PageTitles = std::array<const char*, NumOverlayPages>;
 
-	const char* PAGE_TITLES[] ={
+	constexpr auto PAGE_TRANSITION_IN{ -0.2f };
+	constexpr auto PAGE_TRANSITION_OUT{ 0.2f };
+	constexpr auto NUM_MESSAGES_TO_DRAW{ 4 };
+	const auto FONT_TO_USE{"Tahoma"s };
+
+	constexpr PageTitles PAGE_TITLES {
 		" Achievements ",
 		" Friends ",
 		" Messages ",
@@ -37,6 +39,15 @@ namespace
 	};
 	static_assert(SIZEOF_ARRAY(PAGE_TITLES) == NumOverlayPages, "Must match!");
 
+
+
+
+
+	//RASize overlay_size{ 1024, 1024 };
+
+	// got narrowing conversion erros here
+	constexpr auto OVERLAY_WIDTH{ 1024 };
+	constexpr auto OVERLAY_HEIGHT{ 1024 };
 }
 
 
@@ -51,25 +62,9 @@ AchievementOverlay g_AchievementOverlay;
 AchievementExamine g_AchExamine;
 LeaderboardExamine g_LBExamine;
 
-const COLORREF COL_TEXT = RGB(17, 102, 221);
-const COLORREF COL_TEXT_HIGHLIGHT = RGB(251, 102, 0);
-const COLORREF COL_SELECTED = RGB(255, 255, 255);
-const COLORREF COL_TEXT_LOCKED = RGB(137, 137, 137);
-const COLORREF COL_SELECTED_LOCKED = RGB(202, 202, 202);
-const COLORREF COL_BLACK = RGB(0, 0, 0);
-const COLORREF COL_WHITE = RGB(255, 255, 255);
-const COLORREF COL_BAR = RGB(0, 40, 0);
-const COLORREF COL_BAR_BG = RGB(0, 212, 0);
-const COLORREF COL_POPUP = RGB(0, 0, 40);
-const COLORREF COL_POPUP_BG = RGB(212, 212, 212);
-const COLORREF COL_POPUP_SHADOW = RGB(0, 0, 0);
-const COLORREF COL_USER_FRAME_BG = RGB(32, 32, 32);
-const COLORREF COL_SELECTED_BOX_BG = RGB(22, 22, 60);
-const COLORREF COL_WARNING = RGB(255, 0, 0);
-const COLORREF COL_WARNING_BG = RGB(80, 0, 0);
 
-const unsigned int OVERLAY_WIDTH = 1024;
-const unsigned int OVERLAY_HEIGHT = 1024;
+
+
 
 
 void AchievementOverlay::SelectNextTopLevelPage(BOOL bPressedRight)
@@ -112,7 +107,7 @@ AchievementOverlay::~AchievementOverlay()
 {
 	if ( m_hOverlayBackground != NULL )
 	{
-		DeleteObject(m_hOverlayBackground);
+		DeleteBitmap(m_hOverlayBackground);
 		m_hOverlayBackground = NULL;
 	}
 }
@@ -127,7 +122,7 @@ void AchievementOverlay::Initialize(HINSTANCE hInst)
 
 	m_bInputLock = FALSE;
 	m_nTransitionState = TS_OFF;
-	m_fTransitionTimer = PAGE_TRANSITION_IN;
+	m_fTransitionTimer = _RA PAGE_TRANSITION_IN;
 
 	m_nPageStackPointer = 0;
 	m_Pages[0] = OP_ACHIEVEMENTS;
@@ -139,7 +134,7 @@ void AchievementOverlay::Initialize(HINSTANCE hInst)
 
 	m_LatestNews.clear();
 
-	m_hOverlayBackground = LoadLocalPNG(RA_OVERLAY_BG_FILENAME, RASize(OVERLAY_WIDTH, OVERLAY_HEIGHT));
+	m_hOverlayBackground = LoadLocalPNG(RA_OVERLAY_BG_FILENAME, RASize{ _RA OVERLAY_WIDTH, _RA OVERLAY_HEIGHT });
 	//if( m_hOverlayBackground == NULL )
 	//{
 	//	//	Backup
@@ -149,10 +144,11 @@ void AchievementOverlay::Initialize(HINSTANCE hInst)
 
 void AchievementOverlay::Activate()
 {
+	
 	if ( m_nTransitionState != TS_HOLD )
 	{
 		m_nTransitionState = TS_IN;
-		m_fTransitionTimer = PAGE_TRANSITION_IN;
+		m_fTransitionTimer = _RA PAGE_TRANSITION_IN;
 	}
 }
 
@@ -208,7 +204,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 		if ( m_nTransitionState == TS_OUT && !bPaused )
 		{
 			//	Skip to 'out' if we are full-screen
-			m_fTransitionTimer = PAGE_TRANSITION_OUT;
+			m_fTransitionTimer = _RA PAGE_TRANSITION_OUT;
 		}
 	}
 
@@ -225,9 +221,9 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 	else if ( m_nTransitionState == TS_OUT )
 	{
 		m_fTransitionTimer += fDelta;
-		if ( m_fTransitionTimer >= PAGE_TRANSITION_OUT )
+		if ( m_fTransitionTimer >= _RA PAGE_TRANSITION_OUT )
 		{
-			m_fTransitionTimer = PAGE_TRANSITION_OUT;
+			m_fTransitionTimer = _RA PAGE_TRANSITION_OUT;
 
 			if ( bPaused )
 			{
@@ -239,7 +235,7 @@ BOOL AchievementOverlay::Update(ControllerInput* pInput, float fDelta, BOOL bFul
 // 					m_nCurrentPage = OP_ACHIEVEMENTS;
 
 				m_nTransitionState = TS_IN;
-				m_fTransitionTimer = PAGE_TRANSITION_IN;
+				m_fTransitionTimer = _RA PAGE_TRANSITION_IN;
 			}
 			else
 			{
@@ -561,7 +557,7 @@ void AchievementOverlay::DrawAchievementsPage(HDC hDC, int nDX, int nDY, const R
 
 		if ( nNumberOfAchievements > 0 )
 		{
-			SetTextColor(hDC, COL_TEXT_LOCKED);
+			SetTextColor(hDC, _RA COL_TEXT_LOCKED);
 			char buffer[256];
 			sprintf_s(buffer, 256, " %d of %d won (%d/%d) ",
 				nUserCompleted, nNumberOfAchievements,
@@ -1000,7 +996,7 @@ void AchievementOverlay::DrawLeaderboardPage(HDC hDC, int nDX, int nDY, const RE
 			if ( rcNews.bottom > nHeight )
 				rcNews.bottom = nHeight;
 
-			SetTextColor(hDC, COL_SELECTED_LOCKED);
+			SetTextColor(hDC, _RA COL_SELECTED_LOCKED);
 
 			//	Draw payload:
 			DrawText(hDC, NativeStr(sPayload).c_str(), sPayload.length(), &rcNews, DT_TOP | DT_LEFT | DT_WORDBREAK);
@@ -1061,7 +1057,7 @@ void AchievementOverlay::DrawLeaderboardExaminePage(HDC hDC, int nDX, int nDY, c
 		const std::string sTitle(" " + pLB->Title() + " ");
 		TextOut(hDC, nDX + 20, nCoreDetailsY, NativeStr(sTitle).c_str(), sTitle.length());
 
-		SetTextColor(hDC, COL_SELECTED_LOCKED);
+		SetTextColor(hDC, _RA COL_SELECTED_LOCKED);
 		const std::string sDesc(" " + pLB->Description() + " ");
 		TextOut(hDC, nDX + 20, nCoreDetailsY + nCoreDetailsSpacing, NativeStr(sDesc).c_str(), sDesc.length());
 
@@ -1155,20 +1151,20 @@ void AchievementOverlay::Render(HDC hDC, RECT* rcDest) const
 
 
 	g_hFontTitle = CreateFont(nFontSize1, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
-		CLIP_CHARACTER_PRECIS, /*NON*/ANTIALIASED_QUALITY, VARIABLE_PITCH, NativeStr(FONT_TO_USE).c_str());
+		CLIP_CHARACTER_PRECIS, /*NON*/ANTIALIASED_QUALITY, VARIABLE_PITCH, NativeStr(_RA FONT_TO_USE).c_str());
 
 	g_hFontDesc = CreateFont(nFontSize2, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
-		CLIP_CHARACTER_PRECIS, /*NON*/ANTIALIASED_QUALITY, VARIABLE_PITCH, NativeStr(FONT_TO_USE).c_str());
+		CLIP_CHARACTER_PRECIS, /*NON*/ANTIALIASED_QUALITY, VARIABLE_PITCH, NativeStr(_RA FONT_TO_USE).c_str());
 
 	g_hFontDesc2 = CreateFont(nFontSize3, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
-		CLIP_CHARACTER_PRECIS, /*NON*/ANTIALIASED_QUALITY, VARIABLE_PITCH, NativeStr(FONT_TO_USE).c_str());
+		CLIP_CHARACTER_PRECIS, /*NON*/ANTIALIASED_QUALITY, VARIABLE_PITCH, NativeStr(_RA FONT_TO_USE).c_str());
 
 	g_hFontTiny = CreateFont(nFontSize4, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
-		CLIP_CHARACTER_PRECIS, /*NON*/ANTIALIASED_QUALITY, VARIABLE_PITCH, NativeStr(FONT_TO_USE).c_str());
+		CLIP_CHARACTER_PRECIS, /*NON*/ANTIALIASED_QUALITY, VARIABLE_PITCH, NativeStr(_RA FONT_TO_USE).c_str());
 
 	float fPctOffScreen = (m_nTransitionState == TS_IN) ?
-		(m_fTransitionTimer / PAGE_TRANSITION_IN) :
-		(m_fTransitionTimer / PAGE_TRANSITION_OUT);
+		(m_fTransitionTimer / _RA PAGE_TRANSITION_IN) :
+		(m_fTransitionTimer / _RA PAGE_TRANSITION_OUT);
 
 	int nDX = (int)(0 - (fPctOffScreen * (rcTarget.right - rcTarget.left)));
 	int nDY = rcTarget.top;
@@ -1187,12 +1183,12 @@ void AchievementOverlay::Render(HDC hDC, RECT* rcDest) const
 	int nOldBkMode = SetBkMode(hDC, TRANSPARENT);
 
 	RECT rcBGSize;
-	SetRect(&rcBGSize, 0, 0, OVERLAY_WIDTH, OVERLAY_HEIGHT);
-	OffsetRect(&rcBGSize, -((LONG)OVERLAY_WIDTH - rc.right), 0);
+	SetRect(&rcBGSize, 0, 0, _RA OVERLAY_WIDTH, _RA OVERLAY_HEIGHT);
+	OffsetRect(&rcBGSize, -((LONG)_RA OVERLAY_WIDTH - rc.right), 0);
 	DrawImageTiled(hDC, m_hOverlayBackground, rcBGSize, rc);
 
-	g_hBrushBG			= CreateSolidBrush(COL_USER_FRAME_BG);
-	g_hBrushSelectedBG	= CreateSolidBrush(COL_SELECTED_BOX_BG);
+	g_hBrushBG			= CreateSolidBrush(_RA COL_USER_FRAME_BG);
+	g_hBrushSelectedBG	= CreateSolidBrush(_RA COL_SELECTED_BOX_BG);
 
 	SetTextColor(hDC, COL_TEXT);
 	SelectObject(hDC, g_hFontDesc);
@@ -1253,7 +1249,7 @@ void AchievementOverlay::Render(HDC hDC, RECT* rcDest) const
 	//	Title:
 	SelectObject(hDC, g_hFontTitle);
 	SetTextColor(hDC, COL_TEXT);
-	sprintf_s(buffer, 1024, PAGE_TITLES[nCurrentPage]);
+	sprintf_s(buffer, 1024, _RA PAGE_TITLES.at(nCurrentPage));
 	//sprintf_s( buffer, 1024, PAGE_TITLES[ nCurrentPage ], (*pnScrollOffset)+1 );
 	TextOut(hDC,
 		nDX + nBorder,
@@ -1302,12 +1298,12 @@ void AchievementOverlay::Render(HDC hDC, RECT* rcDest) const
 		TextOut(hDC, nRightPx - nControlsX2, nControlsY2, NativeStr(buffer).c_str(), strlen(buffer));
 	}
 
-	DeleteObject(g_hBrushBG);
-	DeleteObject(g_hBrushSelectedBG);
-	DeleteObject(g_hFontTitle);
-	DeleteObject(g_hFontDesc);
-	DeleteObject(g_hFontDesc2);
-	DeleteObject(g_hFontTiny);
+	DeleteBrush(g_hBrushBG);
+	DeleteBrush(g_hBrushSelectedBG);
+	DeleteFont(g_hFontTitle);
+	DeleteFont(g_hFontDesc);
+	DeleteFont(g_hFontDesc2);
+	DeleteFont(g_hFontTiny);
 
 	SetBkColor(hDC, nPrevBkColor);
 	SetTextColor(hDC, nPrevTextColor);
@@ -1327,8 +1323,8 @@ void AchievementOverlay::DrawBar(HDC hDC, int nX, int nY, int nW, int nH, int nM
 	const int nInnerBarAbsY = (int)(nY + 2.0f + fInnerBarOffsetY);
 
 	//	Draw bar:
-	SetTextColor(hDC, COL_BAR);
-	SetBkColor(hDC, COL_BAR_BG);
+	SetTextColor(hDC, _RA COL_BAR);
+	SetBkColor(hDC, _RA COL_BAR_BG);
 
 	RECT rc;
 	SetRect(&rc, nX, nY, nX + nW, nY + nH);
@@ -1363,9 +1359,9 @@ void AchievementOverlay::DrawAchievement(HDC hDC, const Achievement* pAch, int n
 	}
 
 	if ( bSelected )
-		SetTextColor(hDC, bLocked ? COL_SELECTED_LOCKED : COL_SELECTED);
+		SetTextColor(hDC, bLocked ? _RA COL_SELECTED_LOCKED : COL_SELECTED);
 	else
-		SetTextColor(hDC, bLocked ? COL_TEXT_LOCKED : COL_TEXT);
+		SetTextColor(hDC, bLocked ? _RA COL_TEXT_LOCKED : COL_TEXT);
 
 	if ( !bLocked )
 	{
@@ -1390,7 +1386,7 @@ void AchievementOverlay::DrawAchievement(HDC hDC, const Achievement* pAch, int n
 void AchievementOverlay::DrawUserFrame(HDC hDC, RAUser* pUser, int nX, int nY, int nW, int nH) const
 {
 	char buffer[256];
-	HBRUSH hBrush2 = CreateSolidBrush(COL_USER_FRAME_BG);
+	HBRUSH hBrush2 = CreateSolidBrush(_RA COL_USER_FRAME_BG);
 	RECT rcUserFrame;
 
 	const int nTextX = nX + 4;
@@ -1420,8 +1416,8 @@ void AchievementOverlay::DrawUserFrame(HDC hDC, RAUser* pUser, int nX, int nY, i
 
 	if ( g_bHardcoreModeActive )
 	{
-		COLORREF nLastColor = SetTextColor(hDC, COL_WARNING);
-		COLORREF nLastColorBk = SetBkColor(hDC, COL_WARNING_BG);
+		COLORREF nLastColor = SetTextColor(hDC, _RA COL_WARNING);
+		COLORREF nLastColorBk = SetBkColor(hDC, _RA COL_WARNING_BG);
 
 		sprintf_s(buffer, 256, " HARDCORE ");
 		TextOut(hDC, nX + 180, nY + 70, NativeStr(buffer).c_str(), strlen(buffer));

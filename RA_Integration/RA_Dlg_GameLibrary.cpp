@@ -544,24 +544,24 @@ void Dlg_GameLibrary::SaveAll()
 }
 
 //static 
-INT_PTR CALLBACK Dlg_GameLibrary::s_GameLibraryProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK Dlg_GameLibrary::s_GameLibraryProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	return g_GameLibrary.GameLibraryProc(hDlg, uMsg, wParam, lParam);
+	return g_GameLibrary.GameLibraryProc(hwnd, uMsg, wParam, lParam);
 }
 
-INT_PTR CALLBACK Dlg_GameLibrary::GameLibraryProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK Dlg_GameLibrary::GameLibraryProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
 	{
 	case WM_INITDIALOG:
 	{
-		HWND hList = GetDlgItem(hDlg, IDC_RA_LBX_GAMELIST);
+		HWND hList = GetDlgItem(hwnd, IDC_RA_LBX_GAMELIST);
 		SetupColumns(hList);
 
 		ListView_SetExtendedListViewStyle(hList, LVS_EX_FULLROWSELECT | LVS_EX_HEADERDRAGDROP);
 
-		SetDlgItemText(hDlg, IDC_RA_ROMDIR, NativeStr(g_sROMDirLocation).c_str());
-		SetDlgItemText(hDlg, IDC_RA_GLIB_NAME, TEXT(""));
+		SetDlgItemText(hwnd, IDC_RA_ROMDIR, NativeStr(g_sROMDirLocation).c_str());
+		SetDlgItemText(hwnd, IDC_RA_GLIB_NAME, TEXT(""));
 
 		m_GameHashLibrary.clear();
 		m_GameTitlesLibrary.clear();
@@ -571,7 +571,7 @@ INT_PTR CALLBACK Dlg_GameLibrary::GameLibraryProc(HWND hDlg, UINT uMsg, WPARAM w
 		ParseMyProgressFromFile(m_ProgressLibrary);
 
 		//int msBetweenRefresh = 1000;	//	auto?
-		//SetTimer( hDlg, 1, msBetweenRefresh, (TIMERPROC)g_GameLibrary.s_GameLibraryProc );
+		//SetTimer( hwnd, 1, msBetweenRefresh, (TIMERPROC)g_GameLibrary.s_GameLibraryProc );
 		RefreshList();
 
 		return FALSE;
@@ -593,13 +593,13 @@ INT_PTR CALLBACK Dlg_GameLibrary::GameLibraryProc(HWND hDlg, UINT uMsg, WPARAM w
 			case LVN_ITEMCHANGED:
 			{
 				//RA_LOG( "Item Changed\n" );
-				HWND hList = GetDlgItem(hDlg, IDC_RA_LBX_GAMELIST);
+				HWND hList = GetDlgItem(hwnd, IDC_RA_LBX_GAMELIST);
 				const int nSel = ListView_GetSelectionMark(hList);
 				if (nSel != -1)
 				{
 					TCHAR buffer[1024];
 					ListView_GetItemText(hList, nSel, 1, buffer, 1024);
-					SetWindowText(GetDlgItem(hDlg, IDC_RA_GLIB_NAME), buffer);
+					SetWindowText(GetDlgItem(hwnd, IDC_RA_GLIB_NAME), buffer);
 				}
 			}
 			break;
@@ -611,7 +611,7 @@ INT_PTR CALLBACK Dlg_GameLibrary::GameLibraryProc(HWND hDlg, UINT uMsg, WPARAM w
 			case NM_DBLCLK:
 				if (LaunchSelected())
 				{
-					EndDialog(hDlg, TRUE);
+					EndDialog(hwnd, TRUE);
 					return TRUE;
 				}
 				break;
@@ -633,7 +633,7 @@ INT_PTR CALLBACK Dlg_GameLibrary::GameLibraryProc(HWND hDlg, UINT uMsg, WPARAM w
 		case IDOK:
 			if (LaunchSelected())
 			{
-				EndDialog(hDlg, TRUE);
+				EndDialog(hwnd, TRUE);
 				return TRUE;
 			}
 			else
@@ -652,18 +652,18 @@ INT_PTR CALLBACK Dlg_GameLibrary::GameLibraryProc(HWND hDlg, UINT uMsg, WPARAM w
 		case IDC_RA_PICKROMDIR:
 			g_sROMDirLocation = GetFolderFromDialog();
 			RA_LOG("Selected Folder: %s\n", g_sROMDirLocation.c_str());
-			SetDlgItemText(hDlg, IDC_RA_ROMDIR, NativeStr(g_sROMDirLocation).c_str());
+			SetDlgItemText(hwnd, IDC_RA_ROMDIR, NativeStr(g_sROMDirLocation).c_str());
 			return FALSE;
 
 		case IDC_RA_LBX_GAMELIST:
 		{
-			HWND hList = GetDlgItem(hDlg, IDC_RA_LBX_GAMELIST);
+			HWND hList = GetDlgItem(hwnd, IDC_RA_LBX_GAMELIST);
 			const int nSel = ListView_GetSelectionMark(hList);
 			if (nSel != -1)
 			{
 				TCHAR sGameTitle[1024];
 				ListView_GetItemText(hList, nSel, 1, sGameTitle, 1024);
-				SetWindowText(GetDlgItem(hDlg, IDC_RA_GLIB_NAME), sGameTitle);
+				SetWindowText(GetDlgItem(hwnd, IDC_RA_GLIB_NAME), sGameTitle);
 			}
 		}
 		return FALSE;
@@ -682,7 +682,7 @@ INT_PTR CALLBACK Dlg_GameLibrary::GameLibraryProc(HWND hDlg, UINT uMsg, WPARAM w
 		return FALSE;
 
 	case WM_CLOSE:
-		EndDialog(hDlg, FALSE);
+		EndDialog(hwnd, FALSE);
 		return TRUE;
 
 	case WM_USER:
