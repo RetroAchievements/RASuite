@@ -4,104 +4,99 @@
 #include "RA_Resource.h"
 #include "RA_RichPresence.h"
 
-Dlg_RichPresence g_RichPresenceDialog;
+_RA Dlg_RichPresence g_RichPresenceDialog;
 
-INT_PTR CALLBACK Dlg_RichPresence::RichPresenceDialogProc(HWND hwnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
+namespace ra {
+
+Dlg_RichPresence::Dlg_RichPresence() :
+	IRA_Dialog{ IDD_RA_RICHPRESENCE }
 {
-	switch ( nMsg )
-	{
-	case WM_INITDIALOG:
-	{
-		SendMessage( GetDlgItem( hwnd, IDC_RA_RICHPRESENCERESULTTEXT ), WM_SETFONT, (WPARAM)m_hFont, NULL );
+	SetCaption(TEXT("Rich Presence Monitor"));
+	hFont = CreateFont(15, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+		DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+		CLEARTYPE_QUALITY, VARIABLE_PITCH, nullptr);
 
-		RestoreWindowPosition( hwnd, "Rich Presence Monitor", true, true );
-		return TRUE;
-	}
-
-	case WM_TIMER:
-	{
-		std::wstring sRP = Widen( g_RichPresenceInterpretter.GetRichPresenceString() );
-		SetDlgItemTextW( m_hRichPresenceDialog, IDC_RA_RICHPRESENCERESULTTEXT, sRP.c_str() );
-		return TRUE;
-	}
-
-	case WM_COMMAND:
-	{
-		switch ( LOWORD(wParam) )
-		{
-		case IDOK:
-		case IDCLOSE:
-		case IDCANCEL:
-			StopTimer();
-			EndDialog( hwnd, true );
-			return TRUE;
-
-		default:
-			return FALSE;
-		}
-	}
-
-	case WM_DESTROY:
-		StopTimer();
-		EndDialog( hwnd, true );
-		return FALSE;
-
-	case WM_MOVE:
-		RememberWindowPosition(hwnd, "Rich Presence Monitor");
-		break;
-
-	case WM_SIZE:
-		RememberWindowSize(hwnd, "Rich Presence Monitor");
-		break;
-	}
-
-	return FALSE;
-}
-
-//static 
-INT_PTR CALLBACK Dlg_RichPresence::s_RichPresenceDialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	return g_RichPresenceDialog.RichPresenceDialogProc( hwnd, uMsg, wParam, lParam );
-}
-
-Dlg_RichPresence::Dlg_RichPresence()
-	: m_hRichPresenceDialog( nullptr ),
-	  m_bTimerActive( false )
-{
-	m_hFont = CreateFont( 15, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, VARIABLE_PITCH, NULL );
-}
-
-Dlg_RichPresence::~Dlg_RichPresence()
-{
-	DeleteObject( m_hFont );
-}
+} // end constructor
 
 void Dlg_RichPresence::StartMonitoring()
 {
 	if (g_RichPresenceInterpretter.Enabled())
 	{
 		StartTimer();
-	}
-	else
-	{
-		StopTimer();
-	}
-}
+		return;
+	} // end if
+
+	StopTimer();
+} // end function StartMonitoring
 
 void Dlg_RichPresence::StartTimer()
 {
-	if ( !m_bTimerActive )
+	if (!m_bTimerActive)
 	{
-		SetTimer( m_hRichPresenceDialog, 1, 1000, NULL );
+		SetTimer(hWnd, 1_z, 1000_z, nullptr);
 		m_bTimerActive = true;
-	}
-}
+	} // end if
+} // end function StartTimer
 
 void Dlg_RichPresence::StopTimer()
 {
-	if ( m_bTimerActive )
+	if (m_bTimerActive)
 	{
-		KillTimer( m_hRichPresenceDialog, 1 );
+		KillTimer(hWnd, 1_z);
 		m_bTimerActive = false;
-	}
-}
+	} // end if
+} // end function StopTimer
+
+BOOL Dlg_RichPresence::OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
+{
+	m_hRichPresenceText = GetDlgItem(hwnd, IDC_RA_RICHPRESENCERESULTTEXT);
+	SetFont(m_hRichPresenceText, hFont, lParam);
+
+	RestoreWindowPosition(hwnd, lpCaption, true, true);
+	return TRUE;
+} // end function OnInitDialog
+
+
+
+void Dlg_RichPresence::OnNCDestroy(HWND hwnd)
+{
+	IRA_Dialog::Close(m_hRichPresenceText);
+	IRA_Dialog::OnNCDestroy(hwnd);
+} // end function OnNCDestroy
+
+void Dlg_RichPresence::OnTimer(HWND hwnd, UINT id)
+{
+	// I thought we we're doing ASCII only?
+	auto sRP{ g_RichPresenceInterpretter.GetRichPresenceString() };
+	SetText(m_hRichPresenceText, sRP.c_str());
+} // end function OnTimer
+
+void Dlg_RichPresence::OnSize(HWND hwnd, UINT state, int cx, int cy)
+{
+	RememberWindowSize(hwnd, lpCaption);
+} // end function OnSize
+
+void Dlg_RichPresence::Move(HWND hwnd, int x, int y)
+{
+	RememberWindowPosition(hwnd, lpCaption);
+} // end function Move
+
+void Dlg_RichPresence::Close(HWND hwnd)
+{
+	StopTimer();
+	IRA_Dialog::Close(hwnd); // the docs say modeless have to use destroywindow
+} // end function Close
+
+#pragma region unused
+INT_PTR Dlg_RichPresence::DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	return 0;
+} // end function DialogProc
+
+
+void Dlg_RichPresence::OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
+{
+} // end function OnCommand  
+#pragma endregion
+
+} // namespace ra

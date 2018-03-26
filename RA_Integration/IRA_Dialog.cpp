@@ -5,43 +5,51 @@ namespace ra {
 	/// <summary>
 	/// The storage{CC2D43FA-BBC4-448A-9D0B-7B57ADF2655C}
 	/// </summary>
-	long IRA_Dialog::lStorage_{ 0 };
+	LRESULT IRA_Dialog::lStorage{ 0_i };
 
 	// Note to self: Never call DefWindowProc or DefDlgProc for dialogs
 	// DefWindowProc seems to mess up the focus
 
 	IRA_Dialog::IRA_Dialog(int resId) :
-		nResourceId_{ resId }
+		nResourceId{ resId }
 	{
-		lStorage_ = reinterpret_cast<LRESULT>(this);
+		lStorage = reinterpret_cast<LRESULT>(this);
 	}
 
 	IRA_Dialog::~IRA_Dialog() noexcept
 	{
-		lStorage_ = 0;
+		lStorage = 0;
 	}
 
 	INT_PTR IRA_Dialog::DoModal()
 	{
-		bIsModal_ = true;
-		return DialogBox(g_hThisDLLInst, MAKEINTRESOURCE(nResourceId_), g_RAMainWnd, MsgQueue);
+		bIsModal = true;
+		return DialogBox(g_hThisDLLInst, MAKEINTRESOURCE(nResourceId), g_RAMainWnd, MsgQueue);
 	}
 
 	HWND IRA_Dialog::Create()
 	{
-		bIsModal_ = false;
-		return CreateDialog(g_hThisDLLInst, MAKEINTRESOURCE(nResourceId_), g_RAMainWnd, MsgQueue);
+		bIsModal = false;
+		hWnd = CreateDialog(g_hThisDLLInst, MAKEINTRESOURCE(nResourceId),
+			g_RAMainWnd, MsgQueue);
+		return hWnd;
+	}
+
+	void IRA_Dialog::PostNcDestroy() noexcept
+	{
+		OnNCDestroy(hWnd);
 	}
 
 	INT_PTR IRA_Dialog::MsgQueue(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		IRA_Dialog* ira = reinterpret_cast<IRA_Dialog*>(lStorage_);
+		// test
+		auto ira{ reinterpret_cast<IRA_Dialog*>(lStorage) };
 
-		switch ( uMsg )
+		switch (uMsg)
 		{
-			HANDLE_MSG(hwnd, WM_ACTIVATE, ira->OnActivate);
-			HANDLE_MSG(hwnd, WM_ACTIVATEAPP, ira->OnActivateApp);
-			HANDLE_MSG(hwnd, WM_CANCELMODE, ira->OnCancelMode);
+			HANDLE_MSG(hwnd, WM_ACTIVATE, ira->Activate);
+			HANDLE_MSG(hwnd, WM_ACTIVATEAPP, ira->ActivateApp);
+			HANDLE_MSG(hwnd, WM_CANCELMODE, ira->CancelMode);
 			HANDLE_MSG(hwnd, WM_CHAR, ira->OnChar);
 			HANDLE_MSG(hwnd, WM_CLOSE, ira->Close);
 			HANDLE_MSG(hwnd, WM_COMMAND, ira->OnCommand);
@@ -53,18 +61,18 @@ namespace ra {
 			HANDLE_MSG(hwnd, WM_CTLCOLORSCROLLBAR, ira->OnCtlColorScrollbar);
 			HANDLE_MSG(hwnd, WM_CTLCOLORSTATIC, ira->OnCtlColorStatic);
 			HANDLE_MSG(hwnd, WM_DESTROY, ira->Destroy);
-			HANDLE_MSG(hwnd, WM_DRAWITEM, ira->OnDrawItem);
+			HANDLE_MSG(hwnd, WM_DRAWITEM, ira->DrawItem);
 			HANDLE_MSG(hwnd, WM_ENABLE, ira->Enable);
-			HANDLE_MSG(hwnd, WM_ERASEBKGND, ira->OnEraseBkgnd);
+			HANDLE_MSG(hwnd, WM_ERASEBKGND, ira->EraseBkgnd);
 			HANDLE_MSG(hwnd, WM_GETFONT, ira->GetFont);
-			HANDLE_MSG(hwnd, WM_GETMINMAXINFO, ira->OnGetMinMaxInfo);
+			HANDLE_MSG(hwnd, WM_GETMINMAXINFO, ira->GetMinMaxInfo);
 			HANDLE_MSG(hwnd, WM_GETTEXT, ira->GetText);
 			HANDLE_MSG(hwnd, WM_GETTEXTLENGTH, ira->GetTextLength);
 			HANDLE_MSG(hwnd, WM_INITDIALOG, ira->OnInitDialog);
 			HANDLE_MSG(hwnd, WM_KEYDOWN, ira->OnKeyDown);
 			HANDLE_MSG(hwnd, WM_KILLFOCUS, ira->KillFocus);
 			HANDLE_MSG(hwnd, WM_LBUTTONUP, ira->OnLButtonUp);
-			HANDLE_MSG(hwnd, WM_MEASUREITEM, ira->OnMeasureItem);
+			HANDLE_MSG(hwnd, WM_MEASUREITEM, ira->MeasureItem);
 			HANDLE_MSG(hwnd, WM_MOUSEWHEEL, ira->OnMouseWheel);
 			HANDLE_MSG(hwnd, WM_NCACTIVATE, ira->OnNCActivate);
 			HANDLE_MSG(hwnd, WM_NCCREATE, ira->OnNCCreate);
@@ -75,7 +83,7 @@ namespace ra {
 			HANDLE_MSG(hwnd, WM_SETFOCUS, ira->SetFocus);
 			HANDLE_MSG(hwnd, WM_SETFONT, ira->SetFont);
 			HANDLE_MSG(hwnd, WM_SETTEXT, ira->SetText);
-			HANDLE_MSG(hwnd, WM_SHOWWINDOW, ira->ShowWindow);
+			HANDLE_MSG(hwnd, WM_SHOWWINDOW, ira->Show);
 			HANDLE_MSG(hwnd, WM_SIZE, ira->OnSize);
 			HANDLE_MSG(hwnd, WM_TIMER, ira->OnTimer);
 			HANDLE_MSG(hwnd, WM_WINDOWPOSCHANGED, ira->OnWindowPosChanged);
@@ -83,6 +91,11 @@ namespace ra {
 		default:
 			return ira->DialogProc(hwnd, uMsg, wParam, lParam);
 		}
+	}
+
+	inline void IRA_Dialog::delete_font() {
+		DeleteFont(hFont);
+		hFont = nullptr;
 	}
 
 
@@ -95,7 +108,8 @@ namespace ra {
 	// HANDLE_WM_NCCREATE
 	BOOL IRA_Dialog::OnNCCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 	{
-		return 0;
+		return _CSTD SetWindowLongPtr(hwnd, GWL_USERDATA, 
+			reinterpret_cast<LRESULT>(lpCreateStruct->lpCreateParams));
 	}
 
 	// NB. Don't use DefDlgProc, it's useless and always throws expections
@@ -103,9 +117,11 @@ namespace ra {
 	// HANDLE_WM_NCDESTROY
 	void IRA_Dialog::OnNCDestroy(HWND hwnd)
 	{
-		if ( lpCaption_ )
+		if (lpCaption)
 			DeleteCaption();
-		if ( hwnd )
+		if (hFont)
+			delete_font();
+		if (hwnd)
 			Close(hwnd);
 	}
 
@@ -115,7 +131,7 @@ namespace ra {
 	}
 
 	// HANDLE_WM_ERASEBKGND
-	BOOL IRA_Dialog::OnEraseBkgnd(HWND hwnd, HDC hdc)
+	BOOL IRA_Dialog::EraseBkgnd(HWND hwnd, HDC hdc)
 	{
 		return 0;
 	}
@@ -146,7 +162,7 @@ namespace ra {
 	void IRA_Dialog::Destroy(HWND hwnd)
 	{
 		PostQuitMessage(0);
-	}
+	} // end function Destroy
 
 	// HANDLE_WM_NOTIFY
 	LRESULT IRA_Dialog::OnNotify(HWND hwnd, int idFrom, NMHDR* pnmhdr)
@@ -160,73 +176,87 @@ namespace ra {
 	}
 
 	// HANDLE_WM_GETMINMAXINFO
-	void IRA_Dialog::OnGetMinMaxInfo(HWND hwnd, LPMINMAXINFO lpMinMaxInfo)
+	void IRA_Dialog::GetMinMaxInfo(HWND hwnd, LPMINMAXINFO lpMinMaxInfo)
 	{
 	}
 
 	// HANDLE_WM_DRAWITEM
-	void IRA_Dialog::OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
+	void IRA_Dialog::DrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem)
 	{
 	}
 
 	// HANDLE_WM_MEASUREITEM
-	void IRA_Dialog::OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
+	void IRA_Dialog::MeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem)
 	{
 	}
+
+	void IRA_Dialog::Move(HWND hwnd, int x, int y)
+	{
+	} // end function Move
 
 	// HANDLE_WM_SIZE
 	void IRA_Dialog::OnSize(HWND hwnd, UINT state, int cx, int cy)
 	{
 	}
 
-	void IRA_Dialog::OnActivate(HWND hwnd, UINT state, HWND hwndActDeact, BOOL fMinimized)
+	void IRA_Dialog::Activate(HWND hwnd, UINT state, HWND hwndActDeact, BOOL fMinimized)
 	{
 	}
 
-	void IRA_Dialog::OnActivateApp(HWND hwnd, BOOL fActivate, DWORD dwThreadId)
+	void IRA_Dialog::ActivateApp(HWND hwnd, BOOL fActivate,
+		DWORD dwThreadId)
 	{
 	}
 
-	void IRA_Dialog::OnCancelMode(HWND hwnd)
+	void IRA_Dialog::CancelMode(HWND hwnd)
 	{
 		EnableWindow(hwnd, FALSE);
 	}
 
-	HBRUSH IRA_Dialog::OnCtlColorBtn(HWND hwnd, HDC hdc, HWND hwndChild, int type)
-	{
-		return nullptr;
-	}
-
-	HBRUSH IRA_Dialog::OnCtlColorDlg(HWND hwnd, HDC hdc, HWND hwndChild, int type)
-	{
-		return nullptr;
-	}
-
-	HBRUSH IRA_Dialog::OnCtlColorEdit(HWND hwnd, HDC hdc, HWND hwndChild, int type)
-	{
-		return nullptr;
-	}
-
-	HBRUSH IRA_Dialog::OnCtlColorListbox(HWND hwnd, HDC hdc, HWND hwndChild, int type)
-	{
-		return nullptr;
-	}
-
-	HBRUSH IRA_Dialog::OnCtlColorMsgbox(HWND hwnd, HDC hdc, HWND hwndChild, int type)
-	{
-		return nullptr;
-	}
-
-	HBRUSH IRA_Dialog::OnCtlColorScrollbar(HWND hwnd, HDC hdc, HWND hwndChild, int type)
-	{
-		return nullptr;
-	}
-
-	HBRUSH IRA_Dialog::OnCtlColorStatic(HWND hwnd, HDC hdc, HWND hwndChild, 
+#pragma region Color Control handlers
+	HBRUSH IRA_Dialog::OnCtlColorBtn(HWND hwnd, HDC hdc, HWND hwndChild,
 		int type)
 	{
 		return nullptr;
 	}
+
+	HBRUSH IRA_Dialog::OnCtlColorDlg(HWND hwnd, HDC hdc, HWND hwndChild,
+		int type)
+	{
+		return nullptr;
+	}
+
+	HBRUSH IRA_Dialog::OnCtlColorEdit(HWND hwnd, HDC hdc, HWND hwndChild,
+		int type)
+	{
+		return nullptr;
+	}
+
+	HBRUSH IRA_Dialog::OnCtlColorListbox(HWND hwnd, HDC hdc, HWND hwndChild,
+		int type)
+	{
+		return nullptr;
+	}
+
+	HBRUSH IRA_Dialog::OnCtlColorMsgbox(HWND hwnd, HDC hdc, HWND hwndChild,
+		int type)
+	{
+		return nullptr;
+	}
+
+	HBRUSH IRA_Dialog::OnCtlColorScrollbar(HWND hwnd, HDC hdc, HWND hwndChild,
+		int type)
+	{
+		return nullptr;
+	}
+
+	HBRUSH IRA_Dialog::OnCtlColorStatic(HWND hwnd, HDC hdc, HWND hwndChild,
+		int type)
+	{
+		return nullptr;
+	}
+#pragma endregion
+
 
 	void IRA_Dialog::Enable(HWND hwnd, BOOL fEnable)
 	{
@@ -251,7 +281,7 @@ namespace ra {
 	void IRA_Dialog::KillFocus(HWND hwnd, HWND hwndNewFocus)
 	{
 		// Causes recursion here not sure how to define this for a default
-		SetFocus(hwndNewFocus);
+		_CSTD SetFocus(hwndNewFocus);
 	}
 
 	BOOL IRA_Dialog::OnNCActivate(HWND hwnd, BOOL fActive, HWND hwndActDeact, BOOL fMinimized)
@@ -280,14 +310,17 @@ namespace ra {
 		SetWindowText(hwnd, lpszText);
 	}
 
-	void IRA_Dialog::ShowWindow(HWND hwnd, BOOL fShow, UINT status)
+	void IRA_Dialog::Show(HWND hwnd, BOOL fShow, UINT status)
 	{
+		if (!bIsModal)
+			hwnd = hWnd;
+
 		ShowWindowAsync(hwnd, fShow | status);
 	}
 
 	void IRA_Dialog::OnWindowPosChanged(HWND hwnd, const LPWINDOWPOS lpwpos)
 	{
-		
+
 	}
 
 	BOOL IRA_Dialog::OnWindowPosChanging(HWND hwnd, LPWINDOWPOS lpwpos)
@@ -305,25 +338,24 @@ namespace ra {
 		// Note: We aren't calling DefWindowProc or forwarding WM_CLOSE to it
 		// because it will call DestroyWindow always.
 
-		if ( bIsModal_ )
-			OnOK(hwnd);
-		else
-			DestroyWindow(hwnd);
+		if (!bIsModal)
+		{
+			_CSTD DestroyWindow(hwnd);
+			return;
+		}
+		OnOK(hwnd);
 	}
 
 	void IRA_Dialog::OnOK(HWND hwnd)
 	{
-		EndDialog(hwnd, IDOK);
+		_CSTD EndDialog(hwnd, IDOK);
 	}
 
 	void IRA_Dialog::OnCancel(HWND hwnd)
 	{
-		EndDialog(hwnd, IDCANCEL);
+		_CSTD EndDialog(hwnd, IDCANCEL);
 	}
-	void IRA_Dialog::OnClose(HWND hwnd)
-	{
-		EndDialog(hwnd, IDCLOSE);
-	}
+
 	void IRA_Dialog::Minimize(HWND hwnd)
 	{
 		_CSTD CloseWindow(hwnd);

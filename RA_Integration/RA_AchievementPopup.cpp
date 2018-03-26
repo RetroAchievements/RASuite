@@ -41,7 +41,7 @@ void AchievementPopup::PlayAudio()
 {
 	ASSERT(MessagesPresent());	//	ActiveMessage() dereferences!
 	PlaySound(ra::MSG_SOUND.at(ActiveMessage().Type()), 
-		_CSTD GetModuleHandle(nullptr), SND_FILENAME | SND_ASYNC);
+		nullptr, SND_FILENAME | SND_ASYNC);
 }
 
 void AchievementPopup::AddMessage(const MessagePopup& msg)

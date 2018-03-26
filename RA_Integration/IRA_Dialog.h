@@ -22,6 +22,7 @@ namespace ra {
 	/// </remarks>
 	class IRA_Dialog
 	{
+		friend class IRA_WndClass;
 	public:
 		/// <summary>
 		///   Initializes a new instance of the <see cref="IRA_Dialog" /> class.
@@ -61,45 +62,11 @@ namespace ra {
 		/// </summary>
 		/// <returns>The handle for a modelss dialog.</returns>
 		/// 
-		virtual HWND Create();
+		HWND Create();
 
+		constexpr HWND GetWindow() { return hWnd; }
 
-
-		/// <summary>
-		///   Messages related to the RA dialogs get posted/sent here. Overrides for
-		///   message handlers will get called first.
-		/// </summary>
-		/// <param name="hwnd">
-		///   The handle supplied by Windows for a new window.
-		/// </param>
-		/// <param name="uMsg">The message to processed.</param>
-		/// <param name="wParam">Additional message information.</param>
-		/// <param name="lParam">Additional message information.</param>
-		/// <returns>
-		///   Non-zero if a message was processed, otherwise <c>0</c>.
-		/// </returns>
-		/// <remarks>
-		///   Posted messages will be sent to the system's message queue first, sent
-		///   messages will be sent here.
-		/// </remarks>
-		static INT_PTR CALLBACK MsgQueue(HWND hwnd, UINT uMsg, WPARAM wParam,
-			LPARAM lParam);
-
-
-		/// <summary>
-		///   The main dialog procedure. In most cases, it will return 0. Process
-		///   any user-defined message (non-system) if needed.
-		/// </summary>
-		/// <param name="hDlg">The handle for the top-level dialog.</param>
-		/// <param name="uMsg">The message to processed.</param>
-		/// <param name="wParam">Additional message information.</param>
-		/// <param name="lParam">Additional message information.</param>
-		/// <returns>
-		///   Non-zero if a message was processed, otherwise <c>0</c>.
-		/// </returns>
-		/// <remarks>This function must be pure virtual.</remarks>
-		virtual INT_PTR CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam,
-			LPARAM lParam) = 0;
+		void PostNcDestroy() noexcept;
 
 
 		// permissions based off of MFC
@@ -118,7 +85,6 @@ namespace ra {
 		virtual BOOL OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam) = 0;
 		virtual HFONT GetFont(HWND hwnd);
 
-
 		/// <summary>
 		///   Destroys a window/control if not a modal dialog, otherwise it just
 		///   ends it.
@@ -128,7 +94,7 @@ namespace ra {
 		///   This is not to be confused with <see cref="OnClose" /> when
 		///   <c>IDCLOSE</c> is encountered.
 		/// </remarks>
-		void Close(HWND hwnd);
+		virtual void Close(HWND hwnd);
 
 
 		/// <summary>
@@ -146,14 +112,15 @@ namespace ra {
 		/// <param name="hwndOldFocus">The HWND old focus.</param>
 		virtual void SetFocus(HWND hwnd, HWND hwndOldFocus = nullptr);
 		void SetFont(HWND hwndCtl, HFONT hfont, BOOL fRedraw);
-		void ShowWindow(HWND hwnd, BOOL fShow, UINT status);
+		void Show(HWND hwnd = nullptr, BOOL fShow = TRUE,
+			UINT status = SW_SHOW);
 #pragma endregion
 
-	protected:
+	protected /*shared*/:
 #pragma region Protected Message Handlers
-		virtual void OnActivate(HWND hwnd, UINT state, HWND hwndActDeact, BOOL fMinimized);
-		virtual void OnActivateApp(HWND hwnd, BOOL fActivate, DWORD dwThreadId);
-		void OnCancelMode(HWND hwnd);
+		void Activate(HWND hwnd, UINT state, HWND hwndActDeact, BOOL fMinimized);
+		void ActivateApp(HWND hwnd, BOOL fActivate, DWORD dwThreadId);
+		void CancelMode(HWND hwnd);
 		virtual void OnChar(HWND hwnd, TCHAR ch, int cRepeat);
 
 
@@ -165,17 +132,28 @@ namespace ra {
 		/// <param name="id">A control ID.</param>
 		/// <param name="hwndCtl">A handle to a control.</param>
 		/// <param name="codeNotify">A notification code.</param>
-		virtual void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify) = 0;
-		virtual HBRUSH OnCtlColorBtn(HWND hwnd, HDC hdc, HWND hwndChild, int type);
-		virtual HBRUSH OnCtlColorDlg(HWND hwnd, HDC hdc, HWND hwndChild, int type);
-		virtual HBRUSH OnCtlColorEdit(HWND hwnd, HDC hdc, HWND hwndChild, int type);
-		virtual HBRUSH OnCtlColorListbox(HWND hwnd, HDC hdc, HWND hwndChild, int type);
-		virtual HBRUSH OnCtlColorMsgbox(HWND hwnd, HDC hdc, HWND hwndChild, int type);
-		virtual HBRUSH OnCtlColorScrollbar(HWND hwnd, HDC hdc, HWND hwndChild, int type);
-		virtual HBRUSH OnCtlColorStatic(HWND hwnd, HDC hdc, HWND hwndChild, int type);
-		virtual void OnDrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem);
-		virtual BOOL OnEraseBkgnd(HWND hwnd, HDC hdc);
-		virtual void OnGetMinMaxInfo(HWND hwnd, LPMINMAXINFO lpMinMaxInfo);
+		virtual void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT 
+			codeNotify) = 0;
+#pragma region ColorCtl
+		virtual HBRUSH OnCtlColorBtn(HWND hwnd, HDC hdc, HWND hwndChild, 
+			int type);
+		virtual HBRUSH OnCtlColorDlg(HWND hwnd, HDC hdc, HWND hwndChild, 
+			int type);
+		virtual HBRUSH OnCtlColorEdit(HWND hwnd, HDC hdc, HWND hwndChild, 
+			int type);
+		virtual HBRUSH OnCtlColorListbox(HWND hwnd, HDC hdc, HWND hwndChild, 
+			int type);
+		virtual HBRUSH OnCtlColorMsgbox(HWND hwnd, HDC hdc, HWND hwndChild, 
+			int type);
+		virtual HBRUSH OnCtlColorScrollbar(HWND hwnd, HDC hdc, HWND hwndChild, 
+			int type);
+		virtual HBRUSH OnCtlColorStatic(HWND hwnd, HDC hdc, HWND hwndChild, 
+			int type);
+#pragma endregion
+
+		virtual void DrawItem(HWND hwnd, const DRAWITEMSTRUCT* lpDrawItem);
+		virtual BOOL EraseBkgnd(HWND hwnd, HDC hdc);
+		virtual void GetMinMaxInfo(HWND hwnd, LPMINMAXINFO lpMinMaxInfo);
 		INT GetText(HWND hwnd, int cchTextMax, LPTSTR lpszText);
 		INT GetTextLength(HWND hwnd);
 
@@ -191,7 +169,8 @@ namespace ra {
 		///   The scan and context codes. The extended-key, previous key-state, and
 		///   transition-state flags.
 		/// </param>
-		virtual void OnKeyDown(HWND hwnd, UINT vk, BOOL fDown, int cRepeat, UINT flags);
+		virtual void OnKeyDown(HWND hwnd, UINT vk, BOOL fDown, int cRepeat, 
+			UINT flags);
 
 
 		/// <summary>
@@ -202,9 +181,12 @@ namespace ra {
 		/// <param name="hwndNewFocus">The HWND new focus.</param>
 		void KillFocus(HWND hwnd, HWND hwndNewFocus);
 		virtual void OnLButtonUp(HWND hwnd, int x, int y, UINT keyFlags);
-		virtual void OnMeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem);
-		virtual void OnMouseWheel(HWND hwnd, int xPos, int yPos, int zDelta, UINT fwKeys);
-		virtual BOOL OnNCActivate(HWND hwnd, BOOL fActive, HWND hwndActDeact, BOOL fMinimized);
+		virtual void MeasureItem(HWND hwnd, MEASUREITEMSTRUCT* lpMeasureItem);
+		virtual void Move(HWND hwnd, int x, int y);
+		virtual void OnMouseWheel(HWND hwnd, int xPos, int yPos, int zDelta, 
+			UINT fwKeys);
+		virtual BOOL OnNCActivate(HWND hwnd, BOOL fActive, HWND hwndActDeact, 
+			BOOL fMinimized);
 
 
 		/// <summary>
@@ -254,10 +236,11 @@ namespace ra {
 		virtual BOOL OnWindowPosChanging(HWND hwnd, LPWINDOWPOS lpwpos);
 #pragma endregion
 
+#pragma region Button stuff
 		/// <summary>
-		/// Raises the OK event. Should be called when an OK button is pressed.
-		/// </summary>
-		/// <param name="hwnd">The handled to the active window.</param>
+/// Raises the OK event. Should be called when an OK button is pressed.
+/// </summary>
+/// <param name="hwnd">The handled to the active window.</param>
 		virtual void OnOK(HWND hwnd);
 
 
@@ -267,13 +250,6 @@ namespace ra {
 		/// <param name="hwnd">The handled to the active window.</param>
 		virtual void OnCancel(HWND hwnd);
 
-
-		/// <summary>
-		/// Raises the Close event. Should be called when pressing the "x" button.
-		/// </summary>
-		/// <param name="hwnd">The handle to the specificed window.</param>
-		void OnClose(HWND hwnd);
-
 		/// <summary>Called when a window needs to minimized.</summary>
 		/// <param name="hwnd">The handle to the specificed window.</param>
 		/// <remarks>
@@ -281,25 +257,77 @@ namespace ra {
 		///   it actually minimizes it.
 		/// </remarks>
 		void Minimize(HWND hwnd);
+#pragma endregion
+
 
 		constexpr void SetCaption(LPCTSTR lpCaption) noexcept {
-			lpCaption_ = lpCaption;
+			lpCaption = lpCaption;
 		}
+		constexpr void DeleteCaption() noexcept { lpCaption = nullptr; }
 
-		constexpr void DeleteCaption() noexcept { lpCaption_ = TEXT(""); }
+#pragma region MessageQueue and DialogProc
+		/// <summary>
+///   Messages related to the RA dialogs get posted/sent here. Overrides for
+///   message handlers will get called first.
+/// </summary>
+/// <param name="hwnd">
+///   The handle supplied by Windows for a new window.
+/// </param>
+/// <param name="uMsg">The message to processed.</param>
+/// <param name="wParam">Additional message information.</param>
+/// <param name="lParam">Additional message information.</param>
+/// <returns>
+///   Non-zero if a message was processed, otherwise <c>0</c>.
+/// </returns>
+/// <remarks>
+///   Posted messages will be sent to the system's message queue first, sent
+///   messages will be sent here.
+/// </remarks>
+		static INT_PTR CALLBACK MsgQueue(HWND hwnd, UINT uMsg, WPARAM wParam,
+			LPARAM lParam);
+
+
+		/// <summary>
+		///   The main dialog procedure. In most cases, it will return 0. Process
+		///   any user-defined message (non-system) if needed.
+		/// </summary>
+		/// <param name="hDlg">The handle for the top-level dialog.</param>
+		/// <param name="uMsg">The message to processed.</param>
+		/// <param name="wParam">Additional message information.</param>
+		/// <param name="lParam">Additional message information.</param>
+		/// <returns>
+		///   Non-zero if a message was processed, otherwise <c>0</c>.
+		/// </returns>
+		/// <remarks>This function must be pure virtual.</remarks>
+		virtual INT_PTR CALLBACK DialogProc(HWND hDlg, UINT uMsg,
+			WPARAM wParam, LPARAM lParam) = 0;
+#pragma endregion
+
+
 		/// <summary>
 		///   The Resource Id for the dialog or control.
 		/// </summary>
-		int nResourceId_{ 0 };
-		bool bIsModal_{ false };
+		int nResourceId{ 0 };
+		bool bIsModal{ false };
 		HFONT hFont{ nullptr };
-	private:
-		/*HFONT hfont_{ nullptr };*/
-		LPCTSTR lpCaption_{ TEXT("") };
-		static LRESULT lStorage_;
+		HWND hWnd{ nullptr };
+		LPCTSTR lpCaption{ TEXT("") };
+	private /*internal*/:
+		
+		void delete_font();
+
+		
+		static LRESULT lStorage;
 	};
 
 } // namespace ra
+
+#ifndef _RA
+#define _RA ::ra::
+#endif // !_RA
+
+
+
 #endif // !RA_Dialog_H
 
 
