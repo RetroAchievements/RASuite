@@ -88,6 +88,14 @@ API void CCONV _RA_AttemptLogin( bool bBlocking );
 //	Return whether or not the hardcore mode is active.
 API int CCONV _RA_HardcoreModeIsActive();
 
+// If hardcore mode is not active, enables hardcore mode AND calls RA_ResetEmulation()
+// If hardcore mode is already active, does nothing
+API void CCONV _RA_EnableHardCoreMode();
+
+// Disables hardcore mode
+API void CCONV _RA_DisableHardcoreMode();
+
+
 //	Return whether a HTTPGetRequest already exists
 API int CCONV _RA_HTTPGetRequestExists( const char* sPageName );
 
