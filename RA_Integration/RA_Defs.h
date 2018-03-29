@@ -9,6 +9,7 @@
 #include <queue>
 #include <array>
 #include <map>
+#include <unordered_map>
 #include <chrono>
 // just in-case
 #ifdef WIN32_LEAN_AND_MEAN
@@ -59,7 +60,7 @@ extern GetParseErrorFunc GetJSONParseErrorStr;
 using namespace std::string_literals;
 using namespace std::chrono_literals;
 
-namespace ra{} // just so it doesn't complain
+namespace ra {} // just so it doesn't complain
 using namespace ra;
 #endif	//RA_EXPORTS
 
@@ -103,18 +104,18 @@ using ARGB = DWORD;
 class RARect : public RECT
 {
 public:
-	RARect() {}
-	RARect(LONG nX, LONG nY, LONG nW, LONG nH)
-	{
-		left = nX;
-		right = nX + nW;
-		top = nY;
-		bottom = nY + nH;
-	}
+    RARect() {}
+    RARect(LONG nX, LONG nY, LONG nW, LONG nH)
+    {
+        left = nX;
+        right = nX + nW;
+        top = nY;
+        bottom = nY + nH;
+    }
 
 public:
-	inline int Width() const { return(right - left); }
-	inline int Height() const { return(bottom - top); }
+    inline int Width() const { return(right - left); }
+    inline int Height() const { return(bottom - top); }
 };
 
 
@@ -122,19 +123,19 @@ public:
 class RASize
 {
 public:
-	RASize() : m_nWidth(0), m_nHeight(0) {}
-	RASize(const RASize& rhs) : m_nWidth(rhs.m_nWidth), m_nHeight(rhs.m_nHeight) {}
-	RASize(int nW, int nH) : m_nWidth(nW), m_nHeight(nH) {}
+    RASize() : m_nWidth(0), m_nHeight(0) {}
+    RASize(const RASize& rhs) : m_nWidth(rhs.m_nWidth), m_nHeight(rhs.m_nHeight) {}
+    RASize(int nW, int nH) : m_nWidth(nW), m_nHeight(nH) {}
 
 public:
-	inline int Width() const { return m_nWidth; }
-	inline int Height() const { return m_nHeight; }
-	inline void SetWidth(int nW) { m_nWidth = nW; }
-	inline void SetHeight(int nH) { m_nHeight = nH; }
+    inline int Width() const { return m_nWidth; }
+    inline int Height() const { return m_nHeight; }
+    inline void SetWidth(int nW) { m_nWidth = nW; }
+    inline void SetHeight(int nH) { m_nHeight = nH; }
 
 private:
-	int m_nWidth;
-	int m_nHeight;
+    int m_nWidth;
+    int m_nHeight;
 };
 
 const RASize RA_BADGE_PX(64, 64);
@@ -143,91 +144,92 @@ const RASize RA_USERPIC_PX(64, 64);
 class ResizeContent
 {
 public:
-	enum AlignType
-	{
-		NO_ALIGN,
-		ALIGN_RIGHT,
-		ALIGN_BOTTOM,
-		ALIGN_BOTTOM_RIGHT
-	};
+    enum AlignType
+    {
+        NO_ALIGN,
+        ALIGN_RIGHT,
+        ALIGN_BOTTOM,
+        ALIGN_BOTTOM_RIGHT
+    };
 
 public:
-	HWND hwnd;
-	POINT pLT;
-	POINT pRB;
-	AlignType nAlignType;
-	int nDistanceX;
-	int nDistanceY;
-	bool bResize;
+    HWND hwnd;
+    POINT pLT;
+    POINT pRB;
+    AlignType nAlignType;
+    int nDistanceX;
+    int nDistanceY;
+    bool bResize;
 
-	ResizeContent(HWND parentHwnd, HWND contentHwnd, AlignType newAlignType, bool isResize)
-	{
-		hwnd = contentHwnd;
-		nAlignType = newAlignType;
-		bResize = isResize;
+    ResizeContent(HWND parentHwnd, HWND contentHwnd, AlignType newAlignType, bool isResize)
+    {
+        hwnd = contentHwnd;
+        nAlignType = newAlignType;
+        bResize = isResize;
 
-		RARect rect;
-		GetWindowRect(hwnd, &rect);
+        RARect rect;
+        GetWindowRect(hwnd, &rect);
 
-		pLT.x = rect.left;	pLT.y = rect.top;
-		pRB.x = rect.right; pRB.y = rect.bottom;
+        pLT.x = rect.left;	pLT.y = rect.top;
+        pRB.x = rect.right; pRB.y = rect.bottom;
 
-		ScreenToClient(parentHwnd, &pLT);
-		ScreenToClient(parentHwnd, &pRB);
+        ScreenToClient(parentHwnd, &pLT);
+        ScreenToClient(parentHwnd, &pRB);
 
-		GetWindowRect(parentHwnd, &rect);
-		nDistanceX = rect.Width() - pLT.x;
-		nDistanceY = rect.Height() - pLT.y;
+        GetWindowRect(parentHwnd, &rect);
+        nDistanceX = rect.Width() - pLT.x;
+        nDistanceY = rect.Height() - pLT.y;
 
-		if ( bResize )
-		{
-			nDistanceX -= (pRB.x - pLT.x);
-			nDistanceY -= (pRB.y - pLT.y);
-		}
-	}
+        if (bResize)
+        {
+            nDistanceX -= (pRB.x - pLT.x);
+            nDistanceY -= (pRB.y - pLT.y);
+        }
+    }
 
-	void Resize(int width, int height)
-	{
-		int xPos, yPos;
+    void Resize(int width, int height)
+    {
+        int xPos, yPos;
 
-		switch ( nAlignType )
-		{
-		case ResizeContent::ALIGN_RIGHT:
-			xPos = width - nDistanceX - (bResize ? pLT.x : 0);
-			yPos = bResize ? (pRB.y - pLT.x) : pLT.y;
-			break;
-		case ResizeContent::ALIGN_BOTTOM:
-			xPos = bResize ? (pRB.x - pLT.x) : pLT.x;
-			yPos = height - nDistanceY - (bResize ? pLT.y : 0);
-			break;
-		case ResizeContent::ALIGN_BOTTOM_RIGHT:
-			xPos = width - nDistanceX - (bResize ? pLT.x : 0);
-			yPos = height - nDistanceY - (bResize ? pLT.y : 0);
-			break;
-		default:
-			xPos = bResize ? (pRB.x - pLT.x) : pLT.x;
-			yPos = bResize ? (pRB.y - pLT.x) : pLT.y;
-			break;
-		}
+        switch (nAlignType)
+        {
+        case ResizeContent::ALIGN_RIGHT:
+            xPos = width - nDistanceX - (bResize ? pLT.x : 0);
+            yPos = bResize ? (pRB.y - pLT.x) : pLT.y;
+            break;
+        case ResizeContent::ALIGN_BOTTOM:
+            xPos = bResize ? (pRB.x - pLT.x) : pLT.x;
+            yPos = height - nDistanceY - (bResize ? pLT.y : 0);
+            break;
+        case ResizeContent::ALIGN_BOTTOM_RIGHT:
+            xPos = width - nDistanceX - (bResize ? pLT.x : 0);
+            yPos = height - nDistanceY - (bResize ? pLT.y : 0);
+            break;
+        default:
+            xPos = bResize ? (pRB.x - pLT.x) : pLT.x;
+            yPos = bResize ? (pRB.y - pLT.x) : pLT.y;
+            break;
+        }
 
-		if ( !bResize )
-			SetWindowPos(hwnd, NULL, xPos, yPos, NULL, NULL, SWP_NOSIZE | SWP_NOZORDER);
-		else
-			SetWindowPos(hwnd, NULL, 0, 0, xPos, yPos, SWP_NOMOVE | SWP_NOZORDER);
-	}
+        if (!bResize)
+            SetWindowPos(hwnd, NULL, xPos, yPos, NULL, NULL, SWP_NOSIZE | SWP_NOZORDER);
+        else
+            SetWindowPos(hwnd, NULL, 0, 0, xPos, yPos, SWP_NOMOVE | SWP_NOZORDER);
+    }
 };
 
 enum AchievementSetType
 {
-	Core,
-	Unofficial,
-	Local,
+    Core,
+    Unofficial,
+    Local,
 
-	NumAchievementSetTypes
+    NumAchievementSetTypes
 };
 
 // Sematic reasons
 using DataStream    = std::basic_string<BYTE>;
+using cstring       = const char*;
 using ByteAddress   = std::size_t;
 using AchievementID = std::size_t;
 using LeaderboardID = std::size_t;
@@ -243,9 +245,9 @@ extern void RADebugLogNoFormat(const char* data);
 template<typename... Args>
 void RADebugLog(const char* fmt, const Args&... args)
 {
-	// it couldn't deduce it
-	std::string buf{ tfm::format(fmt, args...) };
-	RADebugLogNoFormat(buf.c_str());
+    // it couldn't deduce it
+    std::string buf{ tfm::format(fmt, args...) };
+    RADebugLogNoFormat(buf.c_str());
 }
 
 extern BOOL DirectoryExists(const char* sPath);
@@ -299,14 +301,14 @@ using tstring = std::basic_string<TCHAR>;
 // usage: auto a{19_z};
 constexpr std::size_t operator "" _z(unsigned long long n)
 {
-	return static_cast<std::size_t>(n);
+    return static_cast<std::size_t>(n);
 }
 
 // Use it if you need a signed int
 // usage: auto a{9_i};
 constexpr std::intptr_t operator "" _i(unsigned long long n)
 {
-	return static_cast<std::intptr_t>(n);
+    return static_cast<std::intptr_t>(n);
 }
 
 namespace ra {
@@ -316,19 +318,121 @@ namespace ra {
 template<typename CharT = char>
 std::basic_string<CharT> TimeToString(time_t the_time) noexcept
 {
-	std::basic_ostringstream<CharT> oss;
-	ss << the_time;
-	return ss.str();
+    std::basic_ostringstream<CharT> oss;
+    ss << the_time;
+    return ss.str();
 }
 
 template<typename Enum, class = std::enable_if_t<std::is_enum_v<Enum>>>
 constexpr auto etoi(Enum e) -> typename std::underlying_type_t<Enum>
 {
-	return static_cast<std::underlying_type_t<Enum>>(e);
+    return static_cast<std::underlying_type_t<Enum>>(e);
 }
 
 // alias
 template<typename Enum>
 constexpr auto to_integral = etoi<Enum>;
 
+// Stuff down here is to allow the use of strongly typed enums while still able to compare
+// They do work as intended but there's too many logic errors so it'll  be commented out for now
+// The SIZEOF_ARR is NOT a constant expression
+
+
+// For something to be EqualityComparable, A == B, B == A must be implicitly
+// convertible to bool
+//#pragma region EqualityComparable
+//template<
+//    typename EqualityComparable,
+//    typename EqualityComparable2,
+//    class = std::void_t<>
+//>
+//struct is_equality_comparable : std::false_type {};
+//
+//
+//template<
+//    typename EqualityComparable,
+//    typename EqualityComparable2
+//>
+//struct is_equality_comparable<EqualityComparable, EqualityComparable2,
+//    std::enable_if_t<true, 
+//    decltype(std::declval<EqualityComparable&>() == std::declval<EqualityComparable2&>())
+//    >> : std::true_type {};
+//
+//template<typename EqualityComparable, typename EqualityComparable2 = EqualityComparable>
+//constexpr bool is_equality_comparable_v = is_equality_comparable<EqualityComparable, EqualityComparable2>::value;
+//
+//template<typename EqualityComparable, typename EqualityComparable2 = EqualityComparable>
+//constexpr auto operator==(const EqualityComparable& eq, const EqualityComparable2& eq2) noexcept
+//-> decltype(std::declval<EqualityComparable&>() == std::declval<EqualityComparable2&>())
+//{
+//    return{ eq == eq2 };
+//}
+//#pragma endregion
+//
+//#pragma region LessThanComparable 
+//template<
+//    typename LessThanComparable,
+//    typename LessThanComparable2,
+//    class = std::void_t<>
+//>
+//struct is_lessthan_comparable : std::false_type {};
+//
+//
+//template<
+//    typename LessThanComparable,
+//    typename LessThanComparable2
+//>
+//struct is_lessthan_comparable<LessThanComparable, LessThanComparable2,
+//    std::enable_if_t<true,
+//    decltype(std::declval<LessThanComparable&>() < std::declval<LessThanComparable2&>())
+//    >> : std::true_type {};
+//
+//template<typename LessThanComparable, typename LessThanComparable2 = LessThanComparable>
+//constexpr bool is_lessthan_comparable_v = is_lessthan_comparable<LessThanComparable, LessThanComparable2>::value;
+//
+//template<typename LessThanComparable, typename LessThanComparable2 = LessThanComparable>
+//constexpr auto operator<(const LessThanComparable& a, const LessThanComparable2& b) noexcept
+//-> decltype(std::declval<LessThanComparable&>() == std::declval<LessThanComparable2&>())
+//{
+//    static_assert(is_lessthan_comparable_v<LessThanComparable, LessThanComparable2>);
+//    return{ a < b };
+//}
+//
+//// Now that we have those the rest are handled by the standard
+//using namespace std::rel_ops;
+
+
+
+
+
+#pragma endregion
+
+
 } // namespace ra
+
+
+//  // Seems we need more
+//template<
+//    typename Enum,
+//    typename Integral,
+//    class = std::enable_if_t<std::is_enum_v<Enum> && std::is_integral_v<Integral>>>
+//    constexpr auto operator|(const Enum& a, const Integral& b) noexcept
+//    -> decltype(std::declval<Enum&>() | std::declval<Integral&>())
+//{
+//    auto result{ etoi(a) | b };
+//    return result;
+//}
+//
+//
+//
+//// Seems we need more
+//template<
+//    typename Enum,
+//    typename Integral,
+//    class = std::enable_if_t<std::is_enum_v<Enum> && std::is_integral_v<Integral>>>
+//    constexpr auto operator|=(const Enum& a, const Integral& b) noexcept
+//    -> decltype(std::declval<Enum&>() |= std::declval<Integral&>())
+//{
+//    auto result{ etoi(a) |= b };
+//    return result;
+//}

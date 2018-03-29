@@ -242,6 +242,7 @@ void RAWeb::LogJSON( const Document& doc )
 BOOL RAWeb::DoBlockingRequest( RequestType nType, const PostArgs& PostData, Document& JSONResponseOut )
 {
 	DataStream response;
+	// here?
 	if( DoBlockingRequest( nType, PostData, response ) )
 	{
 		if( response.size() > 0 )
@@ -432,7 +433,7 @@ BOOL RAWeb::DoBlockingHttpPost( const std::string& sRequestedPage, const std::st
 					WinHttpQueryDataAvailable( hRequest, &nBytesToRead );
 					while( nBytesToRead > 0 )
 					{
-						BYTE* pData = new BYTE[ nBytesToRead ];
+						BYTE* pData = new BYTE[ nBytesToRead ]; // this thing corrupted the response for achievement reporter, changed to "DataStream"
 						{
 							DWORD nBytesFetched = 0;
 							if( WinHttpReadData( hRequest, pData, nBytesToRead, &nBytesFetched ) )
@@ -452,7 +453,7 @@ BOOL RAWeb::DoBlockingHttpPost( const std::string& sRequestedPage, const std::st
 					}
 
 					if( ResponseOut.size() > 0 )
-						ResponseOut.push_back( '\0' );	//	EOS for parsing
+						ResponseOut.push_back( '\0' );	//	EOS for parsing, strings by definition are null terminated
 
 					if( sPostString.find( "r=login" ) != std::string::npos )
 					{
@@ -461,6 +462,7 @@ BOOL RAWeb::DoBlockingHttpPost( const std::string& sRequestedPage, const std::st
 					}
 					else
 					{
+						// Ok, it says it was successful... yet it says false
 						RA_LOG( "-> " __FUNCTION__ ": (%04x) POST to %s?%s Success: %d bytes read\n", GetCurrentThreadId(), sRequestedPage.c_str(), sPostString.c_str(), ResponseOut.size() );
 					}
 				}
@@ -488,7 +490,7 @@ BOOL RAWeb::DoBlockingHttpPost( const std::string& sRequestedPage, const std::st
 		}
 		else
 		{
-			LogJSON( doc );
+			LogJSON( doc ); // ok...
 		}
 	}
 	else

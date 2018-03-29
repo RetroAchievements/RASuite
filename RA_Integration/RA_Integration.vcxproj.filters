@@ -37,9 +37,6 @@
     <ClCompile Include="md5.c">
       <Filter>Source\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="RA_Defs.cpp">
-      <Filter>Source\Utils</Filter>
-    </ClCompile>
     <ClCompile Include="RA_User.cpp">
       <Filter>Source\Logic</Filter>
     </ClCompile>
@@ -94,11 +91,14 @@
     <ClCompile Include="RA_Interface.cpp">
       <Filter>Source\Logic</Filter>
     </ClCompile>
-    <ClCompile Include="RA_Core.cpp">
-      <Filter>Source\Logic</Filter>
-    </ClCompile>
     <ClCompile Include="IRA_WndClass.cpp">
       <Filter>Source\Window Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="RA_Core.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="RA_Defs.cpp">
+      <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -195,9 +195,6 @@
     <ClInclude Include="RA_Interface.h">
       <Filter>Headers\Logic</Filter>
     </ClInclude>
-    <ClInclude Include="RA_Core.h">
-      <Filter>Headers\Logic</Filter>
-    </ClInclude>
     <ClInclude Include="IRA_WndClass.h">
       <Filter>Headers\Window Classes</Filter>
     </ClInclude>
@@ -205,6 +202,9 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="RA_Defs.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="RA_Core.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

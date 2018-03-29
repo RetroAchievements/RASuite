@@ -37,11 +37,6 @@ namespace ra
 		" Message Viewer "
 
 	};
-	static_assert(SIZEOF_ARRAY(PAGE_TITLES) == NumOverlayPages, "Must match!");
-
-
-
-
 
 	//RASize overlay_size{ 1024, 1024 };
 

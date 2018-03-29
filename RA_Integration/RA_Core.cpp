@@ -263,7 +263,7 @@ API int CCONV _RA_Shutdown()
 
 	// RichPresence dialog destroyed in the Message Queue
 	// Gonna try this
-	
+
 	if (g_RichPresenceDialog.GetWindow())
 		g_RichPresenceDialog.PostNcDestroy();
 
@@ -1229,15 +1229,18 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 	break;
 
 	case IDM_RA_REPORTBROKENACHIEVEMENTS:
-		Dlg_AchievementsReporter::DoModalDialog(g_hThisDLLInst, g_RAMainWnd);
-		break;
+	{
+		_RA Dlg_AchievementsReporter reporter;
+		reporter.DoModal();
+	}
+	break;
 
 	case IDM_RA_GETROMCHECKSUM:
 	{
 		_RA Dlg_RomChecksum checksum_dlg;
 		checksum_dlg.DoModal();
-		break;
 	}
+	break;
 	//if( g_pActiveAchievements->NumAchievements() == 0 )
 	//	MessageBox( nullptr, "No ROM loaded!", "Error", MB_OK );
 	//else
@@ -1247,12 +1250,14 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 	case IDM_RA_OPENUSERPAGE:
 		if (RAUsers::LocalUser().IsLoggedIn())
 		{
-			std::string sTarget = "http://" RA_HOST_URL + std::string("/User/") + RAUsers::LocalUser().Username();
-			ShellExecute(NULL,
+			auto sTarget{
+				tfm::format("http://%s/User/%s", RA_HOST_URL, _RA username())
+			};
+			ShellExecute(nullptr,
 				TEXT("open"),
 				NativeStr(sTarget).c_str(),
-				NULL,
-				NULL,
+				nullptr,
+				nullptr,
 				SW_SHOWNORMAL);
 		}
 		break;
@@ -1260,12 +1265,16 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 	case IDM_RA_OPENGAMEPAGE:
 		if (g_pCurrentGameData->GetGameID() != 0)
 		{
-			std::string sTarget = "http://" RA_HOST_URL + std::string("/Game/") + std::to_string(g_pCurrentGameData->GetGameID());
-			ShellExecute(NULL,
+			auto sTarget{
+				tfm::format("http://%s/Game/%d", RA_HOST_URL,
+				g_pCurrentGameData->GetGameID())
+			};
+
+			ShellExecute(nullptr,
 				TEXT("open"),
 				NativeStr(sTarget).c_str(),
-				NULL,
-				NULL,
+				nullptr,
+				nullptr,
 				SW_SHOWNORMAL);
 		}
 		else
@@ -1308,7 +1317,7 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 
 			if (!g_RichPresenceDialog.GetWindow())
 				g_RichPresenceDialog.Create();
-			if(g_RichPresenceDialog.GetWindow())
+			if (g_RichPresenceDialog.GetWindow())
 				g_RichPresenceDialog.Show();
 
 			g_RichPresenceDialog.StartMonitoring();

@@ -1,6 +1,11 @@
 #pragma once
 #include "RA_Defs.h"
 
+
+// These the stuff here weren't constant expressions (required for static assertions)
+// std::array deallocates pointers but not std::map
+
+
 enum ComparisonVariableSize
 {
 	Bit_0,
@@ -20,7 +25,7 @@ enum ComparisonVariableSize
 
 	NumComparisonVariableSizeTypes
 };
-extern const char* COMPARISONVARIABLESIZE_STR[];
+
 
 enum ComparisonVariableType
 {
@@ -31,7 +36,6 @@ enum ComparisonVariableType
 
 	NumComparisonVariableTypes
 };
-extern const char* COMPARISONVARIABLETYPE_STR[];
 
 enum ComparisonType
 {
@@ -44,9 +48,19 @@ enum ComparisonType
 
 	NumComparisonTypes
 };
-extern const char* COMPARISONTYPE_STR[];
 
-extern const char* CONDITIONTYPE_STR[];
+using cvs_arr    = std::array<cstring, NumComparisonVariableSizeTypes>;
+using cvt_arr    = std::array<cstring, NumComparisonVariableTypes>;
+using compt_strs = std::array<cstring, NumComparisonTypes>;
+
+
+
+// Now they always match, and are checked at compile time
+constexpr cvs_arr COMPARISONVARIABLESIZE_STR{ "Bit0", "Bit1", "Bit2", "Bit3", "Bit4", "Bit5", "Bit6", "Bit7", "Lower4", "Upper4", "8-bit", "16-bit", "32-bit" };
+constexpr cvt_arr COMPARISONVARIABLETYPE_STR{ "Memory", "Value", "Delta", "DynVar" };
+constexpr compt_strs COMPARISONTYPE_STR{ "=", "<", "<=", ">", ">=", "!=" };
+
+
 
 class CompVariable
 {
@@ -219,3 +233,8 @@ extern const char* ComparisonTypeToStr( ComparisonType nType );
 //extern BOOL CompareConditionValues( unsigned int nLHS, const enum CompType nCmpType, unsigned int nRHS );
 extern ComparisonType ReadOperator( char*& pBufferInOut );
 extern unsigned int ReadHits( char*& pBufferInOut );
+
+
+
+using condt_strs = std::array<cstring, Condition::NumConditionTypes>;
+constexpr condt_strs CONDITIONTYPE_STR{ "", "Pause If", "Reset If", "Add Source", "Sub Source", "Add Hits" };

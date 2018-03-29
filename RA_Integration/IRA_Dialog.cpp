@@ -74,6 +74,7 @@ namespace ra {
 			HANDLE_MSG(hwnd, WM_LBUTTONUP, ira->OnLButtonUp);
 			HANDLE_MSG(hwnd, WM_MEASUREITEM, ira->MeasureItem);
 			HANDLE_MSG(hwnd, WM_MOUSEWHEEL, ira->OnMouseWheel);
+			HANDLE_MSG(hwnd, WM_MOVE, ira->Move); // this got called when moving
 			HANDLE_MSG(hwnd, WM_NCACTIVATE, ira->OnNCActivate);
 			HANDLE_MSG(hwnd, WM_NCCREATE, ira->OnNCCreate);
 			HANDLE_MSG(hwnd, WM_NCDESTROY, ira->OnNCDestroy);
@@ -84,7 +85,7 @@ namespace ra {
 			HANDLE_MSG(hwnd, WM_SETFONT, ira->SetFont);
 			HANDLE_MSG(hwnd, WM_SETTEXT, ira->SetText);
 			HANDLE_MSG(hwnd, WM_SHOWWINDOW, ira->Show);
-			HANDLE_MSG(hwnd, WM_SIZE, ira->OnSize);
+			HANDLE_MSG(hwnd, WM_SIZE, ira->OnSize); // alright this is posted when resizing
 			HANDLE_MSG(hwnd, WM_TIMER, ira->OnTimer);
 			HANDLE_MSG(hwnd, WM_WINDOWPOSCHANGED, ira->OnWindowPosChanged);
 			HANDLE_MSG(hwnd, WM_WINDOWPOSCHANGING, ira->OnWindowPosChanging);

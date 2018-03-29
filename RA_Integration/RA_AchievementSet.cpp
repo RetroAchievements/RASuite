@@ -15,8 +15,7 @@ AchievementSet* g_pCoreAchievements = nullptr;
 AchievementSet* g_pUnofficialAchievements = nullptr;
 AchievementSet* g_pLocalAchievements = nullptr;
 
-AchievementSet** ACH_SETS[] = { &g_pCoreAchievements, &g_pUnofficialAchievements, &g_pLocalAchievements };
-static_assert( SIZEOF_ARRAY( ACH_SETS ) == NumAchievementSetTypes, "Must match!" );
+std::array<AchievementSet**, NumAchievementSetTypes> ACH_SETS { &g_pCoreAchievements, &g_pUnofficialAchievements, &g_pLocalAchievements };
 
 AchievementSetType g_nActiveAchievementSet = Core;
 AchievementSet* g_pActiveAchievements = g_pCoreAchievements;
@@ -730,7 +729,7 @@ void AchievementSet::LoadProgress( const char* sLoadStateFilename )
 								cond.CompSource().SetValues( CondSourceVal[ j ], CondSourceLastVal[ j ] );
 								cond.CompTarget().SetValues( CondTargetVal[ j ], CondTargetLastVal[ j ] );
 
-								pAch->SetDirtyFlag( Dirty_Conditions );
+								pAch->SetDirtyFlag( df::conditions );
 							}
 						}
 					}

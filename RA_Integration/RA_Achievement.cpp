@@ -193,7 +193,7 @@ BOOL Achievement::Test()
 
 	if( bDirtyConditions )
 	{
-		SetDirtyFlag( Dirty_Conditions );
+		SetDirtyFlag( df::conditions );
 	}
 
 	if( bResetConditions )
@@ -258,10 +258,10 @@ void Achievement::RemoveConditionGroup()
 	m_vConditions.pop_back();
 }
 
-void Achievement::SetID( unsigned int nID )
+void Achievement::SetID(AchievementID nID )
 { 
 	m_nAchievementID = nID;
-	SetDirtyFlag( Dirty_ID );
+	SetDirtyFlag(df::id );
 }
 
 void Achievement::SetActive( BOOL bActive )
@@ -269,20 +269,20 @@ void Achievement::SetActive( BOOL bActive )
 	if( m_bActive != bActive )
 	{
 		m_bActive = bActive;
-		SetDirtyFlag( Dirty__All );
+		SetDirtyFlag(df::Dirty__All );
 	}
 }
 
 //void Achievement::SetUpvotes( unsigned short nVal )
 //{
 //	m_nUpvotes = nVal;
-//	SetDirtyFlag( Dirty_Votes );
+//	SetDirtyFlag( votes );
 //}
 //
 //void Achievement::SetDownvotes( unsigned short nVal )
 //{
 //	m_nDownvotes = nVal;
-//	SetDirtyFlag( Dirty_Votes );
+//	SetDirtyFlag( votes );
 //}
 
 void Achievement::SetModified( BOOL bModified )
@@ -290,13 +290,13 @@ void Achievement::SetModified( BOOL bModified )
 	if( m_bModified != bModified )
 	{
 		m_bModified = bModified;
-		SetDirtyFlag( Dirty__All );	//	TBD? questionable...
+		SetDirtyFlag(df::Dirty__All );	//	TBD? questionable...
 	}
 }
 
 void Achievement::SetBadgeImage( const std::string& sBadgeURI )
 {
-	SetDirtyFlag( Dirty_Badge );
+	SetDirtyFlag(df::badge );
 	ClearBadgeImage();
 
 	char chars[] = "_lock";
@@ -322,7 +322,7 @@ void Achievement::Reset()
 		bDirty |= m_vConditions[i].Reset( false );
 
 	if( bDirty )
-		SetDirtyFlag( Dirty_Conditions );
+		SetDirtyFlag(df::conditions );
 }
 
 size_t Achievement::AddCondition( size_t nConditionGroup, const Condition& rNewCond )
@@ -331,7 +331,7 @@ size_t Achievement::AddCondition( size_t nConditionGroup, const Condition& rNewC
 		m_vConditions.push_back( ConditionSet() );
 
 	m_vConditions[nConditionGroup].Add( rNewCond );	//	NB. Copy by value	
-	SetDirtyFlag( Dirty__All );
+	SetDirtyFlag(df::Dirty__All );
 
 	return m_vConditions[nConditionGroup].Count();
 }
@@ -339,7 +339,7 @@ size_t Achievement::AddCondition( size_t nConditionGroup, const Condition& rNewC
 BOOL Achievement::RemoveCondition( size_t nConditionGroup, unsigned int nID )
 {
 	m_vConditions[nConditionGroup].RemoveAt( nID );
-	SetDirtyFlag( Dirty__All );	//	Not Conditions: 
+	SetDirtyFlag(df::Dirty__All );	//	Not Conditions: 
 
 	return TRUE;
 }
@@ -348,7 +348,7 @@ void Achievement::RemoveAllConditions( size_t nConditionGroup )
 {
 	m_vConditions[nConditionGroup].Clear();
 
-	SetDirtyFlag( Dirty__All );	//	All - not just conditions!
+	SetDirtyFlag(df::Dirty__All );	//	All - not just conditions!
 }
 
 std::string Achievement::CreateMemString() const
@@ -492,7 +492,7 @@ void Achievement::Set( const Achievement& rRHS )
 			AddCondition( nGrp, rRHS.m_vConditions[nGrp].GetAt(i) );
 	}
 
-	SetDirtyFlag( Dirty__All );
+	SetDirtyFlag(df::Dirty__All );
 }
 
 //int Achievement::StoreDynamicVar( char* pVarName, CompVariable nVar )
