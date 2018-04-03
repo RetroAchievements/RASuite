@@ -149,8 +149,8 @@ BOOL Dlg_AchievementsReporter::OnInitDialog(HWND hwnd, HWND hwndFocus,
 void Dlg_AchievementsReporter::OnCommand(HWND hwnd, int id, HWND hwndCtl,
 	UINT codeNotify)
 {
-    // Putting a default check from preventing the warning if closing the window
-    // X button in windows is the same as OK button (IDOK)
+	// Putting a default check from preventing the warning if closing the window
+	// X button in windows is the same as OK button (IDOK)
 	m_hProblem1 = GetDlgItem(hwnd, IDC_RA_PROBLEMTYPE1);
 	Button_SetCheck(m_hProblem1, TRUE);
 	switch (id)
@@ -167,11 +167,11 @@ void Dlg_AchievementsReporter::OnCommand(HWND hwnd, int id, HWND hwndCtl,
 
 void Dlg_AchievementsReporter::OnNCDestroy(HWND hwnd)
 {
-	Close(m_hList);
-	Close(m_hBugReporter);
-	Close(m_hProblem1);
-	Close(m_hProblem2);
-	Close(m_hComment);
+	DestroyControl(m_hList);
+	DestroyControl(m_hBugReporter);
+	DestroyControl(m_hProblem1);
+	DestroyControl(m_hProblem2);
+	DestroyControl(m_hComment);
 	IRA_Dialog::OnNCDestroy(hwnd);
 }
 
@@ -219,11 +219,11 @@ void Dlg_AchievementsReporter::OnOK(HWND hwnd)
 		}
 	}
 
-    // Needs another check
+	// Needs another check
 	if (sBuggedIDs == "")
 	{
-        // even with this it might be strange, there has to be a better way to do this...
-        // The close button will still close it even though this warning will show up
+		// even with this it might be strange, there has to be a better way to do this...
+		// The close button will still close it even though this warning will show up
 		MessageBox(GetActiveWindow(),
 			_T("You need to to select at least one achievement"),
 			_T("Warning"), MB_OK);
@@ -242,7 +242,7 @@ void Dlg_AchievementsReporter::OnOK(HWND hwnd)
 	m_hComment = GetDlgItem(hwnd, IDC_RA_BROKENACHIEVEMENTREPORTCOMMENT);
 
 	// Now I remember
-	auto len{ GetTextLength(m_hComment) + 1 };
+	auto len{ GetTextLength(m_hComment)};
 	std::string sBugReportComment;
 
 	// This ones is extremly important or the capacity will change
@@ -346,9 +346,17 @@ void Dlg_AchievementsReporter::OnOK(HWND hwnd)
 	}
 }
 
-INT_PTR Dlg_AchievementsReporter::DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR Dlg_AchievementsReporter::DialogProc(HWND hDlg, UINT uMsg,
+	WPARAM wParam, LPARAM lParam)
 {
-	return 0;
+	switch (uMsg)
+	{
+		HANDLE_MSG(hDlg, WM_INITDIALOG, OnInitDialog);
+		HANDLE_MSG(hDlg, WM_COMMAND, OnCommand);
+		HANDLE_MSG(hDlg, WM_NCDESTROY, OnNCDestroy);
+	default:
+		return 0;
+	} // end switch
 }
 
 Dlg_AchievementsReporter::Dlg_AchievementsReporter() :

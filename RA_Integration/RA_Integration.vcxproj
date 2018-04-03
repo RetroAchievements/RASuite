@@ -95,7 +95,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\DXSDK_March09_x86\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;RA_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;RA_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
@@ -118,7 +118,7 @@
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)RA_Integration_d.dll"    "$(RANes_ProjectDir)"
+      <Command>copy "$(OutDir)RA_Integration_d.dll" "$(RANes_ProjectDir)"
 copy "$(OutDir)RA_Integration_d.pdb" "$(RANes_ProjectDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -233,6 +233,7 @@ copy "$(OutDir)RA_Integration_d.pdb" "$(RANes_ProjectDir)"</Command>
     <ClCompile Include="RA_RichPresence.cpp" />
     <ClCompile Include="RA_User.cpp" />
     <ClCompile Include="RA_Interface.cpp" />
+    <ClCompile Include="resource_handles.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IRA_WndClass.h" />
@@ -269,6 +270,7 @@ copy "$(OutDir)RA_Integration_d.pdb" "$(RANes_ProjectDir)"</Command>
     <ClInclude Include="RA_User.h" />
     <ClInclude Include="RA_Resource.h" />
     <ClInclude Include="RA_Interface.h" />
+    <ClInclude Include="resource_handles.h" />
     <ClInclude Include="tinyformat.h" />
   </ItemGroup>
   <ItemGroup>

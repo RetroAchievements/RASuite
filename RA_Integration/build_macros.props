@@ -3,12 +3,17 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <RANes_ProjectDir>$(SolutionDir)RANes/vc/</RANes_ProjectDir>
+    <RASnes9x_OutDir>$(SolutionDir)RASnes9x/win32/$(Configuration)/</RASnes9x_OutDir>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
   <ItemGroup>
     <BuildMacro Include="RANes_ProjectDir">
       <Value>$(RANes_ProjectDir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="RASnes9x_OutDir">
+      <Value>$(RASnes9x_OutDir)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
   </ItemGroup>

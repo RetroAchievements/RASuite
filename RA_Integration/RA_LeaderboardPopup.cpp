@@ -70,7 +70,7 @@ void LeaderboardPopup::Update( ControllerInput input, float fDelta, BOOL bFullSc
 			if( !m_vScoreboardQueue.empty() )
 			{
 				//	Still not empty: restart timer
-				m_fScoreboardShowTimer = 0.0f;	//	Show next scoreboard
+				m_fScoreboardShowTimer = 0.0f;	//	OnShowWindow next scoreboard
 			}
 			else
 			{
@@ -231,7 +231,7 @@ void LeaderboardPopup::Render( HDC hDC, RECT& rcDest )
 			const RA_Leaderboard* pLB = g_LeaderboardManager.FindLB( *iter );
 			if( pLB != nullptr )
 			{
-				//	Show current progress:
+				//	OnShowWindow current progress:
 				std::string sScoreSoFar = std::string( " " ) + pLB->FormatScore( static_cast<int>( pLB->GetCurrentValueProgress() ) ) + std::string( " " );
 
 				SIZE szProgress;
@@ -269,7 +269,7 @@ void LeaderboardPopup::Render( HDC hDC, RECT& rcDest )
 				RECT rcTitle = { nScoreboardX + 2, nScoreboardY + 2, nRightLim - 2, nHeight - 8 };
 				DrawText( hDC, NativeStr( buffer ).c_str(), strlen( buffer ), &rcTitle, DT_TOP | DT_LEFT | DT_SINGLELINE );
 
-				//	Show scoreboard
+				//	OnShowWindow scoreboard
 				RECT rcScoreboard = { nScoreboardX + 2, nScoreboardY + 32, nRightLim - 2, nHeight - 16 };
 				for( size_t i = 0; i < pLB->GetRankInfoCount(); ++i )
 				{

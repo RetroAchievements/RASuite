@@ -5,11 +5,9 @@
 #include "RA_AchievementOverlay.h"
 #include "RA_BuildVer.h"
 #include "RA_CodeNotes.h"
-#include "RA_Defs.h"
 #include "RA_GameData.h"
 #include "RA_httpthread.h"
 #include "RA_ImageFactory.h"
-#include "RA_Interface.h"
 #include "RA_Leaderboard.h"
 #include "RA_md5factory.h"
 #include "RA_MemManager.h"
@@ -33,7 +31,7 @@
 #include <codecvt>
 #include <direct.h>
 #include <io.h>		//	_access()
-#include <fstream>
+#include <atlbase.h> // CComPtr
 
 
 std::string g_sKnownRAVersion;
@@ -57,17 +55,21 @@ bool g_bLeaderboardsActive = true;
 bool g_bLBDisplayNotification = true;
 bool g_bLBDisplayCounter = true;
 bool g_bLBDisplayScoreboard = true;
-unsigned int g_nNumHTTPThreads = 15;
+unsigned int g_nNumHTTPThreads = 15; // should this be constexpr?
 
-typedef struct WindowPosition {
-	int nLeft;
-	int nTop;
-	int nWidth;
-	int nHeight;
-	bool bLoaded;
+struct WindowPosition {
+	// this is to auto initilize it w/o needing to do it explicitly
 
-	static const int nUnset = -99999;
-} WindowPosition;
+
+
+	int nLeft{ 0 };
+	int nTop{ 0 };
+	int nWidth{ 0 };
+	int nHeight{ 0 };
+	bool bLoaded{ false };
+
+	static const auto nUnset{ -99999 };
+};
 
 typedef std::map<std::string, WindowPosition> WindowPositionMap;
 WindowPositionMap g_mWindowPositions;
@@ -80,12 +82,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 	return TRUE;
 }
 
-API const char* CCONV _RA_IntegrationVersion()
+API const char* CCONV _RA_IntegrationVersion() noexcept
 {
 	return RA_INTEGRATION_VERSION;
 }
 
-API BOOL CCONV _RA_InitI(HWND hMainHWND, /*enum EmulatorID*/int nEmulatorID, const char* sClientVer)
+API BOOL CCONV _RA_InitI(HWND hMainHWND, /*enum EmulatorID*/int nEmulatorID, const char* sClientVer) noexcept
 {
 	//	Ensure all required directories are created:
 	if (DirectoryExists(RA_DIR_BASE) == FALSE)
@@ -108,6 +110,7 @@ API BOOL CCONV _RA_InitI(HWND hMainHWND, /*enum EmulatorID*/int nEmulatorID, con
 
 	RA_LOG(__FUNCTION__ " Init called! ID: %d, ClientVer: %s\n", nEmulatorID, sClientVer);
 
+	// these look like they could be made into another struct
 	switch (g_EmulatorID)
 	{
 	case RA_Gens:
@@ -168,14 +171,21 @@ API BOOL CCONV _RA_InitI(HWND hMainHWND, /*enum EmulatorID*/int nEmulatorID, con
 		RA_LOG("(found as: %s)\n", g_sClientName);
 	}
 
-	TCHAR buffer[2048];
-	GetCurrentDirectory(2048, buffer);
-	g_sHomeDir = Narrow(buffer);
-	g_sHomeDir.append("\\");
+	// this has to go
+	tstring buffer;
+	buffer.reserve(2048);
+	GetCurrentDirectory(2048, buffer.data());
 
-	RA_LOG(__FUNCTION__ " - storing \"%s\" as home dir\n", g_sHomeDir.c_str());
+	// Ok, it definitly shows how it should
+	// data() part is required required here, but usually isn't
+	// It's needed if your write directly to the pointer, since the object is empty
+	g_sHomeDir = tfm::format("%s\\", buffer.data());
 
-	g_sROMDirLocation[0] = '\0';
+	// remember it uses the parameter pack
+	RA_LOG(__FUNCTION__ " - storing \"%s\" as home dir\n", g_sHomeDir);
+
+	// strings are null terminated bro...
+	//g_sROMDirLocation[0] = '\0';
 
 	_RA_LoadPreferences();
 
@@ -184,6 +194,8 @@ API BOOL CCONV _RA_InitI(HWND hMainHWND, /*enum EmulatorID*/int nEmulatorID, con
 	//////////////////////////////////////////////////////////////////////////
 	//	Dialogs:
 	g_MemoryDialog.Init();
+
+	// The pointers here seem like they should go, but we'll worry about that later
 
 	//////////////////////////////////////////////////////////////////////////
 	//	Initialize All AchievementSets
@@ -203,14 +215,18 @@ API BOOL CCONV _RA_InitI(HWND hMainHWND, /*enum EmulatorID*/int nEmulatorID, con
 
 	//////////////////////////////////////////////////////////////////////////
 	//	Update news:
-	PostArgs args;
-	args['c'] = std::to_string(6);
+	PostArgs args{ {'c', std::to_string(6)} }; // is there a point of putting to_string around it?
+
 	RAWeb::CreateThreadedHTTPRequest(RequestNews, args);
 
 	//////////////////////////////////////////////////////////////////////////
 	//	Attempt to fetch latest client version:
 	args.clear();
+
+	// TODO: Find out why bounds checking fails here
 	args['c'] = std::to_string(g_ConsoleID);
+
+	// We should make args a forwarding reference later (r-value, i.e var&&)
 	RAWeb::CreateThreadedHTTPRequest(RequestLatestClientPage, args);	//	g_sGetLatestClientPage
 
 	//	TBD:
@@ -225,8 +241,10 @@ API BOOL CCONV _RA_InitI(HWND hMainHWND, /*enum EmulatorID*/int nEmulatorID, con
 	return TRUE;
 }
 
-API int CCONV _RA_Shutdown()
+API int CCONV _RA_Shutdown() noexcept
 {
+    // Could be wrong but the file did not change when this was called
+    // Never mind it could
 	_RA_SavePreferences();
 
 	SAFE_DELETE(g_pCoreAchievements);
@@ -253,18 +271,15 @@ API int CCONV _RA_Shutdown()
 		g_MemoryDialog.InstallHWND(nullptr);
 	}
 
-	if (g_GameLibrary.GetHWND() != nullptr)
-	{
-		DestroyWindow(g_GameLibrary.GetHWND());
-		g_GameLibrary.InstallHWND(nullptr);
-	}
+	if (!g_GameLibrary.is_destroyed())
+		g_GameLibrary.PostNcDestroy();
 
 	g_GameLibrary.KillThread();
 
 	// RichPresence dialog destroyed in the Message Queue
 	// Gonna try this
 
-	if (g_RichPresenceDialog.GetWindow())
+	if (!g_RichPresenceDialog.is_destroyed())
 		g_RichPresenceDialog.PostNcDestroy();
 
 
@@ -279,70 +294,85 @@ API int CCONV _RA_Shutdown()
 	return 0;
 }
 
-API bool CCONV _RA_ConfirmLoadNewRom(bool bQuittingApp)
+API bool CCONV _RA_ConfirmLoadNewRom(bool bQuittingApp) noexcept
 {
 	//	Returns true if we can go ahead and load the new rom.
-	int nResult = IDYES;
+	auto nResult{ IDYES };
 
-	const char* sCurrentAction = bQuittingApp ? "quit now" : "load a new ROM";
-	const char* sNextAction = bQuittingApp ? "Are you sure?" : "Continue load?";
+	// lets try this, now we don't have to worry about deallocating it
+	// won't work for arrays though
+	_RA cstring_h sCurrentAction{
+		bQuittingApp ? "quit now" : "load a new ROM"
+	};
+	_RA cstring_h sNextAction{
+		bQuittingApp ? "Are you sure?" : "Continue load?"
+	};
 
 	if (g_pCoreAchievements->HasUnsavedChanges())
 	{
-		char buffer[1024];
-		sprintf_s(buffer, 1024,
-			"You have unsaved changes in the Core Achievements set.\n"
-			"If you %s you will lose these changes.\n"
-			"%s", sCurrentAction, sNextAction);
+		auto buffer{
+			tfm::format("You have unsaved changes in the Core Achievements"
+			" set.\nIf you %s you will lose these changes.\n"
+			"%s", sCurrentAction.get(), sNextAction.get())
+		};
 
-		nResult = MessageBox(g_RAMainWnd, NativeStr(buffer).c_str(), TEXT("Warning"), MB_ICONWARNING | MB_YESNO);
+		nResult = MessageBox(g_RAMainWnd, NativeStr(buffer).c_str(),
+			TEXT("Warning"), MB_ICONWARNING | MB_YESNO);
 	}
 	if (g_pUnofficialAchievements->HasUnsavedChanges())
 	{
-		char buffer[1024];
-		sprintf_s(buffer, 1024,
-			"You have unsaved changes in the Unofficial Achievements set.\n"
-			"If you %s you will lose these changes.\n"
-			"%s", sCurrentAction, sNextAction);
+		auto buffer{
+			tfm::format("You have unsaved changes in the Unofficial"
+			" Achievements set.\nIf you %s you will lose these changes.\n"
+			"%s", sCurrentAction.get(), sNextAction.get())
+		};
 
-		nResult = MessageBox(g_RAMainWnd, NativeStr(buffer).c_str(), TEXT("Warning"), MB_ICONWARNING | MB_YESNO);
+		nResult = MessageBox(g_RAMainWnd, NativeStr(buffer).c_str(),
+			TEXT("Warning"), MB_ICONWARNING | MB_YESNO);
 	}
 	if (g_pLocalAchievements->HasUnsavedChanges())
 	{
-		char buffer[1024];
-		sprintf_s(buffer, 1024,
-			"You have unsaved changes in the Local Achievements set.\n"
-			"If you %s you will lose these changes.\n"
-			"%s", sCurrentAction, sNextAction);
+		auto buffer{
+			tfm::format("You have unsaved changes in the Local Achievements"
+			" set.\nIf you %s you will lose these changes.\n"
+			"%s", sCurrentAction.get(), sNextAction.get())
+		};
 
-		nResult = MessageBox(g_RAMainWnd, NativeStr(buffer).c_str(), TEXT("Warning"), MB_ICONWARNING | MB_YESNO);
+		nResult = MessageBox(g_RAMainWnd, NativeStr(buffer).c_str(),
+			TEXT("Warning"), MB_ICONWARNING | MB_YESNO);
 	}
 
-	return(nResult == IDYES);
+	return{ nResult == IDYES };
 }
 
-API void CCONV _RA_SetConsoleID(unsigned int nConsoleID)
+API void CCONV _RA_SetConsoleID(unsigned int nConsoleID) noexcept
 {
 	g_ConsoleID = static_cast<ConsoleID>(nConsoleID);
 }
 
-API int CCONV _RA_HardcoreModeIsActive()
+API int CCONV _RA_HardcoreModeIsActive() noexcept
 {
 	return g_bHardcoreModeActive;
 }
 
-API int CCONV _RA_HTTPGetRequestExists(const char* sPageName)
+API int CCONV _RA_HTTPGetRequestExists(const char* sPageName)  noexcept
 {
 	//return RAWeb::HTTPRequestExists( sPageName );	//	Deprecated
 	return 0;
 }
 
-API int CCONV _RA_OnLoadNewRom(const BYTE* pROM, unsigned int nROMSize)
+API int CCONV _RA_OnLoadNewRom(const BYTE* pROM, unsigned int nROMSize) noexcept
 {
-	static std::string sMD5NULL = RAGenerateMD5(nullptr, 0);
+	// just in case
+	using namespace std::string_literals;
+
+	// if it truly is null you could just use "", but testing just to be safe
+	auto sMD5NULL{ ""s };
+	// static std::string sMD5NULL = RAGenerateMD5(nullptr, 0);
 
 	g_sCurrentROMMD5 = RAGenerateMD5(pROM, nROMSize);
-	RA_LOG("Loading new ROM... MD5 is %s\n", (g_sCurrentROMMD5 == sMD5NULL) ? "Null" : g_sCurrentROMMD5.c_str());
+	RA_LOG("Loading new ROM... MD5 is %s\n", (g_sCurrentROMMD5 == sMD5NULL) ?
+		"Null" : g_sCurrentROMMD5.c_str());
 
 	ASSERT(g_MemManager.NumMemoryBanks() > 0);
 
@@ -352,10 +382,13 @@ API int CCONV _RA_OnLoadNewRom(const BYTE* pROM, unsigned int nROMSize)
 	if (pROM != nullptr)
 	{
 		//	Fetch the gameID from the DB here:
-		PostArgs args;
-		args['u'] = RAUsers::LocalUser().Username();
-		args['t'] = RAUsers::LocalUser().Token();
-		args['m'] = g_sCurrentROMMD5;
+		PostArgs args
+		{
+			{'u', _RA username()},
+			{'t', _RA user_token()},
+			{'m', g_sCurrentROMMD5}
+		};
+
 
 		Document doc;
 		if (RAWeb::DoBlockingRequest(RequestGameID, args, doc))
@@ -365,10 +398,13 @@ API int CCONV _RA_OnLoadNewRom(const BYTE* pROM, unsigned int nROMSize)
 			{
 				RA_LOG("Could not recognise game with MD5 %s\n",
 					g_sCurrentROMMD5.c_str());
-				char buffer[64];
-				ZeroMemory(buffer, 64);
-				RA_GetEstimatedGameTitle(buffer);
-				std::string sEstimatedGameTitle(buffer);
+
+				std::string buffer;
+				buffer.reserve(64);
+
+				RA_GetEstimatedGameTitle(buffer.data());
+				// don't need it no more
+				auto sEstimatedGameTitle{ std::move(buffer) };
 
 				_RA Dlg_GameTitle gametitle_dlg;
 				gametitle_dlg.GetInfoFromModal(g_sCurrentROMMD5,
@@ -442,13 +478,13 @@ API int CCONV _RA_OnLoadNewRom(const BYTE* pROM, unsigned int nROMSize)
 
 	return 0;
 }
-
-API void CCONV _RA_InstallMemoryBank(int nBankID, void* pReader, void* pWriter, int nBankSize)
+// TODO: make this use function objects instead of pointers later
+API void CCONV _RA_InstallMemoryBank(int nBankID, void* pReader, void* pWriter, int nBankSize) noexcept
 {
 	g_MemManager.AddMemoryBank(static_cast<size_t>(nBankID), (_RAMByteReadFn*)pReader, (_RAMByteWriteFn*)pWriter, static_cast<size_t>(nBankSize));
 }
 
-API void CCONV _RA_ClearMemoryBanks()
+API void CCONV _RA_ClearMemoryBanks() noexcept
 {
 	g_MemManager.ClearMemoryBanks();
 }
@@ -475,22 +511,24 @@ API void CCONV _RA_ClearMemoryBanks()
 //	}
 //}
 
-API BOOL CCONV _RA_OfferNewRAUpdate(const char* sNewVer)
+API BOOL CCONV _RA_OfferNewRAUpdate(const char* sNewVer) noexcept
 {
-	char buffer[1024];
-	sprintf_s(buffer, 1024, "Update available!\n"
+	auto buffer{
+		tfm::format("Update available!\n"
 		"A new version of %s is available for download at " RA_HOST_URL ".\n\n"
 		"Would you like to update?\n\n"
 		"Current version:%s\n"
 		"New version:%s\n",
 		g_sClientName,
 		g_sClientVersion,
-		sNewVer);
+		sNewVer)
+	};
 
 	//	Update last known version:
 	//strcpy_s( g_sKnownRAVersion, 50, sNewVer );
 
-	if (MessageBox(g_RAMainWnd, NativeStr(buffer).c_str(), TEXT("Update available!"), MB_YESNO) == IDYES)
+	if (MessageBox(g_RAMainWnd, NativeStr(buffer).c_str(),
+		TEXT("Update available!"), MB_YESNO) == IDYES)
 	{
 		//SetCurrentDirectory( g_sHomeDir );
 		//FetchBinaryFromWeb( g_sClientEXEName );
@@ -520,11 +558,11 @@ API BOOL CCONV _RA_OfferNewRAUpdate(const char* sNewVer)
 		//	NULL,
 		//	SW_SHOWNORMAL ); 
 
-		ShellExecute(NULL,
+		ShellExecute(null,
 			TEXT("open"),
 			TEXT("http://www.retroachievements.org/download.php"),
-			NULL,
-			NULL,
+			null,
+			null,
 			SW_SHOWNORMAL);
 
 		return TRUE;
@@ -535,10 +573,11 @@ API BOOL CCONV _RA_OfferNewRAUpdate(const char* sNewVer)
 	}
 }
 
-API int CCONV _RA_HandleHTTPResults()
+API int CCONV _RA_HandleHTTPResults() noexcept
 {
 	WaitForSingleObject(RAWeb::Mutex(), INFINITE);
 
+	// This can be imporved as well but leaving it alone
 	RequestObject* pObj = RAWeb::PopNextHttpResult();
 	while (pObj != nullptr)
 	{
@@ -734,7 +773,7 @@ API int CCONV _RA_HandleHTTPResults()
 }
 
 //	Following this function, an app should call AppendMenu to associate this submenu.
-API HMENU CCONV _RA_CreatePopupMenu()
+API HMENU CCONV _RA_CreatePopupMenu() noexcept
 {
 	HMENU hRA = CreatePopupMenu();
 	HMENU hRA_LB = CreatePopupMenu();
@@ -781,38 +820,40 @@ API HMENU CCONV _RA_CreatePopupMenu()
 	return hRA;
 }
 
-API void CCONV _RA_UpdateAppTitle(const char* sMessage)
+API void CCONV _RA_UpdateAppTitle(const char* sMessage) noexcept
 {
+	// starting to think RA_Core is supposed to be a Window
+
 	std::stringstream sstr;
-	sstr << std::string(g_sClientName) << " - " << std::string(g_sClientVersion);
+	tfm::format(sstr, "%s - %s", g_sClientName, g_sClientVersion);
 
 	if (sMessage != nullptr)
-		sstr << " - " << sMessage;
+		tfm::format(sstr, " - %s", sMessage);
 
 	if (RAUsers::LocalUser().IsLoggedIn())
-		sstr << " - " << RAUsers::LocalUser().Username();
+		tfm::format(sstr, " - %s", _RA username());
 
-	if (_stricmp(RA_HOST_URL, "localhost") == 0)
-		sstr << " *AT LOCALHOST*";
+	if (RA_HOST_URL == _STD string{ "localhost" })
+		tfm::format(sstr, " *AT LOCALHOST*");
 
 	SetWindowText(g_RAMainWnd, NativeStr(sstr.str()).c_str());
 }
 
 //	##BLOCKING##
-API void CCONV _RA_CheckForUpdate()
+API void CCONV _RA_CheckForUpdate() noexcept
 {
-	PostArgs args;
-	args['c'] = std::to_string(g_ConsoleID);
+	PostArgs args{ {'c', _STD to_string(g_ConsoleID)} };
 
 	DataStream Response;
 	if (RAWeb::DoBlockingRequest(RequestLatestClientPage, args, Response))
 	{
-		std::string sReply = DataStreamAsString(Response);
+		auto sReply{ DataStreamAsString(Response) };
 		if (sReply.length() > 2 && sReply.at(0) == '0' && sReply.at(1) == '.')
 		{
 			//	Ignore g_sKnownRAVersion: check against g_sRAVersion
-			unsigned long nLocalVersion = std::strtoul(g_sClientVersion + 2, nullptr, 10);
-			unsigned long nServerVersion = std::strtoul(sReply.c_str() + 2, nullptr, 10);
+			// don't really know what adding numbers to c strings does so leaving it alone
+			auto nLocalVersion = std::strtoul(g_sClientVersion + 2, nullptr, 10);
+			auto nServerVersion = std::strtoul(sReply.c_str() + 2, nullptr, 10);
 
 			if (nLocalVersion < nServerVersion)
 			{
@@ -821,9 +862,12 @@ API void CCONV _RA_CheckForUpdate()
 			else
 			{
 				//	Up to date
-				char buffer[1024];
-				sprintf_s(buffer, 1024, "You have the latest version of %s: 0.%02d", g_sClientEXEName, nServerVersion);
-				MessageBox(g_RAMainWnd, NativeStr(buffer).c_str(), TEXT("Up to date"), MB_OK);
+				auto buffer{
+					tfm::format("You have the latest version of %s: 0.%02d",
+					g_sClientEXEName, nServerVersion)
+				};
+				MessageBox(g_RAMainWnd, NativeStr(buffer).c_str(),
+					TEXT("Up to date"), MB_OK);
 			}
 		}
 		else
@@ -845,120 +889,122 @@ API void CCONV _RA_CheckForUpdate()
 	}
 }
 
-API void CCONV _RA_LoadPreferences()
+
+
+API void CCONV _RA_LoadPreferences() noexcept
 {
 	RA_LOG(__FUNCTION__ " - loading preferences...\n");
 
 	SetCurrentDirectory(NativeStr(g_sHomeDir).c_str());
-	FILE* pf = nullptr;
-	fopen_s(&pf, std::string(std::string(RA_PREFERENCES_FILENAME_PREFIX) + g_sClientName + ".cfg").c_str(), "rb");
-	if (pf == nullptr)
+	_STD ifstream ifile{ prefs_filename() };
+
+
+#pragma region Some comments
+	//	Test for first-time use:
+//RA_LOG( __FUNCTION__ " - no preferences found: showing first-time message!\n" );
+//
+//char sWelcomeMessage[4096];
+
+//sprintf_s( sWelcomeMessage, 4096, 
+//	"Welcome! It looks like this is your first time using RetroAchievements.\n\n"
+//	"Quick Start: Press ESCAPE or 'Back' on your Xbox 360 controller to view the achievement overlay.\n\n" );
+
+//switch( g_EmulatorID )
+//{
+//case RA_Gens:
+//	strcat_s( sWelcomeMessage, 4096,
+//		"Default Keyboard Controls: Use cursor keys, A-S-D are A, B, C, and Return for Start.\n\n" );
+//	break;
+//case RA_VisualboyAdvance:
+//	strcat_s( sWelcomeMessage, 4096,
+//		"Default Keyboard Controls: Use cursor keys, Z-X are A and B, A-S are L and R, use Return for Start and Backspace for Select.\n\n" );
+//	break;
+//case RA_Snes9x:
+//	strcat_s( sWelcomeMessage, 4096,
+//		"Default Keyboard Controls: Use cursor keys, D-C-S-X are A, B, X, Y, Z-V are L and R, use Return for Start and Space for Select.\n\n" );
+//	break;
+//case RA_FCEUX:
+//	strcat_s( sWelcomeMessage, 4096,
+//		"Default Keyboard Controls: Use cursor keys, D-F are B and A, use Return for Start and S for Select.\n\n" );
+//	break;
+//case RA_PCE:
+//	strcat_s( sWelcomeMessage, 4096,
+//		"Default Keyboard Controls: Use cursor keys, A-S-D for A, B, C, and Return for Start\n\n" );
+//	break;
+//}
+
+//strcat_s( sWelcomeMessage, 4096, "These defaults can be changed under [Option]->[Joypads].\n\n"
+//	"If you have any questions, comments or feedback, please visit forum.RetroAchievements.org for more information.\n\n" );
+
+//MessageBox( g_RAMainWnd, 
+//	sWelcomeMessage,
+//	"Welcome to RetroAchievements!", MB_OK );  
+#pragma endregion
+
+
+	//	TBD: setup some decent default variables:
+	//_RA_SavePreferences(); this was erasing the file, yup works now
+
+	Document doc;
+	doc.ParseStream(IStreamWrapper{ ifile });
+
+	if (doc.HasParseError())
 	{
-		//	Test for first-time use:
-		//RA_LOG( __FUNCTION__ " - no preferences found: showing first-time message!\n" );
-		//
-		//char sWelcomeMessage[4096];
-
-		//sprintf_s( sWelcomeMessage, 4096, 
-		//	"Welcome! It looks like this is your first time using RetroAchievements.\n\n"
-		//	"Quick Start: Press ESCAPE or 'Back' on your Xbox 360 controller to view the achievement overlay.\n\n" );
-
-		//switch( g_EmulatorID )
-		//{
-		//case RA_Gens:
-		//	strcat_s( sWelcomeMessage, 4096,
-		//		"Default Keyboard Controls: Use cursor keys, A-S-D are A, B, C, and Return for Start.\n\n" );
-		//	break;
-		//case RA_VisualboyAdvance:
-		//	strcat_s( sWelcomeMessage, 4096,
-		//		"Default Keyboard Controls: Use cursor keys, Z-X are A and B, A-S are L and R, use Return for Start and Backspace for Select.\n\n" );
-		//	break;
-		//case RA_Snes9x:
-		//	strcat_s( sWelcomeMessage, 4096,
-		//		"Default Keyboard Controls: Use cursor keys, D-C-S-X are A, B, X, Y, Z-V are L and R, use Return for Start and Space for Select.\n\n" );
-		//	break;
-		//case RA_FCEUX:
-		//	strcat_s( sWelcomeMessage, 4096,
-		//		"Default Keyboard Controls: Use cursor keys, D-F are B and A, use Return for Start and S for Select.\n\n" );
-		//	break;
-		//case RA_PCE:
-		//	strcat_s( sWelcomeMessage, 4096,
-		//		"Default Keyboard Controls: Use cursor keys, A-S-D for A, B, C, and Return for Start\n\n" );
-		//	break;
-		//}
-
-		//strcat_s( sWelcomeMessage, 4096, "These defaults can be changed under [Option]->[Joypads].\n\n"
-		//	"If you have any questions, comments or feedback, please visit forum.RetroAchievements.org for more information.\n\n" );
-
-		//MessageBox( g_RAMainWnd, 
-		//	sWelcomeMessage,
-		//	"Welcome to RetroAchievements!", MB_OK );
-
-		//	TBD: setup some decent default variables:
+		//MessageBox( nullptr, std::to_string( doc.GetParseError() ).c_str(), "ERROR!", MB_OK );
 		_RA_SavePreferences();
 	}
 	else
 	{
-		Document doc;
-		doc.ParseStream(FileStream(pf));
+		if (doc.HasMember("Username"))
+			RAUsers::LocalUser().SetUsername(doc["Username"].GetString());
+		if (doc.HasMember("Token"))
+			RAUsers::LocalUser().SetToken(doc["Token"].GetString());
+		if (doc.HasMember("Hardcore Active"))
+			g_bHardcoreModeActive = doc["Hardcore Active"].GetBool();
 
-		if (doc.HasParseError())
-		{
-			//MessageBox( nullptr, std::to_string( doc.GetParseError() ).c_str(), "ERROR!", MB_OK );
-			_RA_SavePreferences();
-		}
-		else
-		{
-			if (doc.HasMember("Username"))
-				RAUsers::LocalUser().SetUsername(doc["Username"].GetString());
-			if (doc.HasMember("Token"))
-				RAUsers::LocalUser().SetToken(doc["Token"].GetString());
-			if (doc.HasMember("Hardcore Active"))
-				g_bHardcoreModeActive = doc["Hardcore Active"].GetBool();
+		if (doc.HasMember("Leaderboards Active"))
+			g_bLeaderboardsActive = doc["Leaderboards Active"].GetBool();
+		if (doc.HasMember("Leaderboard Notification Display"))
+			g_bLBDisplayNotification = doc["Leaderboard Notification Display"].GetBool();
+		if (doc.HasMember("Leaderboard Counter Display"))
+			g_bLBDisplayCounter = doc["Leaderboard Counter Display"].GetBool();
+		if (doc.HasMember("Leaderboard Scoreboard Display"))
+			g_bLBDisplayScoreboard = doc["Leaderboard Scoreboard Display"].GetBool();
 
-			if (doc.HasMember("Leaderboards Active"))
-				g_bLeaderboardsActive = doc["Leaderboards Active"].GetBool();
-			if (doc.HasMember("Leaderboard Notification Display"))
-				g_bLBDisplayNotification = doc["Leaderboard Notification Display"].GetBool();
-			if (doc.HasMember("Leaderboard Counter Display"))
-				g_bLBDisplayCounter = doc["Leaderboard Counter Display"].GetBool();
-			if (doc.HasMember("Leaderboard Scoreboard Display"))
-				g_bLBDisplayScoreboard = doc["Leaderboard Scoreboard Display"].GetBool();
+		if (doc.HasMember("Num Background Threads"))
+			g_nNumHTTPThreads = doc["Num Background Threads"].GetUint();
+		if (doc.HasMember("ROM Directory"))
+			g_sROMDirLocation = doc["ROM Directory"].GetString();
 
-			if (doc.HasMember("Num Background Threads"))
-				g_nNumHTTPThreads = doc["Num Background Threads"].GetUint();
-			if (doc.HasMember("ROM Directory"))
-				g_sROMDirLocation = doc["ROM Directory"].GetString();
+		if (doc.HasMember("Window Positions")) {
+			const auto& positions{ doc["Window Positions"] };
+			if (positions.IsObject()) {
+				for (auto iter = positions.MemberBegin(); iter != positions.MemberEnd(); ++iter) {
+					auto& pos = g_mWindowPositions.at(iter->name.GetString());
+					pos.nLeft = pos.nTop = pos.nWidth = pos.nHeight = WindowPosition::nUnset;
+					pos.bLoaded = false;
 
-			if (doc.HasMember("Window Positions")) {
-				const Value& positions = doc["Window Positions"];
-				if (positions.IsObject()) {
-					for (Value::ConstMemberIterator iter = positions.MemberBegin(); iter != positions.MemberEnd(); ++iter) {
-						WindowPosition& pos = g_mWindowPositions[iter->name.GetString()];
-						pos.nLeft = pos.nTop = pos.nWidth = pos.nHeight = WindowPosition::nUnset;
-						pos.bLoaded = false;
-
-						if (iter->value.HasMember("X"))
-							pos.nLeft = iter->value["X"].GetInt();
-						if (iter->value.HasMember("Y"))
-							pos.nTop = iter->value["Y"].GetInt();
-						if (iter->value.HasMember("Width"))
-							pos.nWidth = iter->value["Width"].GetInt();
-						if (iter->value.HasMember("Height"))
-							pos.nHeight = iter->value["Height"].GetInt();
-					}
+					if (iter->value.HasMember("X"))
+						pos.nLeft = iter->value["X"].GetInt();
+					if (iter->value.HasMember("Y"))
+						pos.nTop = iter->value["Y"].GetInt();
+					if (iter->value.HasMember("Width"))
+						pos.nWidth = iter->value["Width"].GetInt();
+					if (iter->value.HasMember("Height"))
+						pos.nHeight = iter->value["Height"].GetInt();
 				}
 			}
 		}
-
-		fclose(pf);
 	}
+
+
+
 
 	//TBD:
 	//g_GameLibrary.LoadAll();
 }
 
-API void CCONV _RA_SavePreferences()
+API void CCONV _RA_SavePreferences() noexcept
 {
 	RA_LOG(__FUNCTION__ " - saving preferences...\n");
 
@@ -969,93 +1015,105 @@ API void CCONV _RA_SavePreferences()
 	}
 
 	SetCurrentDirectory(NativeStr(g_sHomeDir).c_str());
-	FILE* pf = NULL;
-	fopen_s(&pf, std::string(std::string(RA_PREFERENCES_FILENAME_PREFIX) + g_sClientName + ".cfg").c_str(), "wb");
-	if (pf != NULL)
+
+	// test var
+	// auto my_filename{ prefs_filename() };
+
+	std::ofstream ofile{ prefs_filename() };
+	OStreamWrapper osw{ ofile };
+	Writer<OStreamWrapper> writer{ osw };
+
+	Document doc;
+	doc.SetObject();
+
+	auto& a{ doc.GetAllocator() };
+	doc.AddMember("Username", StringRef(RAUsers::LocalUser().Username().c_str()), a);
+	doc.AddMember("Token", StringRef(RAUsers::LocalUser().Token().c_str()), a);
+	doc.AddMember("Hardcore Active", g_bHardcoreModeActive, a);
+	doc.AddMember("Leaderboards Active", g_bLeaderboardsActive, a);
+	doc.AddMember("Leaderboard Notification Display", g_bLBDisplayNotification, a);
+	doc.AddMember("Leaderboard Counter Display", g_bLBDisplayCounter, a);
+	doc.AddMember("Leaderboard Scoreboard Display", g_bLBDisplayScoreboard, a);
+	doc.AddMember("Num Background Threads", g_nNumHTTPThreads, a);
+	doc.AddMember("ROM Directory", StringRef(g_sROMDirLocation.c_str()), a);
+
+	Value positions(kObjectType);
+
+	// can be simplified
+	for (auto& item : g_mWindowPositions)
 	{
-		FileStream fs(pf);
-		Writer<FileStream> writer(fs);
+		Value rect(kObjectType);
+		if (item.second.nLeft != WindowPosition::nUnset)
+			rect.AddMember("X", item.second.nLeft, a);
+		if (item.second.nTop != WindowPosition::nUnset)
+			rect.AddMember("Y", item.second.nTop, a);
+		if (item.second.nWidth != WindowPosition::nUnset)
+			rect.AddMember("Width", item.second.nWidth, a);
+		if (item.second.nHeight != WindowPosition::nUnset)
+			rect.AddMember("Height", item.second.nHeight, a);
 
-		Document doc;
-		doc.SetObject();
+		if (rect.MemberCount() > 0)
+			positions.AddMember(StringRef(item.first.c_str()), rect, a);
+	} // end for
 
-		Document::AllocatorType& a = doc.GetAllocator();
-		doc.AddMember("Username", StringRef(RAUsers::LocalUser().Username().c_str()), a);
-		doc.AddMember("Token", StringRef(RAUsers::LocalUser().Token().c_str()), a);
-		doc.AddMember("Hardcore Active", g_bHardcoreModeActive, a);
-		doc.AddMember("Leaderboards Active", g_bLeaderboardsActive, a);
-		doc.AddMember("Leaderboard Notification Display", g_bLBDisplayNotification, a);
-		doc.AddMember("Leaderboard Counter Display", g_bLBDisplayCounter, a);
-		doc.AddMember("Leaderboard Scoreboard Display", g_bLBDisplayScoreboard, a);
-		doc.AddMember("Num Background Threads", g_nNumHTTPThreads, a);
-		doc.AddMember("ROM Directory", StringRef(g_sROMDirLocation.c_str()), a);
 
-		Value positions(kObjectType);
-		for (WindowPositionMap::const_iterator iter = g_mWindowPositions.begin(); iter != g_mWindowPositions.end(); ++iter) {
-			Value rect(kObjectType);
-			if (iter->second.nLeft != WindowPosition::nUnset)
-				rect.AddMember("X", iter->second.nLeft, a);
-			if (iter->second.nTop != WindowPosition::nUnset)
-				rect.AddMember("Y", iter->second.nTop, a);
-			if (iter->second.nWidth != WindowPosition::nUnset)
-				rect.AddMember("Width", iter->second.nWidth, a);
-			if (iter->second.nHeight != WindowPosition::nUnset)
-				rect.AddMember("Height", iter->second.nHeight, a);
+	if (positions.MemberCount() > 0)
+		doc.AddMember("Window Positions", positions.Move(), a);
 
-			if (rect.MemberCount() > 0)
-				positions.AddMember(StringRef(iter->first.c_str()), rect, a);
-		}
+	doc.Accept(writer);	//	Save
 
-		if (positions.MemberCount() > 0)
-			doc.AddMember("Window Positions", positions.Move(), a);
 
-		doc.Accept(writer);	//	Save
 
-		fclose(pf);
-	}
-
-	//TBD:
-	//g_GameLibrary.SaveAll();
+//TBD:
+//g_GameLibrary.SaveAll();
 }
 
 void _FetchGameHashLibraryFromWeb()
 {
-	PostArgs args;
-	args['c'] = std::to_string(g_ConsoleID);
-	args['u'] = RAUsers::LocalUser().Username();
-	args['t'] = RAUsers::LocalUser().Token();
+	PostArgs args
+	{
+		{ 'c', std::to_string(g_ConsoleID) },
+		{ 'u', _RA username() },
+		{ 't', _RA user_token() }
+	};
+
 	DataStream Response;
 	if (RAWeb::DoBlockingRequest(RequestHashLibrary, args, Response))
 		_WriteBufferToFile(RA_GAME_HASH_FILENAME, Response);
-}
+} // end function _FetchGameHashLibraryFromWeb
 
 void _FetchGameTitlesFromWeb()
 {
-	PostArgs args;
-	args['c'] = std::to_string(g_ConsoleID);
-	args['u'] = RAUsers::LocalUser().Username();
-	args['t'] = RAUsers::LocalUser().Token();
+	PostArgs args
+	{
+		{ 'c', std::to_string(g_ConsoleID) },
+		{ 'u', _RA username() },
+		{ 't', _RA user_token() }
+	};
 	DataStream Response;
 	if (RAWeb::DoBlockingRequest(RequestGamesList, args, Response))
 		_WriteBufferToFile(RA_GAME_LIST_FILENAME, Response);
-}
+} // end function _FetchGameTitlesFromWeb
 
 void _FetchMyProgressFromWeb()
 {
-	PostArgs args;
-	args['c'] = std::to_string(g_ConsoleID);
-	args['u'] = RAUsers::LocalUser().Username();
-	args['t'] = RAUsers::LocalUser().Token();
+	PostArgs args
+	{
+		{ 'c', std::to_string(g_ConsoleID) },
+		{ 'u', _RA username() },
+		{ 't', _RA user_token() }
+	};
 	DataStream Response;
 	if (RAWeb::DoBlockingRequest(RequestAllProgress, args, Response))
 		_WriteBufferToFile(RA_MY_PROGRESS_FILENAME, Response);
-}
+} // end function _FetchMyProgressFromWeb
 
+// this function's pretty good, could use some improvement though
 void RestoreWindowPosition(HWND hwnd, const char* sDlgKey, bool bToRight, bool bToBottom)
 {
 	WindowPosition new_pos;
-	WindowPosition* pos;
-	WindowPositionMap::iterator iter = g_mWindowPositions.find(std::string(sDlgKey));
+	WindowPosition* pos{ nullptr };
+	auto iter{ g_mWindowPositions.find(std::string{ sDlgKey }) };
 	if (iter != g_mWindowPositions.end()) {
 		pos = &iter->second;
 	}
@@ -1066,10 +1124,10 @@ void RestoreWindowPosition(HWND hwnd, const char* sDlgKey, bool bToRight, bool b
 
 	RECT rc;
 	GetWindowRect(hwnd, &rc);
-	const int nDlgWidth = rc.right - rc.left;
+	const auto nDlgWidth{ rc.right - rc.left };
 	if (pos->nWidth != WindowPosition::nUnset && pos->nWidth < nDlgWidth)
 		pos->nWidth = WindowPosition::nUnset;
-	const int nDlgHeight = rc.bottom - rc.top;
+	const auto nDlgHeight{ rc.bottom - rc.top };
 	if (pos->nHeight != WindowPosition::nUnset && pos->nHeight < nDlgHeight)
 		pos->nHeight = WindowPosition::nUnset;
 
@@ -1082,42 +1140,43 @@ void RestoreWindowPosition(HWND hwnd, const char* sDlgKey, bool bToRight, bool b
 	rc.bottom = (pos->nHeight != WindowPosition::nUnset) ? (rc.top + pos->nHeight) : (rc.top + nDlgHeight);
 
 	RECT rcWorkArea;
-	if (SystemParametersInfo(SPI_GETWORKAREA, 0, &rcWorkArea, 0))
+	if (SystemParametersInfo(SPI_GETWORKAREA, 0U, &rcWorkArea, 0U))
 	{
-		LONG offset = rc.right - rcWorkArea.right;
-		if (offset > 0) {
+		auto offset{ rc.right - rcWorkArea.right };
+		if (offset > 0L) {
 			rc.left -= offset;
 			rc.right -= offset;
 		}
 		offset = rcWorkArea.left - rc.left;
-		if (offset > 0) {
+		if (offset > 0L) {
 			rc.left += offset;
 			rc.right += offset;
 		}
 
 		offset = rc.bottom - rcWorkArea.bottom;
-		if (offset > 0) {
+		if (offset > 0L) {
 			rc.top -= offset;
 			rc.bottom -= offset;
 		}
 		offset = rcWorkArea.top - rc.top;
-		if (offset > 0) {
+		if (offset > 0L) {
 			rc.top += offset;
 			rc.bottom += offset;
 		}
 	}
 
-	SetWindowPos(hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, 0);
+	SetWindowPos(hwnd, null, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, 0U);
 
 	pos->bLoaded = true;
 
 	if (pos == &new_pos)
-		g_mWindowPositions[std::string(sDlgKey)] = new_pos;
+		g_mWindowPositions[std::string{ sDlgKey }] = new_pos;
 }
 
 void RememberWindowPosition(HWND hwnd, const char* sDlgKey)
 {
-	WindowPositionMap::iterator iter = g_mWindowPositions.find(std::string(sDlgKey));
+	// If you are wondering the initilizer is used to make to make it an r-value if possible
+	auto iter{ g_mWindowPositions.find(std::string{ sDlgKey }) };
 	if (iter == g_mWindowPositions.end())
 		return;
 
@@ -1136,7 +1195,10 @@ void RememberWindowPosition(HWND hwnd, const char* sDlgKey)
 
 void RememberWindowSize(HWND hwnd, const char* sDlgKey)
 {
-	WindowPositionMap::iterator iter = g_mWindowPositions.find(std::string(sDlgKey));
+	// auto is used to auto-deduce the type to make sure it's correct
+	// if it can't auto-deduce it then you have to use the type (like a template type)
+	// it prevents warnings on higher levels
+	auto iter{ g_mWindowPositions.find(std::string{ sDlgKey }) };
 	if (iter == g_mWindowPositions.end())
 		return;
 
@@ -1150,28 +1212,37 @@ void RememberWindowSize(HWND hwnd, const char* sDlgKey)
 	iter->second.nHeight = rc.bottom - rc.top;
 }
 
-API void CCONV _RA_InvokeDialog(LPARAM nID)
+// This seemed like a regular thing
+// is this really not a constant expression?
+int CALLBACK no_rom_loaded() noexcept
+{
+	return MessageBox(null, TEXT("No ROM loaded!"), TEXT("Error!"),
+		MB_ICONWARNING);
+} // end function no_rom_loaded
+
+// This looks a lot like OnCommand, the id is WPARAM btw but ill leave it
+API void CCONV _RA_InvokeDialog(LPARAM nID) noexcept
 {
 	switch (nID)
 	{
 	case IDM_RA_FILES_ACHIEVEMENTS:
-		if (g_AchievementsDialog.GetHWND() == NULL)
+		if (g_AchievementsDialog.GetHWND() == null)
 			g_AchievementsDialog.InstallHWND(CreateDialog(g_hThisDLLInst, MAKEINTRESOURCE(IDD_RA_ACHIEVEMENTS), g_RAMainWnd, g_AchievementsDialog.s_AchievementsProc));
-		if (g_AchievementsDialog.GetHWND() != NULL)
+		if (g_AchievementsDialog.GetHWND() != null)
 			ShowWindow(g_AchievementsDialog.GetHWND(), SW_SHOW);
 		break;
 
 	case IDM_RA_FILES_ACHIEVEMENTEDITOR:
-		if (g_AchievementEditorDialog.GetHWND() == NULL)
+		if (g_AchievementEditorDialog.GetHWND() == null)
 			g_AchievementEditorDialog.InstallHWND(CreateDialog(g_hThisDLLInst, MAKEINTRESOURCE(IDD_RA_ACHIEVEMENTEDITOR), g_RAMainWnd, g_AchievementEditorDialog.s_AchievementEditorProc));
-		if (g_AchievementEditorDialog.GetHWND() != NULL)
+		if (g_AchievementEditorDialog.GetHWND() != null)
 			ShowWindow(g_AchievementEditorDialog.GetHWND(), SW_SHOW);
 		break;
 
 	case IDM_RA_FILES_MEMORYFINDER:
-		if (g_MemoryDialog.GetHWND() == NULL)
+		if (g_MemoryDialog.GetHWND() == null)
 			g_MemoryDialog.InstallHWND(CreateDialog(g_hThisDLLInst, MAKEINTRESOURCE(IDD_RA_MEMORY), g_RAMainWnd, g_MemoryDialog.s_MemoryProc));
-		if (g_MemoryDialog.GetHWND() != NULL)
+		if (g_MemoryDialog.GetHWND() != null)
 			ShowWindow(g_MemoryDialog.GetHWND(), SW_SHOW);
 		break;
 
@@ -1205,7 +1276,7 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 
 		g_PopupWindows.Clear();
 
-		GameID nGameID = g_pCurrentGameData->GetGameID();
+		auto nGameID{ g_pCurrentGameData->GetGameID() };
 		if (nGameID != 0)
 		{
 			//	Delete Core and Unofficial Achievements so it is redownloaded every time:
@@ -1230,16 +1301,30 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 
 	case IDM_RA_REPORTBROKENACHIEVEMENTS:
 	{
+		// this one too, inverted if to reduce complexity
+		if (g_pCurrentGameData->GetGameID() == 0)
+		{
+			no_rom_loaded();
+			break;
+		} // end if
+
 		_RA Dlg_AchievementsReporter reporter;
 		reporter.DoModal();
-	}
+	} // end case IDM_RA_REPORTBROKENACHIEVEMENTS
 	break;
 
 	case IDM_RA_GETROMCHECKSUM:
 	{
+		// we probably need this check here
+		if (g_pCurrentGameData->GetGameID() == 0)
+		{
+			no_rom_loaded();
+			break;
+		} // end if
+
 		_RA Dlg_RomChecksum checksum_dlg;
 		checksum_dlg.DoModal();
-	}
+	} // end case IDM_RA_GETROMCHECKSUM
 	break;
 	//if( g_pActiveAchievements->NumAchievements() == 0 )
 	//	MessageBox( nullptr, "No ROM loaded!", "Error", MB_OK );
@@ -1253,11 +1338,10 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 			auto sTarget{
 				tfm::format("http://%s/User/%s", RA_HOST_URL, _RA username())
 			};
-			ShellExecute(nullptr,
-				TEXT("open"),
+			ShellExecute(null, TEXT("open"),
 				NativeStr(sTarget).c_str(),
-				nullptr,
-				nullptr,
+				null,
+				null,
 				SW_SHOWNORMAL);
 		}
 		break;
@@ -1270,41 +1354,44 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 				g_pCurrentGameData->GetGameID())
 			};
 
-			ShellExecute(nullptr,
+			ShellExecute(null,
 				TEXT("open"),
 				NativeStr(sTarget).c_str(),
-				nullptr,
-				nullptr,
+				null,
+				null,
 				SW_SHOWNORMAL);
 		}
 		else
-		{
-			MessageBox(nullptr, TEXT("No ROM loaded!"), TEXT("Error!"), MB_ICONWARNING);
-		}
+			no_rom_loaded();
 		break;
 
 	case IDM_RA_SCANFORGAMES:
+	{
 
-		if (g_sROMDirLocation.length() == 0)
+		// here was damn problem!
+		if (g_sROMDirLocation.empty())
 		{
 			g_sROMDirLocation = GetFolderFromDialog();
 		}
 
-		if (g_sROMDirLocation.length() > 0)
+		if (!g_sROMDirLocation.empty())
 		{
-			if (g_GameLibrary.GetHWND() == NULL)
+			if (!g_GameLibrary.GetWindow())
 			{
-				_FetchGameHashLibraryFromWeb();		//	##BLOCKING##
-				_FetchGameTitlesFromWeb();			//	##BLOCKING##
-				_FetchMyProgressFromWeb();			//	##BLOCKING##
+#pragma region **BLOCKING**
+				_FetchGameHashLibraryFromWeb();
+				_FetchGameTitlesFromWeb();
+				_FetchMyProgressFromWeb();
+#pragma endregion
+				g_GameLibrary.SetWindow(); 
 
-				g_GameLibrary.InstallHWND(CreateDialog(g_hThisDLLInst, MAKEINTRESOURCE(IDD_RA_GAMELIBRARY), g_RAMainWnd, &Dlg_GameLibrary::s_GameLibraryProc));
 			}
 
-			if (g_GameLibrary.GetHWND() != NULL)
-				ShowWindow(g_GameLibrary.GetHWND(), SW_SHOW);
+			if (g_GameLibrary.GetWindow())
+				g_GameLibrary.Show();
 		}
-		break;
+	}
+	break;
 
 	case IDM_RA_PARSERICHPRESENCE:
 		if (g_pCurrentGameData->GetGameID() != 0)
@@ -1315,16 +1402,23 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 			//	Then install it
 			g_RichPresenceInterpretter.ParseRichPresenceFile(sRichPresenceFile);
 
+			// This will be deallocated automatically
+			_RA window_h hwnd{ nullptr };
 			if (!g_RichPresenceDialog.GetWindow())
-				g_RichPresenceDialog.Create();
+			{
+				
+				g_RichPresenceDialog.SetWindow();
+			}
 			if (g_RichPresenceDialog.GetWindow())
 				g_RichPresenceDialog.Show();
 
 			g_RichPresenceDialog.StartMonitoring();
+
+
 		}
 		else
 		{
-			MessageBox(nullptr, TEXT("No ROM loaded!"), TEXT("Error!"), MB_ICONWARNING);
+			no_rom_loaded();
 		}
 		break;
 
@@ -1364,7 +1458,7 @@ API void CCONV _RA_InvokeDialog(LPARAM nID)
 	}
 }
 
-API void CCONV _RA_SetPaused(bool bIsPaused)
+API void CCONV _RA_SetPaused(bool bIsPaused) noexcept
 {
 	//	TBD: store this state?? (Rendering?)
 	if (bIsPaused)
@@ -1373,17 +1467,17 @@ API void CCONV _RA_SetPaused(bool bIsPaused)
 		g_AchievementOverlay.Deactivate();
 }
 
-API const char* CCONV _RA_Username()
+API const char* CCONV _RA_Username() noexcept
 {
 	return RAUsers::LocalUser().Username().c_str();
 }
 
-API void CCONV _RA_AttemptLogin(bool bBlocking)
+API void CCONV _RA_AttemptLogin(bool bBlocking) noexcept
 {
 	RAUsers::LocalUser().AttemptLogin(bBlocking);
 }
 
-API void CCONV _RA_OnSaveState(const char* sFilename)
+API void CCONV _RA_OnSaveState(const char* sFilename) noexcept
 {
 	//	Save State is being allowed by app (user was warned!)
 	if (RAUsers::LocalUser().IsLoggedIn())
@@ -1402,7 +1496,7 @@ API void CCONV _RA_OnSaveState(const char* sFilename)
 	}
 }
 
-API void CCONV _RA_OnLoadState(const char* sFilename)
+API void CCONV _RA_OnLoadState(const char* sFilename) noexcept
 {
 	//	Save State is being allowed by app (user was warned!)
 	if (RAUsers::LocalUser().IsLoggedIn())
@@ -1422,7 +1516,7 @@ API void CCONV _RA_OnLoadState(const char* sFilename)
 	}
 }
 
-API void CCONV _RA_DoAchievementsFrame()
+API void CCONV _RA_DoAchievementsFrame() noexcept
 {
 	if (RAUsers::LocalUser().IsLoggedIn())
 	{
@@ -1432,13 +1526,13 @@ API void CCONV _RA_DoAchievementsFrame()
 	}
 }
 
-void CCONV _RA_InstallSharedFunctions(bool(*fpIsActive)(void), void(*fpCauseUnpause)(void), void(*fpRebuildMenu)(void), void(*fpEstimateTitle)(char*), void(*fpResetEmulation)(void), void(*fpLoadROM)(const char*))
+void CCONV _RA_InstallSharedFunctions(bool(CCONV* fpIsActive)(void), void(CCONV* fpCauseUnpause)(void), void(CCONV* fpRebuildMenu)(void), void(CCONV* fpEstimateTitle)(char*), void(CCONV* fpResetEmulation)(void), void(CCONV* fpLoadROM)(const char*)) noexcept
 {
-	void(*fpCausePause)(void) = NULL;
+	void(CCONV* fpCausePause)(void) = null;
 	_RA_InstallSharedFunctionsExt(fpIsActive, fpCauseUnpause, fpCausePause, fpRebuildMenu, fpEstimateTitle, fpResetEmulation, fpLoadROM);
 }
 
-void CCONV _RA_InstallSharedFunctionsExt(bool(*fpIsActive)(void), void(*fpCauseUnpause)(void), void(*fpCausePause)(void), void(*fpRebuildMenu)(void), void(*fpEstimateTitle)(char*), void(*fpResetEmulation)(void), void(*fpLoadROM)(const char*))
+void CCONV _RA_InstallSharedFunctionsExt(bool(CCONV* fpIsActive)(void), void(CCONV* fpCauseUnpause)(void), void(CCONV* fpCausePause)(void), void(CCONV* fpRebuildMenu)(void), void(CCONV* fpEstimateTitle)(char*), void(CCONV* fpResetEmulation)(void), void(CCONV* fpLoadROM)(const char*)) noexcept
 {
 	//	NB. Must be called from within DLL
 	_RA_GameIsActive = fpIsActive;
@@ -1450,13 +1544,14 @@ void CCONV _RA_InstallSharedFunctionsExt(bool(*fpIsActive)(void), void(*fpCauseU
 	_RA_LoadROM = fpLoadROM;
 }
 
-API bool _RA_UserLoggedIn()
+API bool _RA_UserLoggedIn() noexcept
 {
 	return(RAUsers::LocalUser().IsLoggedIn() == TRUE);
 }
 
 
 //////////////////////////////////////////////////////////////////////////
+// You could use std::getline() instead, no point in touching this
 
 BOOL _ReadTil(const char nChar, char buffer[], unsigned int nSize, DWORD* pCharsReadOut, FILE* pFile)
 {
@@ -1511,117 +1606,115 @@ void _WriteBufferToFile(const std::string& sFileName, const DataStream& raw)
 {
 	SetCurrentDirectory(NativeStr(g_sHomeDir).c_str());
 
-	std::ofstream ofile{ sFileName, std::ios::binary };
+	// testing if this actually has to be binary, it doesn't seem like it as
+	// expected, it doesn't have to be, there is a weird extra nul character at
+	// the end
+	std::ofstream ofile{ sFileName };
 	auto str{ DataStreamAsString(raw) };
+
+	// temp, ok it rid of it, there's gotta be something wrong with the parser
+	str.pop_back(); // getting rid of the extra nul
+
+	// The string is gigantic, the size is 378653
 	ofile << str;
 }
 
 void _WriteBufferToFile(const std::string& sFileName, const std::string& sData)
 {
 	SetCurrentDirectory(NativeStr(g_sHomeDir).c_str());
-	std::ofstream ofile{ sFileName, std::ios::binary };
+	std::ofstream ofile{ sFileName };
 	ofile << sData;
 }
 
 
-// not gonna touch this one
+// cuz
 void _WriteBufferToFile(const char* sFile, const BYTE* sBuffer, int nBytes)
 {
 	SetCurrentDirectory(NativeStr(g_sHomeDir).c_str());
-	FILE* pf = nullptr;
-	if (fopen_s(&pf, sFile, "wb") == 0)
-	{
-		fwrite(sBuffer, 1, nBytes, pf);
-		fclose(pf);
-	}
+
+	// Magic trick
+	std::string fname{ sFile };
+	// weird but msft is inconsistent
+	Data_ofstream ofile{ fname, std::ios::binary };
+
+	// if it ain't open somethings wrong with your computer...
+	ofile.write(sBuffer, nBytes);
 }
 
-char* _MallocAndBulkReadFileToBuffer(const char* sFilename, long& nFileSizeOut)
+//  malloc and new are the devil!
+// Changing the function name might complicate things though
+// still does the same thing
+char* _MallocAndBulkReadFileToBuffer(const char* sFilename, std::streamoff nFileSizeOut)
 {
 	SetCurrentDirectory(NativeStr(g_sHomeDir).c_str());
-	FILE* pf = nullptr;
-	fopen_s(&pf, sFilename, "r");
-	if (pf == NULL)
-		return NULL;
+
+
+	std::ifstream ifile{ sFilename };
 
 	//	Calculate filesize
-	fseek(pf, 0L, SEEK_END);
-	nFileSizeOut = ftell(pf);
-	fseek(pf, 0L, SEEK_SET);
+	nFileSizeOut = filesize(std::string{ sFilename });
 
-	if (nFileSizeOut <= 0)
-	{
-		//	No good content in this file.
-		fclose(pf);
-		return NULL;
-	}
+	// if it really was less than or equal to 0; then it's not a file
+	std::string outfile;
+	ifile.read(outfile.data(), nFileSizeOut);
 
-	//	malloc() must be managed!
-	//	NB. By adding +1, we allow for a single \0 character :)
-	char* pRawFileOut = (char*)malloc((nFileSizeOut + 1) * sizeof(char));
-	ZeroMemory(pRawFileOut, nFileSizeOut + 1);
-
-	fread(pRawFileOut, nFileSizeOut, sizeof(char), pf);
-	fclose(pf);
-
-	return pRawFileOut;
+	return outfile.data();
 }
 
 std::string _TimeStampToString(time_t nTime)
 {
-	char buffer[64];
-	ctime_s(buffer, 64, &nTime);
-	return std::string(buffer);
+	return std::to_string(nTime);
 }
 
-BOOL _FileExists(const std::string& sFileName)
+bool _FileExists(const std::string& sFileName)
 {
-	FILE* pf = NULL;
-	fopen_s(&pf, sFileName.c_str(), "rb");
-	if (pf != NULL)
-	{
-		fclose(pf);
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
-	}
+	std::ifstream ifile{ sFileName };
+	return ifile.is_open();
 }
 
 std::string GetFolderFromDialog()
 {
+
+	// might have to change this back...
 	std::string sRetVal;
-	//HRESULT hr = CoInitializeEx( NULL, COINIT_APARTMENTTHREADED|COINIT_DISABLE_OLE1DDE );
-	IFileOpenDialog* pDlg = nullptr;
-	HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&pDlg));
-	if (hr == S_OK)
+	CComPtr<IFileOpenDialog> pDlg{ nullptr };
+
+	if (auto hr{
+		CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_ALL,
+		IID_IFileOpenDialog, reinterpret_cast<void**>(&pDlg))
+		}; SUCCEEDED(hr))
 	{
 		pDlg->SetOptions(FOS_PICKFOLDERS);
-		hr = pDlg->Show(nullptr);
-		if (hr == S_OK)
-		{
-			IShellItem* pItem = nullptr;
-			hr = pDlg->GetResult(&pItem);
-			if (hr == S_OK)
-			{
-				LPWSTR pStr = nullptr;
-				hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pStr);
-				if (hr == S_OK)
-				{
-					sRetVal = Narrow(pStr);
-				}
 
-				pItem->Release();
-			}
-		}
-		pDlg->Release();
-	}
+		if (hr = pDlg->Show(nullptr); SUCCEEDED(hr))
+		{
+			CComPtr<IShellItem> pItem{ nullptr };
+
+			if (hr = pDlg->GetResult(&pItem); SUCCEEDED(hr))
+			{
+				LPWSTR pStr{ nullptr };
+
+				if (hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pStr);
+				SUCCEEDED(hr))
+				{
+                    // holy shit... dude... the lp string became a giant number
+					auto wstr{ _STD wstring{pStr} };
+					sRetVal = Narrow(wstr);
+					pStr = L"";
+					pStr = nullptr;
+				} // end if
+				pItem.Release();
+			} // end if
+		} // end if
+		pDlg.Release();
+	} // end if
 	//CoUninitialize();
 	return sRetVal;
-}
+} // end function GetFolderFromDialog
 
-BOOL RemoveFileIfExists(const std::string& sFilePath)
+// not too familar with what's used here
+
+BOOL RemoveFileIfExists(const std::string& sFilePath) 
 {
 	SetCurrentDirectory(NativeStr(g_sHomeDir).c_str());
 
@@ -1649,4 +1742,12 @@ BOOL RemoveFileIfExists(const std::string& sFilePath)
 BOOL CanCausePause()
 {
 	return (_RA_CausePause != nullptr);
+}
+
+_STD string __cdecl prefs_filename() noexcept
+{
+	// If it's not writing correctly I'll just have it return a string instead
+	// Ok, it liked it as a string
+	return tfm::format("%s%s.cfg", RA_PREFERENCES_FILENAME_PREFIX,
+		g_sClientName);
 }

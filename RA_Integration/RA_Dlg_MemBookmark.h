@@ -5,6 +5,8 @@
 
 #include "RA_Defs.h"
 
+// This stuff is a bit too complicated and needs a huge overhaul, will do later
+
 class MemBookmark
 {
 public:

@@ -267,9 +267,11 @@ namespace ra {
 
 	void Dlg_GameTitle::OnNCDestroy(HWND hwnd)
 	{
-		Close(m_hKnownGamesCbo);
-		Close(m_hGameTitle);
-		Close(m_hChecksum);
+		DestroyControl(m_hKnownGamesCbo);
+		DestroyControl(m_hGameTitle);
+		DestroyControl(m_hChecksum);
+
+		IRA_Dialog::OnNCDestroy(hwnd);
 	}
 
 } // namespace ra

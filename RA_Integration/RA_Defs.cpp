@@ -26,12 +26,15 @@ std::string Narrow(const wchar_t* wstr)
 
 std::string Narrow(const std::wstring& wstr)
 {
-	std::ostringstream out;
-
+	std::wostringstream out;
+	std::string str;
 	for ( auto& i : wstr )
-		out << i;
+		str.push_back(out.narrow(i));
 
-	return out.str();
+	// test var
+	auto temp = str;
+    // YES! It goddamn worked!
+	return str;
 }
 
 std::wstring Widen(const char* str)

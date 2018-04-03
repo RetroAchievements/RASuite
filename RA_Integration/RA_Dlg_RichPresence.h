@@ -11,7 +11,9 @@ class Dlg_RichPresence : public IRA_Dialog
 public:
 	Dlg_RichPresence();
 	void StartMonitoring();
-
+	HWND GetWindow() const { return m_hRpWnd; }
+	void SetWindow() { m_hRpWnd = Create(); }
+	BOOL Show() { return ShowWindow(m_hRpWnd, SW_SHOW); }
 protected:
 	/// <inheritdoc />
 	BOOL OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam) override;
@@ -26,11 +28,7 @@ protected:
 	/// <inheritdoc />
 	void OnTimer(HWND hwnd, UINT id) override;
 
-	/// <inheritdoc />
-	void OnSize(HWND hwnd, UINT state, int cx, int cy) override;
 
-	/// <inheritdoc />
-	void Move(HWND hwnd, int x, int y) override;
 
 
 	void Close(HWND hwnd) override;
@@ -44,7 +42,7 @@ private:
 
 	bool m_bTimerActive{ false };
 	HWND m_hRichPresenceText{ nullptr };
-
+	HWND m_hRpWnd{ nullptr };
 };
 } // namespace ra
 

@@ -1,19 +1,10 @@
 #include "RA_Dlg_GameLibrary.h"
 
-#include <windowsx.h>
-#include <stdio.h>
-#include <commctrl.h>
-#include <string>
-#include <sstream>
-#include <mutex>
-#include <vector>
-#include <queue>
-#include <deque>
-#include <stack>
-#include <thread>
-#include <shlobj.h>
 
-#include "RA_Defs.h"
+#include <stack>
+
+
+//#include "RA_Defs.h" - no point in including twice
 #include "RA_Core.h"
 #include "RA_Resource.h"
 #include "RA_User.h"
@@ -23,53 +14,122 @@
 
 #define KEYDOWN(vkCode) ((GetAsyncKeyState(vkCode) & 0x8000) ? true : false)
 
-namespace
+_RA Dlg_GameLibrary g_GameLibrary;
+
+namespace ra
 {
-	const char* COL_TITLE[] = { "ID", "Game Title", "Completion", "File Path" };
-	const int COL_SIZE[] = { 30, 230, 110, 170 };
-	static_assert(SIZEOF_ARRAY(COL_TITLE) == SIZEOF_ARRAY(COL_SIZE), "Must match!");
-	const bool bCancelScan = false;
+constexpr auto num_col{ 4 };
 
-	std::mutex mtx;
-}
+using ColumnTitles = std::array<cstring, num_col>;
+using ColumnWidths = std::array<int, num_col>; // int instead because of listviews
 
-//static 
-std::deque<std::string> Dlg_GameLibrary::FilesToScan;
-std::map<std::string, std::string> Dlg_GameLibrary::Results;	//	filepath,md5
-std::map<std::string, std::string> Dlg_GameLibrary::VisibleResults;	//	filepath,md5
-size_t Dlg_GameLibrary::nNumParsed = 0;
-bool Dlg_GameLibrary::ThreadProcessingAllowed = true;
-bool Dlg_GameLibrary::ThreadProcessingActive = false;
+// this is fucking up...
+constexpr ColumnTitles titles{
+	"ID", "Game Title", "Completion", "File Path"
+};
+constexpr ColumnWidths widths{ 30, 230, 110, 170 };
 
-Dlg_GameLibrary g_GameLibrary;
+// static assertion not needed anymore since it's checked already via constexpr
 
-bool ListFiles(std::string path, std::string mask, std::deque<std::string>& rFileListOut)
+constexpr auto bCancelScan{ false };
+// put this up here to reduce params
+constexpr auto ROM_MAX_SIZE{ std::size_t{ 6 * 1024 * 1024 } };
+
+
+using GbaExtentions  = std::array<cstring, 9>;
+using GbcExtentions  = std::array<cstring, 6>;
+using GbExtentions   = std::array<cstring, 7>;
+using GensExtentions = std::array<cstring, 6>;
+using N64Extentions  = std::array<cstring, 12>;
+using NesExtentions  = std::array<cstring, 10>;
+using PceExtentions  = std::array<cstring, 4>; // Never gonna test it, the emu is unreliable
+using S32xExtentions = std::array<cstring, 2>;
+using ScdExtentions  = std::array<cstring, 3>;
+using SmsExentions   = std::array<cstring, 5>;
+using SnesExtentions = std::array<cstring, 11>;
+
+#pragma region Sega
+// Not sure if these should be globals or locals
+
+constexpr GensExtentions gens_ext{
+"*.smd", "*.md", "*.bin", "*.gen", "*.zip", ".zsg"
+};
+constexpr S32xExtentions s32x_ext{ "*.32x", "*.zip" };
+constexpr ScdExtentions scd_ext{ "*.bin", "*.iso", "*.raw" };
+constexpr SmsExentions sms_ext{ "*.sms", "*.sg", "*.sc", "*.sf7", "*.bin" };
+#pragma endregion
+
+#pragma region Nintendo
+constexpr GbExtentions gb_ext{
+	"*.gb", "*.dmg", "*.sgb", "*.zip", "*.7z", "*.z", "*.gz"
+};
+constexpr GbcExtentions gbc_ext{
+	"*.gbc", "*.cgb", "*.zip", "*.7z", "*.z", "*.gz"
+};
+constexpr GbaExtentions gba_ext{
+	"*.gba", "*.agb", "*.bin", "*.elf", "*.mb", "*.zip", "*.7z", "*.z", "*.gz"
+};
+
+constexpr N64Extentions n64_ext{
+	"*.n64", "*.v64", "*.z64", "*.u64", "*.usa", "*.jap", "*.pal", "*.eur",
+	"*.bin", "*.ndd", "*.zip", "*.7z"
+};
+
+constexpr NesExtentions nes_ext{
+	"*.nes", "*.nsf", "*.fds", "*.unf", "*.pas", "*.zip", "*.rar", "*.7z",
+	"*.zip", "*.gz"
+};
+
+constexpr SnesExtentions snes_ext{
+	"*.smc", "*.zip", "*.gz", "*.swc", "*.fig", "*.sfc", "*.jma", "*.mgd",
+	"*.7z", "*.rar", "*.078"
+};
+#pragma endregion
+
+
+
+std::mutex mtx;
+
+
+
+
+
+
+// Not too sure about this one, gonna leave it alone for the most part
+// Seems almost identical to another function
+// but should be a member function, haven't seen it used outside this class
+_Use_decl_annotations_
+bool Dlg_GameLibrary::ListFiles(std::string path, std::string mask,
+	FileQueue& rFileList)
 {
+
 	std::stack<std::string> directories;
-	directories.push(path);
+	// if you're gonna push it you may as well move it
+	directories.push(std::move(path));
 
 	while (!directories.empty())
 	{
 		path = directories.top();
-		std::string spec = path + "\\" + mask;
+		auto spec{ tfm::format("%s\\%s", path, mask) };
 		directories.pop();
 
 		WIN32_FIND_DATA ffd;
-		HANDLE hFind = FindFirstFile(NativeStr(spec).c_str(), &ffd);
+		auto hFind{ FindFirstFile(NativeStr(spec).c_str(), &ffd) };
 		if (hFind == INVALID_HANDLE_VALUE)
 			return false;
 
 		do
 		{
-			std::string sFilename = Narrow(ffd.cFileName);
-			if ((strcmp(sFilename.c_str(), ".") == 0) ||
-				(strcmp(sFilename.c_str(), "..") == 0))
+			// repetition... plus strings have operator overloads...
+			auto sFilename = Narrow(ffd.cFileName);
+			if ((sFilename == ".") || (sFilename == ".."))
 				continue;
 
+			auto full_path{ tfm::format("%s\\%s", path, sFilename) };
 			if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-				directories.push(path + "\\" + sFilename);
+				directories.push(std::move(full_path));
 			else
-				rFileListOut.push_front(path + "\\" + sFilename);
+				rFileList.push_front(std::move(full_path));
 		} while (FindNextFile(hFind, &ffd) != 0);
 
 		if (GetLastError() != ERROR_NO_MORE_FILES)
@@ -80,123 +140,122 @@ bool ListFiles(std::string path, std::string mask, std::deque<std::string>& rFil
 
 		FindClose(hFind);
 		hFind = INVALID_HANDLE_VALUE;
-	}
 
+	} // end while
 	return true;
-}
 
-//HWND Dlg_GameLibrary::m_hDialogBox = NULL;
-//std::vector<GameEntry> Dlg_GameLibrary::m_vGameEntries;
-//std::map<std::string, unsigned int> Dlg_GameLibrary::m_GameHashLibrary;
-//std::map<unsigned int, std::string> Dlg_GameLibrary::m_GameTitlesLibrary;
-//std::map<unsigned int, std::string> Dlg_GameLibrary::m_ProgressLibrary;
-Dlg_GameLibrary::Dlg_GameLibrary()
-	: m_hDialogBox(nullptr)
+}  // end function ListFiles
+
+
+Dlg_GameLibrary::Dlg_GameLibrary() :
+	IRA_Dialog{ IDD_RA_GAMELIBRARY }
 {
-}
+} // end constructor
 
-Dlg_GameLibrary::~Dlg_GameLibrary()
-{
-}
 
-void ParseGameHashLibraryFromFile(std::map<std::string, GameID>& GameHashLibraryOut)
-{
-	SetCurrentDirectory(NativeStr(g_sHomeDir).c_str());
-	FILE* pf = NULL;
-	fopen_s(&pf, RA_GAME_HASH_FILENAME, "rb");
-	if (pf != NULL)
-	{
-		Document doc;
-		doc.ParseStream(FileStream(pf));
-
-		if (!doc.HasParseError() && doc.HasMember("Success") && doc["Success"].GetBool() && doc.HasMember("MD5List"))
-		{
-			const Value& List = doc["MD5List"];
-			for (Value::ConstMemberIterator iter = List.MemberBegin(); iter != List.MemberEnd(); ++iter)
-			{
-				if (iter->name.IsNull() || iter->value.IsNull())
-					continue;
-
-				const std::string sMD5 = iter->name.GetString();
-				//GameID nID = static_cast<GameID>( std::strtoul( iter->value.GetString(), NULL, 10 ) );	//	MUST BE STRING, then converted to uint. Keys are strings ONLY
-				GameID nID = static_cast<GameID>(iter->value.GetUint());
-				GameHashLibraryOut[sMD5] = nID;
-			}
-		}
-
-		fclose(pf);
-	}
-}
-
-void ParseGameTitlesFromFile(std::map<GameID, std::string>& GameTitlesListOut)
+#pragma region Parsing stuff
+// This was only called for this dialog, should be a member function
+// I definitly know what to do here, significantly less complex
+// We could template this out since there seems to repetition
+_Use_decl_annotations_
+void Dlg_GameLibrary::ParseGameHashLibraryFromFile(GameHashLib& gamehash_libary)
 {
 	SetCurrentDirectory(NativeStr(g_sHomeDir).c_str());
-	FILE* pf = nullptr;
-	fopen_s(&pf, RA_TITLES_FILENAME, "rb");
-	if (pf != nullptr)
+	std::ifstream ifile{ RA_GAME_HASH_FILENAME, std::ios::binary };
+
+	Document doc;
+	doc.ParseStream(IStreamWrapper{ ifile });
+
+	if (!doc.HasParseError() && doc.HasMember("Success") &&
+		doc["Success"].GetBool() && doc.HasMember("MD5List"))
 	{
-		Document doc;
-		doc.ParseStream(FileStream(pf));
-
-		if (!doc.HasParseError() && doc.HasMember("Success") && doc["Success"].GetBool() && doc.HasMember("Response"))
+		const auto& List{ doc["MD5List"] };
+		// I swear I've seen this function before...
+		for (auto iter = List.MemberBegin(); iter != List.MemberEnd(); ++iter)
 		{
-			const Value& List = doc["Response"];
-			for (Value::ConstMemberIterator iter = List.MemberBegin(); iter != List.MemberEnd(); ++iter)
-			{
-				if (iter->name.IsNull() || iter->value.IsNull())
-					continue;
+			if (iter->name.IsNull() || iter->value.IsNull())
+				continue;
 
-				GameID nID = static_cast<GameID>(std::strtoul(iter->name.GetString(), nullptr, 10));	//	KEYS ARE STRINGS, must convert afterwards!
-				const std::string sTitle = iter->value.GetString();
-				GameTitlesListOut[nID] = sTitle;
-			}
-		}
+			// unless the warning is high enough "/Wall" aliases don't trigger
+			// a warning since they don't declare a type they just use a type
+			const auto nID{ iter->value.GetUint() };
+			// somthing's fucked up
+			gamehash_libary[iter->name.GetString()] = nID;
+		} // end for
+	} // end if
+} // end function ParseGameHashLibraryFromFile
 
-		fclose(pf);
-	}
-}
 
-void ParseMyProgressFromFile(std::map<GameID, std::string>& GameProgressOut)
+_Use_decl_annotations_
+void Dlg_GameLibrary::ParseGameTitlesFromFile(GameTitleLib& gametitle_libary)
 {
-	FILE* pf = nullptr;
-	fopen_s(&pf, RA_MY_PROGRESS_FILENAME, "rb");
-	if (pf != nullptr)
+	SetCurrentDirectory(NativeStr(g_sHomeDir).c_str());
+	std::ifstream ifile{ RA_TITLES_FILENAME, std::ios::binary };
+
+	Document doc;
+	doc.ParseStream(IStreamWrapper{ ifile });
+
+	if (!doc.HasParseError() && doc.HasMember("Success") &&
+		doc["Success"].GetBool() && doc.HasMember("Response"))
 	{
-		Document doc;
-		doc.ParseStream(FileStream(pf));
-
-		if (!doc.HasParseError() && doc.HasMember("Success") && doc["Success"].GetBool() && doc.HasMember("Response"))
+		const auto& List{ doc["Response"] };
+		// I swear I've seen this function before...
+		for (auto iter = List.MemberBegin(); iter != List.MemberEnd(); ++iter)
 		{
-			//{"ID":"7","NumAch":"14","Earned":"10","HCEarned":"0"},
+			if (iter->name.IsNull() || iter->value.IsNull())
+				continue;
 
-			const Value& List = doc["Response"];
-			for (Value::ConstMemberIterator iter = List.MemberBegin(); iter != List.MemberEnd(); ++iter)
+			const auto nID{ std::stoul(iter->name.GetString()) };
+			// Someone needs to check how this is done because this
+			// happens everywhere, it overflows if checked
+			gametitle_libary[nID] = iter->value.GetString();
+		} // end for
+	} // end if
+} // end function ParseGameTitlesFromFile
+
+_Use_decl_annotations_
+void Dlg_GameLibrary::ParseMyProgressFromFile(ProgressLib& progress_library)
+{
+	SetCurrentDirectory(NativeStr(g_sHomeDir).c_str());
+	std::ifstream ifile{ RA_MY_PROGRESS_FILENAME, std::ios::binary };
+
+	Document doc;
+	doc.ParseStream(IStreamWrapper{ ifile });
+
+	if (!doc.HasParseError() && doc.HasMember("Success") &&
+		doc["Success"].GetBool() && doc.HasMember("Response"))
+	{
+		const auto& List{ doc["Response"] };
+		// I swear I've seen this function before...
+		for (auto iter = List.MemberBegin(); iter != List.MemberEnd(); ++iter)
+		{
+			auto nID{ static_cast<GameID>(std::stoul(iter->name.GetString())) };	//	KEYS MUST BE STRINGS
+			const auto nNumAchievements{ iter->value["NumAch"].GetUint() };
+			const auto nEarned{ iter->value["Earned"].GetUint() };
+			const auto nEarnedHardcore{ iter->value["HCEarned"].GetUint() };
+
+			std::stringstream sstr;
+			sstr << nEarned;
+			if (nEarnedHardcore > 0)
+				tfm::format(sstr, "(%d)", nEarnedHardcore);
+
+			tfm::format(sstr, " / %d", nNumAchievements);
+
+			if (nNumAchievements > 0)
 			{
-				GameID nID = static_cast<GameID>(std::strtoul(iter->name.GetString(), nullptr, 10));	//	KEYS MUST BE STRINGS
-				const unsigned int nNumAchievements = iter->value["NumAch"].GetUint();
-				const unsigned int nEarned = iter->value["Earned"].GetUint();
-				const unsigned int nEarnedHardcore = iter->value["HCEarned"].GetUint();
+				const auto nNumEarnedTotal = nEarned + nEarnedHardcore;
+				auto res{ static_cast<float>(nNumEarnedTotal) / static_cast<float>(nNumAchievements) * 100.0f };
+				tfm::format(sstr, " (%1.1f%%)", res);
+			} // end if
+			// again? damn
+			progress_library[nID] = sstr.str();
+		} // end for
+	} // end if
+} // end function ParseMyProgressFromFile  
+#pragma endregion
 
-				std::stringstream sstr;
-				sstr << nEarned;
-				if (nEarnedHardcore > 0)
-					sstr << " (" << std::to_string(nEarnedHardcore) << ")";
-				sstr << " / " << nNumAchievements;
-				if (nNumAchievements > 0)
-				{
-					const int nNumEarnedTotal = nEarned + nEarnedHardcore;
-					char bufPct[256];
-					sprintf_s(bufPct, 256, " (%1.1f%%)", (nNumEarnedTotal / static_cast<float>(nNumAchievements)) * 100.0f);
-					sstr << bufPct;
-				}
 
-				GameProgressOut[nID] = sstr.str();
-			}
-		}
 
-		fclose(pf);
-	}
-}
 
 void Dlg_GameLibrary::SetupColumns(HWND hList)
 {
@@ -206,56 +265,66 @@ void Dlg_GameLibrary::SetupColumns(HWND hList)
 	//	Remove all data.
 	ListView_DeleteAllItems(hList);
 
-	LV_COLUMN col;
-	ZeroMemory(&col, sizeof(col));
-
-	for (size_t i = 0; i < SIZEOF_ARRAY(COL_TITLE); ++i)
+	// I'm a damn idiot...
+	// int because casting is annoying, listview uses int
+	auto pos{ 0_i };
+	// Oh no... this looks like a recipe for disater... changing it
+	for (auto& i : titles)
 	{
-		col.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM | LVCF_FMT;
-		col.cchTextMax = 255;
-		tstring sCol = COL_TITLE[i];	//	scoped cache
-		col.pszText = const_cast<LPTSTR>( sCol.c_str() );
-		col.cx = COL_SIZE[i];
-		col.iSubItem = i;
 
-		col.fmt = LVCFMT_LEFT | LVCFMT_FIXED_WIDTH;
-		if (i == SIZEOF_ARRAY(COL_TITLE) - 1)	//	Final column should fill
-		{
+
+		// also for the array to be constexpr it can't have std::string
+		tstring sCol{ titles.at(pos) };	//	scoped cache
+
+		// based off the struct
+		LV_COLUMN col{
+			UINT{LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM | LVCF_FMT},
+			LVCFMT_LEFT | LVCFMT_FIXED_WIDTH,
+			widths.at(pos),
+			sCol.data(),
+			255,
+			pos
+
+		};
+
+		if (pos == num_col - 1)	//	Final column should fill
 			col.fmt |= LVCFMT_FILL;
-		}
 
-		ListView_InsertColumn(hList, i, reinterpret_cast<LPARAM>(&col));
-	}
-}
+		// macro already casts it
+		ListView_InsertColumn(hList, i, &col);
 
-//static
-void Dlg_GameLibrary::AddTitle(const std::string& sTitle, const std::string& sFilename, GameID nGameID)
+		pos++;
+	} // end for
+} // end function SetupColumns
+
+void Dlg_GameLibrary::AddTitle(GameEntry&& game_entry)
 {
-	LV_ITEM item;
-	ZeroMemory(&item, sizeof(item));
-	item.mask = LVIF_TEXT;
-	item.cchTextMax = 255;
-	item.iItem = m_vGameEntries.size();
+	auto my_entry{ std::move(game_entry) };
 
-	HWND hList = GetDlgItem(m_hDialogBox, IDC_RA_LBX_GAMELIST);
+	// TODO: make this a class
+	LV_ITEM item{ LVIF_TEXT, 0, 0, 0_z, 0_z, nullptr, 255 };
+
+
+	item.iItem = static_cast<std::intptr_t>(m_vGameEntries.size());
+
 
 	//	id:
-	item.iSubItem = 0;
-	tstring sID = std::to_string(nGameID);	//scoped cache!
-	item.pszText = const_cast<LPTSTR>( sID.c_str() );
-	item.iItem = ListView_InsertItem(hList, &item);
+	//auto sID{  };	//scoped cache!
+	item.pszText = std::to_string(my_entry.m_nGameID).data();
+	item.iItem   = ListView_InsertItem(m_hList, &item);
 
 	item.iSubItem = 1;
-	ListView_SetItemText(hList, item.iItem, 1, const_cast<LPTSTR>(NativeStr(sTitle).c_str()));
+	ListView_SetItemText(m_hList, item.iItem, 1, my_entry.m_sTitle.data());
 
 	item.iSubItem = 2;
-	ListView_SetItemText(hList, item.iItem, 2, const_cast<LPTSTR>(NativeStr(m_ProgressLibrary[nGameID]).c_str()));
+	ListView_SetItemText(m_hList, item.iItem, 2,
+		m_ProgressLibrary.at(my_entry.m_nGameID).data());
 
 	item.iSubItem = 3;
-	ListView_SetItemText(hList, item.iItem, 3, const_cast<LPTSTR>(NativeStr(sFilename).c_str()));
+	ListView_SetItemText(m_hList, item.iItem, 3, my_entry.m_sFilename.data());
 
-	m_vGameEntries.push_back(GameEntry(sTitle, sFilename, nGameID));
-}
+	m_vGameEntries.push_back(std::move(my_entry));
+} // end function AddTitle
 
 void Dlg_GameLibrary::ClearTitles()
 {
@@ -263,176 +332,323 @@ void Dlg_GameLibrary::ClearTitles()
 
 	m_vGameEntries.clear();
 
-	ListView_DeleteAllItems(GetDlgItem(m_hDialogBox, IDC_RA_LBX_GAMELIST));
+	ListView_DeleteAllItems(m_hList);
 	VisibleResults.clear();
 }
 
-//static
-void Dlg_GameLibrary::ThreadedScanProc()
+// This is verly likely to throw, but we want to see what they are so we can
+// handle them
+void Dlg_GameLibrary::ThreadedScanProc() //noexcept
 {
-	Dlg_GameLibrary::ThreadProcessingActive = true;
+	ThreadProcessingActive = true;
 
 	while (FilesToScan.size() > 0)
 	{
+		// scoped mutex might be better...
 		mtx.lock();
-		if (!Dlg_GameLibrary::ThreadProcessingAllowed)
+		if (!ThreadProcessingAllowed)
 		{
 			mtx.unlock();
 			break;
-		}
+		} // end if
 		mtx.unlock();
 
-		FILE* pf = nullptr;
-		if (fopen_s(&pf, FilesToScan.front().c_str(), "rb") == 0)
-		{
-			// obtain file size:
-			fseek(pf, 0, SEEK_END);
-			DWORD nSize = ftell(pf);
-			rewind(pf);
+		// This opens and closes automatically, otherwise throws an exception
+		// if this file always exists it won't throw
+		std::ifstream ifile{ FilesToScan.front(), std::ios::binary };
 
-			static BYTE* pBuf = nullptr;	//	static (optimisation)
-			if (pBuf == nullptr)
-				pBuf = new BYTE[6 * 1024 * 1024];
+		// weird... simple test
+		// ok it works now, needs to use value_type instead of actual type
+		// is_char_v is in ra not in std, it doesn't exist there
+		static_assert(is_char_v<std::string::value_type>);
 
-			//BYTE* pBuf = new BYTE[ nSize ];	//	Do we really need to load this into memory?
-			if (pBuf != nullptr)
-			{
-				fread(pBuf, sizeof(BYTE), nSize, pf);	//Check
-				Results[FilesToScan.front()] = RAGenerateMD5(pBuf, nSize);
+		// obtain file size:
+		auto fsize{ filesize(FilesToScan.front()) };
 
-				SendMessage(g_GameLibrary.GetHWND(), WM_TIMER, NULL, NULL);
-			}
 
-			fclose(pf);
-		}
+		constexpr auto cap{ std::size_t{ 6 * 1024 * 1024 } };
+
+		DataStream dstream;
+		dstream.reserve(cap);
+		ifile.read(DataStreamAsString(dstream).data(), fsize); //Check
+        // more god damn bounds problems
+		Results[FilesToScan.front()] = RAGenerateMD5(dstream.c_str(),
+			static_cast<std::size_t>(fsize));
+
+		// WM_TIMER is a nonqueued message so it's posted
+		// Could use OnTimer instead but doesn't have a TimerProc or default
+		OnTimer(m_hGameLibWnd, 0U);
 
 		mtx.lock();
 		FilesToScan.pop_front();
 		mtx.unlock();
-	}
+	} // end while
 
-	Dlg_GameLibrary::ThreadProcessingActive = false;
+	ThreadProcessingActive = false;
 	ExitThread(0);
-}
+} // end function ThreadedScanProc
 
-void Dlg_GameLibrary::ScanAndAddRomsRecursive(const std::string& sBaseDir)
+
+// put this ina region to show it was originally one function
+#pragma region ScanAndAddRomsRecursive
+void Dlg_GameLibrary
+::ScanAndAddRomsRecursive(const std::string& sBaseDir)
 {
-	char sSearchDir[2048];
-	sprintf_s(sSearchDir, 2048, "%s\\*.*", sBaseDir.c_str());
+	// this looked like all kinds of wrong...
+
+	auto sSearchDir{ tfm::format("%s\\*.*", sBaseDir) };
 
 	WIN32_FIND_DATA ffd;
-	HANDLE hFind = FindFirstFile(NativeStr(sSearchDir).c_str(), &ffd);
+	auto hFind{ FindFirstFile(NativeStr(sSearchDir).c_str(), &ffd) };
+
+	// We could reduce complexity by using Contracts but not really trying
+	// to change everything to depend on GSL for now
+
 	if (hFind != INVALID_HANDLE_VALUE)
 	{
-		unsigned int ROM_MAX_SIZE = 6 * 1024 * 1024;
-		unsigned char* sROMRawData = new unsigned char[ROM_MAX_SIZE];
+
+
+		DataStream sROMRawData;
+		sROMRawData.reserve(ROM_MAX_SIZE);
 
 		do
 		{
 			if (KEYDOWN(VK_ESCAPE))
 				break;
 
-			memset(sROMRawData, 0, ROM_MAX_SIZE);	//?!??
-
-			const std::string sFilename = Narrow(ffd.cFileName);
-			if (strcmp(sFilename.c_str(), ".") == 0 ||
-				strcmp(sFilename.c_str(), "..") == 0)
+			const auto sFilename{ Narrow(ffd.cFileName) };
+			if ((sFilename == ".") || (sFilename == ".."))
 			{
 				//	Ignore 'this'
-			}
+			} // end if
 			else if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			{
 				RA_LOG("Directory found: %s\n", ffd.cFileName);
-				std::string sRecurseDir = sBaseDir + "\\" + sFilename.c_str();
+				auto sRecurseDir{ tfm::format("%s\\%s", sBaseDir, sFilename) };
 				ScanAndAddRomsRecursive(sRecurseDir);
-			}
+			} // end else if
 			else
-			{
-				LARGE_INTEGER filesize;
-				filesize.LowPart = ffd.nFileSizeLow;
-				filesize.HighPart = ffd.nFileSizeHigh;
-				if (filesize.QuadPart < 2048 || filesize.QuadPart > ROM_MAX_SIZE)
-				{
-					//	Ignore: wrong size
-					RA_LOG("Ignoring %s, wrong size\n", sFilename.c_str());
-				}
-				else
-				{
-					//	Parse as ROM!
-					RA_LOG("%s looks good: parsing!\n", sFilename.c_str());
+				TryToParseFile(ffd, sFilename, sBaseDir, sROMRawData);
+		} while (FindNextFile(hFind, &ffd) != 0); // end do..while
 
-					char sAbsFileDir[2048];
-					sprintf_s(sAbsFileDir, 2048, "%s\\%s", sBaseDir.c_str(), sFilename.c_str());
-
-					HANDLE hROMReader = CreateFile(NativeStr(sAbsFileDir).c_str(), GENERIC_READ, FILE_SHARE_READ,
-						NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
-					if (hROMReader != INVALID_HANDLE_VALUE)
-					{
-						BY_HANDLE_FILE_INFORMATION File_Inf;
-						int nSize = 0;
-						if (GetFileInformationByHandle(hROMReader, &File_Inf))
-							nSize = (File_Inf.nFileSizeHigh << 16) + File_Inf.nFileSizeLow;
-
-						DWORD nBytes = 0;
-						BOOL bResult = ReadFile(hROMReader, sROMRawData, nSize, &nBytes, NULL);
-						const std::string sHashOut = RAGenerateMD5(sROMRawData, nSize);
-
-						if (m_GameHashLibrary.find(sHashOut) != m_GameHashLibrary.end())
-						{
-							const unsigned int nGameID = m_GameHashLibrary[std::string(sHashOut)];
-							RA_LOG("Found one! Game ID %d (%s)", nGameID, m_GameTitlesLibrary[nGameID].c_str());
-
-							const std::string& sGameTitle = m_GameTitlesLibrary[nGameID];
-							AddTitle(sGameTitle, sAbsFileDir, nGameID);
-							SetDlgItemText(m_hDialogBox, IDC_RA_GLIB_NAME, NativeStr(sGameTitle).c_str());
-							InvalidateRect(m_hDialogBox, nullptr, TRUE);
-						}
-
-						CloseHandle(hROMReader);
-					}
-				}
-			}
-		} while (FindNextFile(hFind, &ffd) != 0);
-
-		delete[](sROMRawData);
-		sROMRawData = NULL;
-
-		FindClose(hFind);
+		_CSTD FindClose(hFind);
 	}
+	SetText(m_hScannerFoundInfo, TEXT("Scanning complete"));
+} // end function ScanAndAddRomsRecursive
 
-	SetDlgItemText(m_hDialogBox, IDC_RA_SCANNERFOUNDINFO, TEXT("Scanning complete"));
-}
+void Dlg_GameLibrary::TryToParseFile(WIN32_FIND_DATA& ffd,
+	const std::string& sFilename, const std::string& sBaseDir,
+	DataStream& sROMRawData)
+{
+	// msft needs to get there shit together...
+	auto high_part{ static_cast<LONG>(ffd.nFileSizeHigh) };
+	LARGE_INTEGER filesize{ ffd.nFileSizeLow, high_part };
+	//	Ignore: wrong size
+	if (filesize.QuadPart < 2048 || filesize.QuadPart > ROM_MAX_SIZE)
+		RA_LOG("Ignoring %s, wrong size\n", sFilename.c_str());
+	else
+	{
+		//	Parse as ROM!
+		RA_LOG("%s looks good: parsing!\n", sFilename);
+
+		auto sAbsFileDir{
+			tfm::format("%s\\%s", sBaseDir, sFilename)
+		};
+
+		auto hROMReader{
+			// We could make a wrapper function for this
+			CreateFile(NativeStr(sAbsFileDir).c_str(),
+			GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING,
+			FILE_ATTRIBUTE_NORMAL, nullptr)
+		};
+
+		PrepareToAddGame(hROMReader, sROMRawData, sAbsFileDir);
+	} // end else
+} // end function TryToParseFile
+
+void Dlg_GameLibrary::PrepareToAddGame(const HANDLE& hROMReader,
+	DataStream& sROMRawData, std::string& sAbsFileDir)
+{
+	if (hROMReader != INVALID_HANDLE_VALUE)
+	{
+		BY_HANDLE_FILE_INFORMATION File_Inf;
+		auto nSize{ 0 };
+		if (GetFileInformationByHandle(hROMReader, &File_Inf))
+		{
+			nSize = (File_Inf.nFileSizeHigh << 16) +
+				File_Inf.nFileSizeLow;
+		} // end if
+
+		auto nBytes{ 0_dw };
+		auto bResult{ ReadFile(hROMReader,
+			reinterpret_cast<LPVOID>(sROMRawData.data()),
+			nSize, &nBytes, nullptr) };
+
+		const auto sHashOut{
+			RAGenerateMD5(sROMRawData.c_str(), nSize)
+		};
+
+		// lots of repeition, it's ok!
+		AddGameFromHashLibrary(sHashOut, sAbsFileDir);
+		CloseHandle(hROMReader);
+	} // end if
+} // end function PrepareToAddGame
+
+void Dlg_GameLibrary::AddGameFromHashLibrary(const std::string& sHashOut,
+	std::string& sAbsFileDir)
+{
+	if (m_GameHashLibrary.find(sHashOut) !=
+		m_GameHashLibrary.end())
+	{
+		const auto nGameID{
+			m_GameHashLibrary.at(sHashOut)
+		};
+		// tinyformat doesn't require it since it uses
+		// ostringstream
+		RA_LOG("Found one! Game ID %d (%s)", nGameID,
+			m_GameTitlesLibrary.at(nGameID));
+
+		const auto& sGameTitle{
+			m_GameTitlesLibrary.at(nGameID)
+		};
+
+		SetText(m_hGlibName,
+			NativeStr(sGameTitle).c_str());
+
+		// This seems send WM_ERASEBKRND and WM_NCPAINT
+		InvalidateRect(m_hGameLibWnd, nullptr, TRUE);
+		AddTitle(GameEntry{ sGameTitle, sAbsFileDir,
+			nGameID });
+	} // end if
+} // end function AddGameFromHashLibrary
+#pragma endregion
+
+
 
 void Dlg_GameLibrary::ReloadGameListData()
 {
 	ClearTitles();
 
-	TCHAR sROMDir[1024];
-	GetDlgItemText(m_hDialogBox, IDC_RA_ROMDIR, sROMDir, 1024);
+	auto len{ GetTextLength(m_hRomDir) };
+	tstring sRomDir;
+	sRomDir.reserve(len);
+	GetText(m_hRomDir, len, sRomDir.data());
+
+	// looks weird but correct
+	sRomDir = sRomDir.data();
 
 	mtx.lock();
+	// I swear to god I've seen this already
 	while (FilesToScan.size() > 0)
 		FilesToScan.pop_front();
 	mtx.unlock();
 
-	bool bOK = ListFiles(Narrow(sROMDir), "*.bin", FilesToScan);
-	bOK |= ListFiles(Narrow(sROMDir), "*.gen", FilesToScan);
+
+	// for reference
+	// ListFiles(Narrow(sRomDir), "*.bin", FilesToScan)
+
+	// It could just be me, but I think we need to account for all rom file types
+	// This seems it was just for genesis
+	bool bOK{ true };
+	ReloadByConsoleId(bOK, sRomDir);
+
 
 	if (bOK)
 	{
-		std::thread scanner(&Dlg_GameLibrary::ThreadedScanProc);
+		// NOW I goddamn remember...
+		using namespace std::placeholders;  // for _1, _2, _3...
+		std::function<void()> thread_proc =
+			std::bind(&Dlg_GameLibrary::ThreadedScanProc, this);
+		std::thread scanner{ thread_proc };
 		scanner.detach();
+	}
+}
+
+// This function is complex but (score of 23, but can't figure out to make it
+// simplier, breaking up the function won't do anything) It's still linear in
+// the average case though so that's good If you guys have an idea, and it
+// works, go ahead
+_Use_decl_annotations_
+void Dlg_GameLibrary::ReloadByConsoleId(bool& bOK, tstring& sRomDir)
+{
+	// need to check if this is honored
+	switch (g_ConsoleID)
+	{
+	case ConsoleID::MegaDrive:
+	{
+		for (auto& i : gens_ext)
+			bOK |= ListFiles(Narrow(sRomDir), i, FilesToScan);
+	}
+	break;
+	case ConsoleID::N64:
+	{
+		for (auto& i : n64_ext)
+			bOK |= ListFiles(sRomDir, i, FilesToScan);
+	}
+	break;
+	case ConsoleID::SNES:
+	{
+		for (auto& i : snes_ext)
+			bOK |= ListFiles(sRomDir, i, FilesToScan);
+	}
+	break;
+	case ConsoleID::GB:
+	{
+		for (auto& i : gb_ext)
+			bOK |= ListFiles(sRomDir, i, FilesToScan);
+	}
+	break;
+	case ConsoleID::GBA:
+	{
+		for (auto& i : gba_ext)
+			bOK |= ListFiles(sRomDir, i, FilesToScan);
+	}
+	case ConsoleID::GBC:
+	{
+		for (auto& i : gbc_ext)
+			bOK |= ListFiles(sRomDir, i, FilesToScan);
+	}
+	break;
+	case ConsoleID::NES:
+	{
+		for (auto& i : nes_ext)
+			bOK |= ListFiles(sRomDir, i, FilesToScan);
+	}
+	break;
+	case ConsoleID::PCEngine:
+	{
+		MessageBox(GetActiveWindow(), _T("Not implemented!"), _T("Warning!"),
+			MB_OK);
+	}
+	break;
+	case ConsoleID::SegaCD:
+	{
+		for (auto& i : scd_ext)
+			bOK |= ListFiles(sRomDir, i, FilesToScan);
+	}
+	break;
+	case ConsoleID::Sega32X:
+	{
+		for (auto& i : s32x_ext)
+			bOK |= ListFiles(sRomDir, i, FilesToScan);
+	}
+	break;
+	case ConsoleID::MasterSystem:
+	{
+		for (auto& i : sms_ext)
+			bOK |= ListFiles(sRomDir, i, FilesToScan);
+	}
+	//default: // don't feel like handing it right now
 	}
 }
 
 void Dlg_GameLibrary::RefreshList()
 {
-	std::map<std::string, std::string>::iterator iter = Results.begin();
-	while (iter != Results.end())
+	// damn cuz... it's ok!
+	for (auto& i : Results)
 	{
-		const std::string& filepath = iter->first;
-		const std::string& md5 = iter->second;
+		auto filepath{ i.first };
+		auto md5{ i.second };
 
 		if (VisibleResults.find(filepath) == VisibleResults.end())
 		{
@@ -440,262 +656,103 @@ void Dlg_GameLibrary::RefreshList()
 			if (m_GameHashLibrary.find(md5) != m_GameHashLibrary.end())
 			{
 				//	Found in our hash library!
-				const GameID nGameID = m_GameHashLibrary[md5];
-				RA_LOG("Found one! Game ID %d (%s)", nGameID, m_GameTitlesLibrary[nGameID].c_str());
+				// N.B.: MD5 is known to have frequent collisions
+				const auto nGameID{ m_GameHashLibrary.at(md5) };
+				RA_LOG("Found one! Game ID %d (%s)", nGameID,
+					m_GameTitlesLibrary.at(nGameID).c_str());
 
-				const std::string& sGameTitle = m_GameTitlesLibrary[nGameID];
-				AddTitle(sGameTitle, filepath, nGameID);
+				const auto& sGameTitle{ m_GameTitlesLibrary.at(nGameID) };
 
-				SetDlgItemText(m_hDialogBox, IDC_RA_SCANNERFOUNDINFO, NativeStr(sGameTitle).c_str());
-				VisibleResults[filepath] = md5;	//	Copy to VisibleResults
-			}
-		}
-		iter++;
-	}
-}
+				// Need to check these were drained, if so, we have to put this
+				// last
+				
+				SetText(m_hScannerFoundInfo, NativeStr(sGameTitle).c_str());
+				VisibleResults.at(filepath) = md5;	//	Copy to VisibleResults
+				AddTitle(GameEntry{ sGameTitle, filepath, nGameID });
+			} // end if
+		} // end if
+	} // end for
+} // end function RefreshList
 
-BOOL Dlg_GameLibrary::LaunchSelected()
+bool Dlg_GameLibrary::LaunchSelected()
 {
-	HWND hList = GetDlgItem(m_hDialogBox, IDC_RA_LBX_GAMELIST);
-	const int nSel = ListView_GetSelectionMark(hList);
-	if (nSel != -1)
+	if (const auto nSel{ ListView_GetSelectionMark(m_hList) }; nSel != -1)
 	{
-		TCHAR buffer[1024];
-		ListView_GetItemText(hList, nSel, 1, buffer, 1024);
-		SetWindowText(GetDlgItem(m_hDialogBox, IDC_RA_GLIB_NAME), buffer);
+		auto len{ GetTextLength(m_hList) };
+		// it's a little different
+		tstring buffer;
+		buffer.reserve(len);
 
-		ListView_GetItemText(hList, nSel, 3, buffer, 1024);
+		ListView_GetItemText(m_hList, nSel, 1, buffer.data(), len);
+		SetText(m_hGlibName, buffer.c_str());
+
+		ListView_GetItemText(m_hList, nSel, 3, buffer.data(), len);
 		_RA_LoadROM(Narrow(buffer).c_str());
 
-		return TRUE;
-	}
+		return true;
+	} // end if
 	else
-	{
-		return FALSE;
-	}
-}
+		return false;
+} // end function LaunchSelected
 
 void Dlg_GameLibrary::LoadAll()
 {
 	mtx.lock();
-	FILE* pLoadIn = NULL;
-	fopen_s(&pLoadIn, RA_MY_GAME_LIBRARY_FILENAME, "rb");
-	if (pLoadIn != NULL)
+	// this one does need to be in binary mode if you want to know the characters read
+	std::ifstream ifile{ RA_MY_GAME_LIBRARY_FILENAME, std::ios::binary };
+
+	auto nCharsRead1{ 0_ss };
+	auto nCharsRead2{ 0_ss };
+	do
 	{
-		DWORD nCharsRead1 = 0;
-		DWORD nCharsRead2 = 0;
-		do
+		// you need them to be 0 each time?
+		nCharsRead1 = 0_ss;
+		nCharsRead2 = 0_ss;
+
+		std::string filebuf;
+		std::string md5buf;
+
+		// You know there's getline() right?
+		ifile.getline(filebuf.data(), 2048);
+
+		if (nCharsRead1 = ifile.gcount(); nCharsRead1 > 0_i)
 		{
-			nCharsRead1 = 0;
-			nCharsRead2 = 0;
-			char fileBuf[2048];
-			char md5Buf[64];
-			ZeroMemory(fileBuf, 2048);
-			ZeroMemory(md5Buf, 64);
-			_ReadTil('\n', fileBuf, 2048, &nCharsRead1, pLoadIn);
+			ifile.getline(md5buf.data(), 64);
+			nCharsRead2 = ifile.gcount() - nCharsRead1;
+		} // end if
 
-			if (nCharsRead1 > 0)
-			{
-				_ReadTil('\n', md5Buf, 64, &nCharsRead2, pLoadIn);
-			}
+		// I don't how that's possible but w/e
+		if (((filebuf.front() != '\0') && (md5buf.front() != '\0')) &&
+			((nCharsRead1 > 0) && (nCharsRead2 > 0)))
+		{
+			// Strings already null-terminated, but yeah character arrays are not
+			//	Add
+			Results.at(filebuf) = md5buf;
+		} // end if
 
-			if (fileBuf[0] != '\0' && md5Buf[0] != '\0' && nCharsRead1 > 0 && nCharsRead2 > 0)
-			{
-				fileBuf[nCharsRead1 - 1] = '\0';
-				md5Buf[nCharsRead2 - 1] = '\0';
+	} while ((nCharsRead1 > 0_i) && (nCharsRead2 > 0_i)); // end do..while
 
-				//	Add
-				std::string file = fileBuf;
-				std::string md5 = md5Buf;
-
-				Results[file] = md5;
-			}
-
-		} while (nCharsRead1 > 0 && nCharsRead2 > 0);
-		fclose(pLoadIn);
-	}
 	mtx.unlock();
-}
+} // end function LoadAll
 
 void Dlg_GameLibrary::SaveAll()
 {
 	mtx.lock();
-	FILE* pf = NULL;
-	fopen_s(&pf, RA_MY_GAME_LIBRARY_FILENAME, "wb");
-	if (pf != NULL)
-	{
-		std::map<std::string, std::string>::iterator iter = Results.begin();
-		while (iter != Results.end())
-		{
-			const std::string& sFilepath = iter->first;
-			const std::string& sMD5 = iter->second;
+	// doesn't seem to need to be in binary mode, are we reading dat files?
 
-			fwrite(sFilepath.c_str(), sizeof(char), strlen(sFilepath.c_str()), pf);
-			fwrite("\n", sizeof(char), 1, pf);
-			fwrite(sMD5.c_str(), sizeof(char), strlen(sMD5.c_str()), pf);
-			fwrite("\n", sizeof(char), 1, pf);
+	std::ofstream ofile{ RA_MY_GAME_LIBRARY_FILENAME };
 
-			iter++;
-		}
+	// seemed more complicated than it needs to be
+	for (auto& i : Results)
+		tfm::format(ofile, "%s\n%s\n", i.first, i.second);
 
-		fclose(pf);
-	}
 	mtx.unlock();
-}
+} // end function SaveAll
 
-//static 
-INT_PTR CALLBACK Dlg_GameLibrary::s_GameLibraryProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	return g_GameLibrary.GameLibraryProc(hwnd, uMsg, wParam, lParam);
-}
-
-INT_PTR CALLBACK Dlg_GameLibrary::GameLibraryProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	switch (uMsg)
-	{
-	case WM_INITDIALOG:
-	{
-		HWND hList = GetDlgItem(hwnd, IDC_RA_LBX_GAMELIST);
-		SetupColumns(hList);
-
-		ListView_SetExtendedListViewStyle(hList, LVS_EX_FULLROWSELECT | LVS_EX_HEADERDRAGDROP);
-
-		SetDlgItemText(hwnd, IDC_RA_ROMDIR, NativeStr(g_sROMDirLocation).c_str());
-		SetDlgItemText(hwnd, IDC_RA_GLIB_NAME, TEXT(""));
-
-		m_GameHashLibrary.clear();
-		m_GameTitlesLibrary.clear();
-		m_ProgressLibrary.clear();
-		ParseGameHashLibraryFromFile(m_GameHashLibrary);
-		ParseGameTitlesFromFile(m_GameTitlesLibrary);
-		ParseMyProgressFromFile(m_ProgressLibrary);
-
-		//int msBetweenRefresh = 1000;	//	auto?
-		//SetTimer( hwnd, 1, msBetweenRefresh, (TIMERPROC)g_GameLibrary.s_GameLibraryProc );
-		RefreshList();
-
-		return FALSE;
-	}
-
-	case WM_TIMER:
-		if ((g_GameLibrary.GetHWND() != NULL) && (IsWindowVisible(g_GameLibrary.GetHWND())))
-			RefreshList();
-		//ReloadGameListData();
-		return FALSE;
-
-	case WM_NOTIFY:
-		switch (LOWORD(wParam))
-		{
-		case IDC_RA_LBX_GAMELIST:
-		{
-			switch (((LPNMHDR)lParam)->code)
-			{
-			case LVN_ITEMCHANGED:
-			{
-				//RA_LOG( "Item Changed\n" );
-				HWND hList = GetDlgItem(hwnd, IDC_RA_LBX_GAMELIST);
-				const int nSel = ListView_GetSelectionMark(hList);
-				if (nSel != -1)
-				{
-					TCHAR buffer[1024];
-					ListView_GetItemText(hList, nSel, 1, buffer, 1024);
-					SetWindowText(GetDlgItem(hwnd, IDC_RA_GLIB_NAME), buffer);
-				}
-			}
-			break;
-
-			case NM_CLICK:
-				//RA_LOG( "Click\n" );
-				break;
-
-			case NM_DBLCLK:
-				if (LaunchSelected())
-				{
-					EndDialog(hwnd, TRUE);
-					return TRUE;
-				}
-				break;
-
-			default:
-				break;
-			}
-		}
-		return FALSE;
-
-		default:
-			RA_LOG("%08x, %08x\n", wParam, lParam);
-			return FALSE;
-		}
-
-	case WM_COMMAND:
-		switch (LOWORD(wParam))
-		{
-		case IDOK:
-			if (LaunchSelected())
-			{
-				EndDialog(hwnd, TRUE);
-				return TRUE;
-			}
-			else
-			{
-				return FALSE;
-			}
-
-		case IDC_RA_RESCAN:
-			ReloadGameListData();
-
-			mtx.lock();	//?
-			SetDlgItemText(m_hDialogBox, IDC_RA_SCANNERFOUNDINFO, TEXT("Scanning..."));
-			mtx.unlock();
-			return FALSE;
-
-		case IDC_RA_PICKROMDIR:
-			g_sROMDirLocation = GetFolderFromDialog();
-			RA_LOG("Selected Folder: %s\n", g_sROMDirLocation.c_str());
-			SetDlgItemText(hwnd, IDC_RA_ROMDIR, NativeStr(g_sROMDirLocation).c_str());
-			return FALSE;
-
-		case IDC_RA_LBX_GAMELIST:
-		{
-			HWND hList = GetDlgItem(hwnd, IDC_RA_LBX_GAMELIST);
-			const int nSel = ListView_GetSelectionMark(hList);
-			if (nSel != -1)
-			{
-				TCHAR sGameTitle[1024];
-				ListView_GetItemText(hList, nSel, 1, sGameTitle, 1024);
-				SetWindowText(GetDlgItem(hwnd, IDC_RA_GLIB_NAME), sGameTitle);
-			}
-		}
-		return FALSE;
-
-		case IDC_RA_REFRESH:
-			RefreshList();
-			return FALSE;
-
-		default:
-			return FALSE;
-		}
-
-	case WM_PAINT:
-		if (nNumParsed != Results.size())
-			nNumParsed = Results.size();
-		return FALSE;
-
-	case WM_CLOSE:
-		EndDialog(hwnd, FALSE);
-		return TRUE;
-
-	case WM_USER:
-		return FALSE;
-
-	default:
-		return FALSE;
-	}
-}
 
 void Dlg_GameLibrary::KillThread()
 {
-	Dlg_GameLibrary::ThreadProcessingAllowed = false;
+	ThreadProcessingAllowed = false;
 	while (Dlg_GameLibrary::ThreadProcessingActive)
 	{
 		RA_LOG("Waiting for background scanner...");
@@ -703,8 +760,160 @@ void Dlg_GameLibrary::KillThread()
 	}
 }
 
-////static
-//void Dlg_GameLibrary::DoModalDialog( HINSTANCE hInst, HWND hParent )
-//{
-//	DialogBox( hInst, MAKEINTRESOURCE(IDD_RA_GAMELIBRARY), hParent, Dlg_GameLibrary::s_GameLibraryProc );
-//}
+#pragma region Message Handlers
+BOOL Dlg_GameLibrary::OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
+{
+	// Might as well initlize handles to the controls here
+	// FINALLY FIGURED IT OUT!
+	m_hList             = GetDlgItem(hwnd, IDC_RA_LBX_GAMELIST);
+	m_hRomDir           = GetDlgItem(hwnd, IDC_RA_ROMDIR);
+	m_hGlibName         = GetDlgItem(hwnd, IDC_RA_GLIB_NAME);
+	m_hScannerFoundInfo = GetDlgItem(hwnd, IDC_RA_SCANNERFOUNDINFO);
+
+	SetupColumns(m_hList);
+
+	ListView_SetExtendedListViewStyle(m_hList,
+		LVS_EX_FULLROWSELECT | LVS_EX_HEADERDRAGDROP);
+
+	SetText(m_hRomDir, NativeStr(g_sROMDirLocation).c_str());
+	SetText(m_hGlibName, TEXT(""));
+
+	m_GameHashLibrary.clear();
+	m_GameTitlesLibrary.clear();
+	m_ProgressLibrary.clear();
+	ParseGameHashLibraryFromFile(m_GameHashLibrary);
+	ParseGameTitlesFromFile(m_GameTitlesLibrary);
+	ParseMyProgressFromFile(m_ProgressLibrary);
+
+	//int msBetweenRefresh = 1000;	//	auto?
+	//SetTimer( hwnd, 1, msBetweenRefresh, (TIMERPROC)g_GameLibrary.s_GameLibraryProc );
+	RefreshList();
+	// Bounds are a serious problem in this program
+	return FALSE;
+} // end function OnInitDialog
+
+void Dlg_GameLibrary::OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
+{
+	switch (id)
+	{
+	case IDOK:
+		OnOK(hwnd);
+		break;
+
+	case IDC_RA_RESCAN:
+		OnRescan();
+		break;
+
+	case IDC_RA_PICKROMDIR:
+		OnPickRomDir();
+		break;
+
+	case IDC_RA_LBX_GAMELIST:
+		// This seems identical in OnNotify, it is
+		OnLbxGamelist();
+		break;
+
+	case IDC_RA_REFRESH:
+		RefreshList();
+	} // end switch
+} // end function OnCommand
+
+void Dlg_GameLibrary::OnLbxGamelist()
+{
+	const auto nSel{ ListView_GetSelectionMark(m_hList) };
+	if (nSel != -1)
+	{
+		auto length{ GetTextLength(m_hList) };
+		tstring buffer;
+		buffer.reserve(length);
+
+		ListView_GetItemText(m_hList, nSel, 1, buffer.data(), length);
+		SetText(m_hGlibName, buffer.c_str());
+	} // end if
+} // end function OnLbxGamelist
+
+void Dlg_GameLibrary::OnPickRomDir()
+{
+	g_sROMDirLocation = GetFolderFromDialog();
+
+	RA_LOG("Selected Folder: %s\n", g_sROMDirLocation);
+	SetText(m_hRomDir, NativeStr(g_sROMDirLocation).c_str());
+} // end function OnPickRomDir
+
+void Dlg_GameLibrary::OnRescan()
+{
+	ReloadGameListData();
+
+	// I really think a scoped mutex is more approprate if this is synchronous
+	mtx.lock();	//?
+	SetText(m_hScannerFoundInfo, TEXT("Scanning..."));
+	mtx.unlock();
+} // end function OnRescan
+
+void Dlg_GameLibrary::OnTimer(HWND hwnd, UINT id)
+{
+	// It should be impossible (first one), or else it will crash
+	// How can a nonexistent window be visible?
+	if (IsWindowVisible(hwnd))
+		RefreshList();
+} // end function OnTimer
+
+// HANDLE_WM_NOTIFY
+// This is here just to quickly look at the cracker
+LRESULT Dlg_GameLibrary::OnNotify(HWND hwnd, int idFrom, NMHDR * pnmhdr)
+{
+	switch (idFrom)
+	{
+	case IDC_RA_LBX_GAMELIST:
+	{
+		switch (pnmhdr->code)
+		{
+		case LVN_ITEMCHANGED:
+			OnLbxGamelist();
+			break;
+
+		case NM_CLICK:
+			break;
+
+		case NM_DBLCLK:
+			OnOK(hwnd);
+			return 1_i;
+		} // end switch
+	} // end case IDC_RA_LBX_GAMELIST
+	return 0_i; // LRESULT could be long or long long
+
+	default:
+		RA_LOG("%08x, %08x\n", idFrom, pnmhdr);
+		return 0_i;
+	} // end switch
+} // end function OnNotify
+
+void Dlg_GameLibrary::OnOK(HWND hwnd)
+{
+	if (LaunchSelected())
+		Close(hwnd);
+} // end function OnOK
+
+void Dlg_GameLibrary::OnPaint([[maybe_unused]] HWND hwnd)
+{
+	if (nNumParsed != Results.size())
+		nNumParsed = Results.size();
+} // end function OnPaint
+
+void Dlg_GameLibrary::OnNCDestroy(HWND hwnd)
+{
+	DestroyControl(m_hList);
+	DestroyControl(m_hRomDir);
+	DestroyControl(m_hGlibName);
+	DestroyControl(m_hScannerFoundInfo);
+	IRA_Dialog::OnNCDestroy(hwnd);
+} // end function OnNCDestroy
+
+INT_PTR Dlg_GameLibrary::DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam,
+	LPARAM lParam)
+{
+	return 0;
+} // end function DialogProc  
+#pragma endregion
+
+} // namespace ra
