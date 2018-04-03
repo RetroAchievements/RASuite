@@ -184,7 +184,7 @@ static const struct Base64Table
 {
 	Base64Table()
 	{
-		size_t a=0;
+		unsigned int a=0;
 		for(a=0; a<256; ++a) data[a] = 0xFF; // mark everything as invalid by default
 		// create value->ascii mapping
 		a=0;
