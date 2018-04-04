@@ -53,6 +53,7 @@ public:
 
 	void InstallHWND( HWND hWnd )						{ m_hMemBookmarkDialog = hWnd; }
 	HWND GetHWND() const								{ return m_hMemBookmarkDialog; }
+	BOOL IsActive() const;
 
 	std::vector<MemBookmark*> Bookmarks()				{ return m_vBookmarks; }
 	void UpdateBookmarks( bool bForceWrite );
