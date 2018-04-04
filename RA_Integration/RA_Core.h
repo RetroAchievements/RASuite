@@ -168,9 +168,31 @@ void RememberWindowPosition(HWND hDlg, const char* sDlgKey);
 void RememberWindowSize(HWND hDlg, const char* sDlgKey);
 
 
-// This seemed like a regular thing
-// is this really not a constant expression?
-int CALLBACK no_rom_loaded() noexcept;
-_STD string CCONV prefs_filename() noexcept;
 
+namespace ra {
+
+
+// Stuff down here was to address repetition
+_EXTERN_C
+int CALLBACK no_rom_loaded() noexcept;
+_END_EXTERN_C
+
+
+// leave HWND blank to get the active window or specfiy it
+// It's a template function, for simplicity it has to be in the header,
+// You could do other stuff, but it's tedious.
+// Type validation is in place to prevent this function being used incorrectly
+template<
+	typename StringType, 
+	class = _STD enable_if_t<_RA is_string_v<StringType>>
+>
+int CALLBACK show_error(const StringType& msg, HWND hwnd = null) noexcept
+{
+	if (!hwnd)
+		hwnd = GetActiveWindow();
+	return MessageBox(hwnd, TEXT(msg.c_str()), TEXT("Error!"), MB_OK);
+} // end function show_error
+
+_STD string CCONV prefs_filename() noexcept;
+} // namespace ra
 #endif // !RA_CORE_H

@@ -117,7 +117,7 @@ public:
 
 	HWND Create();
 
-	void PostNcDestroy() noexcept;
+	_NORETURN void PostNcDestroy() noexcept;
 	inline constexpr bool is_destroyed() const noexcept {
 		return{ lStorage == 0_i };
 	}
@@ -127,7 +127,7 @@ public:
 	// I really doubt we need to change these
 	// Need to see if Windows will under stand my cracker
     // Ok they work, bBigIcon is usually 2 (ICON_SMALL2)
-	HICON GetIcon(HWND hwnd, BOOL bBigIcon);
+	_NODISCARD HICON GetIcon(HWND hwnd, BOOL bBigIcon);
 	HICON SetIcon(HWND hwnd, BOOL bBigIcon, HICON hicon);
 
 	/// <summary>Called when <c>WM_INITDIALOG</c> is sent.</summary>

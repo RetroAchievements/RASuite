@@ -65,7 +65,7 @@ std::string RAGenerateMD5( const BYTE* pRawData, size_t nDataLen )
 	return buffer;	//	Implicit promotion to std::string
 }
 
-std::string RAGenerateMD5( const std::vector<BYTE> DataIn )
+std::string RAGenerateMD5( const DataStream& DataIn )
 {
 	return RAGenerateMD5( DataIn.data(), DataIn.size() );
 }

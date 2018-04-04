@@ -10,13 +10,11 @@
 #include "RA_RichPresence.h"
 
 #include <winhttp.h>
-#include <fstream>
-#include <time.h>
-#include <algorithm>	//	std::replace
 
+using request_types = std::array<cstring, _RA etoi(NumRequestTypes)>;
 
-const char* RequestTypeToString[] = 
-{
+// was failing static_assert, since it's constexpr it can't be extern either
+constexpr request_types RequestTypeToString{
 	"RequestLogin",
 
 	"RequestScore",
@@ -43,15 +41,16 @@ const char* RequestTypeToString[] =
 	"RequestSubmitAchievementData",
 	"RequestSubmitTicket",
 	"RequestSubmitNewTitleEntry",
-	
+
 	"RequestUserPic",
 	"RequestBadge",
 
 	"STOP_THREAD",
 };
-static_assert( SIZEOF_ARRAY( RequestTypeToString ) == NumRequestTypes, "Must match up!" );
+static_assert(RequestTypeToString.size() == etoi(NumRequestTypes));
 
-const char* RequestTypeToPost[] =
+// was failing static assert
+constexpr request_types RequestTypeToPost
 {
 	"login",
 	"score",
@@ -84,19 +83,20 @@ const char* RequestTypeToPost[] =
 
 	"_stopthread_",			//	STOP_THREAD
 };
-static_assert( SIZEOF_ARRAY( RequestTypeToPost ) == NumRequestTypes, "Must match up!" );
+static_assert(RequestTypeToPost.size() == etoi(NumRequestTypes));
+
 
 const char* UploadTypeToString[] = 
 {
 	"RequestUploadBadgeImage",
 };
-static_assert( SIZEOF_ARRAY( UploadTypeToString ) == NumUploadTypes, "Must match up!" );
+static_assert( SIZEOF_ARRAY( UploadTypeToString ) == etoi(NumUploadTypes), "Must match up!" );
 
 const char* UploadTypeToPost[] =
 {
 	"uploadbadgeimage",
 };
-static_assert( SIZEOF_ARRAY( UploadTypeToPost ) == NumUploadTypes, "Must match up!" );
+static_assert( SIZEOF_ARRAY( UploadTypeToPost ) == etoi(NumUploadTypes), "Must match up!" );
 
 //	No game-specific code here please!
 
@@ -736,7 +736,7 @@ DWORD RAWeb::HTTPWorkerThread( LPVOID lpParameter )
 			{
 				//	Take ownership and delete(): we caused the 'pop' earlier, so we have responsibility to
 				//	 either pass to LastHttpResults, or deal with it here.
-				SAFE_DELETE( pObj );
+				_RA SAFE_DELETE( pObj );
 			}
 		}
 

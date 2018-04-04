@@ -64,9 +64,9 @@ enum UploadType
 	NumUploadTypes
 };
 
-extern const char* RequestTypeToString[];
 
-typedef std::map<char, std::string> PostArgs;
+// You sure you don't want it unordered? (hash_table)
+using PostArgs = std::map<char, std::string>;
 
 extern std::string PostArgsToString( const PostArgs& args );
 

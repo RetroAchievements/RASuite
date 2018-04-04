@@ -24,6 +24,7 @@ typedef void (_RAMByteWriteFn)( unsigned int nOffs, unsigned int nVal );
 
 class MemManager
 {
+
 private:
 	class BankData
 	{
@@ -35,18 +36,27 @@ private:
 		BankData( _RAMByteReadFn* pReadFn, _RAMByteWriteFn* pWriteFn, size_t nBankSize )
 		 :	Reader( pReadFn ), Writer( pWriteFn ), BankSize( nBankSize )
 		{}
-		
+
+        // not sure if this will work
+		bool operator==(const BankData& b) noexcept {
+			return{
+                this->Reader   == b.Reader &&
+                this->Writer   == b.Writer &&
+                this->BankSize == b.BankSize
+			};
+		}
+
 	private:
 		//	Copying disabled
 		BankData( const BankData& );
-		BankData& operator=( BankData& );
+		BankData& operator=( BankData& ) = delete;
 	
 	public:
 		_RAMByteReadFn* Reader;
 		_RAMByteWriteFn* Writer;
 		size_t BankSize;
 	};
-
+	friend constexpr bool operator==(const BankData& a, const BankData& b) noexcept;
 public:
 	MemManager();
 	virtual ~MemManager();
@@ -96,5 +106,14 @@ private:
 	bool m_bUseLastKnownValue;
 	size_t m_nTotalBankSize;
 };
+
+
+
+constexpr bool
+operator==(
+	const MemManager::BankData& a,
+	const MemManager::BankData& b) noexcept {
+	return{ a == b };
+}
 
 extern MemManager g_MemManager;

@@ -35,15 +35,6 @@
 // condition_set)
 //#include <unordered_set> 
 
-
-
-
-
-
-
-
-// We really should put 3rd party libs outside project directory though
-// the C98 version has fixed params and might cause errors on parsing 
 #define TINYFORMAT_USE_VARIADIC_TEMPLATES 
 #include "tinyformat.h" // cassert, iostream, sstream (string)
 
@@ -96,38 +87,61 @@ using namespace ra;
 #if _HAS_CXX17
 #define _DEPRECATED          [[deprecated]]
 #define _DEPRECATEDR(reason) [[deprecated(reason)]]
-#define _FALLTHROUGH         [[fallthrough]]; // the ";" is needed
+// used if you intentionlly do not put a break, return, continue in a switch
+// statement
+#define _FALLTHROUGH         [[fallthrough]];
+
+// [[nodiscard]] already has a macro, what this means is that you have to
+// do something with the return value, but doesn't seem to work here
+#define _NODISCARD           [[nodiscard]]
+
+// Only for void functions, 
 #define _NORETURN            [[noreturn]]
+
+// Needed on higher warning levels about unused things
 #define _UNUSED              [[maybe_unused]]
-#endif
 
-#define RA_KEYS_DLL						"RA_Keys.dll"
-#define RA_PREFERENCES_FILENAME_PREFIX	"RAPrefs_"
-#define RA_UNKNOWN_BADGE_IMAGE_URI		"00000"
+// Disables the use of const_casts, if you get an error, it's not a literal
+// type. You could use it on functions but they will need a deduction guide
+// That would probably be better with a forwarding function
+#define _CONSTANT_VAR inline constexpr auto
+#define _CONSTANT     inline constexpr
 
+#define _ENABLE_IF_T(expression) typename = _STD enable_if_t<expression>
+
+#endif // _HAS_CXX17
+
+_CONSTANT_VAR RA_KEYS_DLL{ "RA_Keys.dll" };
+_CONSTANT_VAR RA_PREFERENCES_FILENAME_PREFIX{ "RAPrefs_" };
+_CONSTANT_VAR RA_UNKNOWN_BADGE_IMAGE_URI{ "00000" };
+
+// Too complicated for the rest, or we could just type them out fully, or make them std:: string
 #define RA_DIR_OVERLAY					".\\Overlay\\"
-#define RA_DIR_BASE						".\\RACache\\"
+#define RA_DIR_BASE					    ".\\RACache\\"
+
 #define RA_DIR_DATA						RA_DIR_BASE##"Data\\"
 #define RA_DIR_BADGE					RA_DIR_BASE##"Badge\\"
 #define RA_DIR_USERPIC					RA_DIR_BASE##"UserPic\\"
 #define RA_DIR_BOOKMARKS				RA_DIR_BASE##"Bookmarks\\"
 
-#define RA_GAME_HASH_FILENAME			RA_DIR_DATA##"gamehashlibrary.txt"
-#define RA_GAME_LIST_FILENAME			RA_DIR_DATA##"gametitles.txt"
-#define RA_MY_PROGRESS_FILENAME			RA_DIR_DATA##"myprogress.txt"
-#define RA_MY_GAME_LIBRARY_FILENAME		RA_DIR_DATA##"mygamelibrary.txt"
+// These definetly look like JSON files to me
+#define RA_GAME_HASH_FILENAME			RA_DIR_DATA##"gamehashlibrary.json"
+#define RA_GAME_LIST_FILENAME			RA_DIR_DATA##"gametitles.json"
+#define RA_MY_PROGRESS_FILENAME			RA_DIR_DATA##"myprogress.json"
+#define RA_MY_GAME_LIBRARY_FILENAME		RA_DIR_DATA##"mygamelibrary.json"
 
 #define RA_OVERLAY_BG_FILENAME			RA_DIR_OVERLAY##"overlayBG.png"
-#define RA_NEWS_FILENAME				RA_DIR_DATA##"ra_news.txt"
-#define RA_TITLES_FILENAME				RA_DIR_DATA##"gametitles.txt"
+#define RA_NEWS_FILENAME				RA_DIR_DATA##"ra_news.json"
+#define RA_TITLES_FILENAME				RA_DIR_DATA##"gametitles.json"
+
+// This one's a mixed bag
 #define RA_LOG_FILENAME					RA_DIR_DATA##"RALog.txt"
 
 
-#define RA_HOST_URL						"retroachievements.org"
-#define RA_HOST_IMG_URL					"i.retroachievements.org"
+_CONSTANT_VAR RA_HOST_URL{ "retroachievements.org" };
+_CONSTANT_VAR RA_HOST_IMG_URL{ "i.retroachievements.org" };
 
-#define SIZEOF_ARRAY( ar )	( sizeof( ar ) / sizeof( ar[ 0 ] ) )
-#define SAFE_DELETE( x )	{ if( x != nullptr ) { delete x; x = nullptr; } }
+
 
 using ARGB = DWORD;
 
@@ -267,7 +281,7 @@ enum AchievementSetType
 using DataStream         = std::basic_string<BYTE>;
 using Data_stringstream  = std::basic_stringstream<BYTE>;
 using Data_istringstream = std::basic_istringstream<BYTE>;
-using Data_ostringstream = std::basic_istringstream<BYTE>;
+using Data_ostringstream = std::basic_ostringstream<BYTE>; // it's always the little things...
 using Data_fstream       = std::basic_fstream<BYTE>;
 using Data_ifstream      = std::basic_ifstream<BYTE>;
 using Data_ofstream      = std::basic_ofstream<BYTE>;
@@ -435,19 +449,22 @@ struct is_char<CharT, _STD enable_if_t<_STD is_integral_v<CharT> &&
 
 // is_char helper function
 template<typename CharT>
-inline constexpr bool is_char_v = is_char<CharT>::value;
+_CONSTANT_VAR is_char_v = is_char<CharT>::value;
 
 // for the hell of it
 template<typename StringType, class = _STD void_t<>>
 struct is_string : _STD false_type {};
 
+// This will check if the type is a string, it checks standard traits
+// If it derives from std::basic_string, you should see this comment
 template<typename StringType>
 struct is_string<StringType, _STD enable_if_t<is_char_v<
 	typename _STD char_traits<typename StringType::value_type>::char_type>>
-> :	_STD true_type{};
+> : _STD true_type{};
 
+// StringType must a type of std::basic_string
 template<typename StringType>
-inline constexpr bool is_string_v = is_string<StringType>::value;
+_CONSTANT_VAR is_string_v = is_string<StringType>::value;
 
 #pragma endregion
 
@@ -475,12 +492,11 @@ template<
 	typename Traits = _STD char_traits<CharT>,
 	class = _STD enable_if_t<is_char_v<CharT>>
 >
-typename Traits::pos_type filesize(
-	string_t<CharT>& filename) {
-	_STD basic_fstream<CharT> file{
-		filename, _STD ios::ate | _STD ios::binary
-	};
-	return file.tellg();
+typename Traits::pos_type filesize(string_t<CharT>& filename) noexcept {
+	// It's always the little things...
+    using file_type = _STD basic_fstream<CharT>;
+    file_type file{	filename, _STD ios::in | _STD ios::ate | _STD ios::binary };
+    return file.tellg();
 } // end function filesize
 
 
@@ -524,10 +540,13 @@ template<
 DataStream stodata_stream(const std::basic_string<CharT>& str) noexcept
 {
 	Data_ostringstream doss;
+	// what it gods name is going on?
 	for (auto& i : str)
-		doss << i;
+		doss << static_cast<DataStream::value_type>(i);
 
-	return doss.str();
+    auto dstr = doss.str();
+
+	return dstr;
 } // end function stodata_stream
 
 
@@ -535,74 +554,109 @@ DataStream stodata_stream(const std::basic_string<CharT>& str) noexcept
 #pragma endregion
 
 
+// This looks like bad news, unmacrofied it but still...
+// C arrays can't be auto deduced so you'd have to supply a type each time
+// Let me check something else, decay_t can't be used on C arrays so can't check that...
+template<
+	typename Element,
+	class = std::enable_if_t<std::is_array_v<typename Element[]>>
+>
+inline constexpr _STD size_t SIZEOF_ARRAY(Element* ar) noexcept {
+	return { sizeof(ar) / sizeof(ar[0]) };
+}
+
+// I'm an idiot..., forgot the second param needs to be nameless
+template<
+	typename Pointer,
+	_ENABLE_IF_T(std::is_pointer_v<Pointer>)
+>
+_CONSTANT_VAR SAFE_DELETE(Pointer x) noexcept->void {
+	if (x != nullptr) {
+		delete x;
+		x = nullptr;
+	}
+}
+
 // Stuff down here is to allow the use of strongly typed enums while still able to compare
 // They do work as intended but there's too many logic errors so it'll  be commented out for now
 // The SIZEOF_ARR is NOT a constant expression
 
+// This Stuff should work now
 
 // For something to be EqualityComparable, A == B, B == A must be implicitly
 // convertible to bool
-//#pragma region EqualityComparable
-//template<
-//    typename EqualityComparable,
-//    typename EqualityComparable2,
-//    class = std::void_t<>
-//>
-//struct is_equality_comparable : std::false_type {};
-//
-//
-//template<
-//    typename EqualityComparable,
-//    typename EqualityComparable2
-//>
-//struct is_equality_comparable<EqualityComparable, EqualityComparable2,
-//    std::enable_if_t<true, 
-//    decltype(std::declval<EqualityComparable&>() == std::declval<EqualityComparable2&>())
-//    >> : std::true_type {};
-//
-//template<typename EqualityComparable, typename EqualityComparable2 = EqualityComparable>
-//constexpr bool is_equality_comparable_v = is_equality_comparable<EqualityComparable, EqualityComparable2>::value;
-//
+#pragma region EqualityComparable
+template<
+	typename EqualityComparable,
+	typename EqualityComparable2,
+	class = std::void_t<>
+>
+struct is_equality_comparable : std::false_type {};
+
+// figured it out
+template<
+	typename EqualityComparable,
+	typename EqualityComparable2
+>
+struct is_equality_comparable<EqualityComparable, EqualityComparable2,
+	std::enable_if_t<true, std::void_t<
+	decltype(std::declval<EqualityComparable&>() ==
+		std::declval<EqualityComparable2&>())>
+	>> : std::true_type {};
+
+template<typename EqualityComparable, typename EqualityComparable2 = EqualityComparable>
+constexpr bool is_equality_comparable_v = is_equality_comparable<EqualityComparable, EqualityComparable2>::value;
+
+
+// wasted too much time, well if you want to compare anything you should check it.
+// Not everything is comparable if it doesn't have equality operator overloads
 //template<typename EqualityComparable, typename EqualityComparable2 = EqualityComparable>
 //constexpr auto operator==(const EqualityComparable& eq, const EqualityComparable2& eq2) noexcept
 //-> decltype(std::declval<EqualityComparable&>() == std::declval<EqualityComparable2&>())
 //{
-//    return{ eq == eq2 };
+//	static_assert(is_equality_comparable_v<EqualityComparable, EqualityComparable2>);
+//	return{ eq == eq2 };
 //}
-//#pragma endregion
-//
-//#pragma region LessThanComparable 
-//template<
-//    typename LessThanComparable,
-//    typename LessThanComparable2,
-//    class = std::void_t<>
-//>
-//struct is_lessthan_comparable : std::false_type {};
-//
-//
-//template<
-//    typename LessThanComparable,
-//    typename LessThanComparable2
-//>
-//struct is_lessthan_comparable<LessThanComparable, LessThanComparable2,
-//    std::enable_if_t<true,
-//    decltype(std::declval<LessThanComparable&>() < std::declval<LessThanComparable2&>())
-//    >> : std::true_type {};
-//
-//template<typename LessThanComparable, typename LessThanComparable2 = LessThanComparable>
-//constexpr bool is_lessthan_comparable_v = is_lessthan_comparable<LessThanComparable, LessThanComparable2>::value;
-//
+#pragma endregion
+
+#pragma region LessThanComparable 
+template<
+	typename LessThanComparable,
+	typename LessThanComparable2,
+	class = std::void_t<>
+>
+struct is_lessthan_comparable : std::false_type {};
+
+
+template<
+	typename LessThanComparable,
+	typename LessThanComparable2
+>
+struct is_lessthan_comparable<LessThanComparable, LessThanComparable2,
+	std::enable_if_t<is_equality_comparable_v<LessThanComparable, 
+	LessThanComparable2>, std::void_t<decltype(
+		std::declval<LessThanComparable&>() <
+		std::declval<LessThanComparable2&>())>
+	>> : std::true_type{};
+
+template<typename LessThanComparable, typename LessThanComparable2 = LessThanComparable>
+constexpr bool is_lessthan_comparable_v = is_lessthan_comparable<LessThanComparable, LessThanComparable2>::value;
+
+// test
+static_assert(is_lessthan_comparable_v<std::string>);
+
 //template<typename LessThanComparable, typename LessThanComparable2 = LessThanComparable>
 //constexpr auto operator<(const LessThanComparable& a, const LessThanComparable2& b) noexcept
-//-> decltype(std::declval<LessThanComparable&>() == std::declval<LessThanComparable2&>())
+//	-> decltype(std::declval<LessThanComparable&>() == std::declval<LessThanComparable2&>())
 //{
-//    static_assert(is_lessthan_comparable_v<LessThanComparable, LessThanComparable2>);
-//    return{ a < b };
+//	static_assert(is_lessthan_comparable_v<LessThanComparable, LessThanComparable2>);
+//	return{ a < b };
 //}
-//
-//// Now that we have those the rest are handled by the standard
-//using namespace std::rel_ops;
 
+// Use this (in the class) if the class passes for both equality and lessthan
+// The standard will make the rest
+//using namespace std::rel_ops;
+//
 
 
 

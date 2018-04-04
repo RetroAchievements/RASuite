@@ -7,10 +7,15 @@ std::string DataStreamAsString(const DataStream& stream)
 	std::ostringstream oss;
 
 	for ( auto& i : stream )
-		oss << i;
+		oss << static_cast<char>(i);
 
+    // pesky null character
+	auto str{ oss.str() };
+    if(!str.empty()) {
+		str.pop_back();
+	}
 	// Test
-	return oss.str(); // ok it's definitly showing how it should be
+	return str; // ok it's definitly showing how it should be
 }
 
 std::string Narrow(const wchar_t* wstr)

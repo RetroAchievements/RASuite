@@ -16,14 +16,20 @@
 
 namespace
 {
-	const char* COLUMN_TITLES_CORE[] = { "ID", "Title", "Points", "Author", "Achieved?", "Modified?" };
-	const char* COLUMN_TITLES_UNOFFICIAL[] = { "ID", "Title", "Points", "Author", "Active",	"Votes" };
-	const char* COLUMN_TITLES_LOCAL[] = { "ID", "Title", "Points", "Author", "Active",	"Votes" };
-	const int COLUMN_SIZE[] = { 45, 200, 45, 80, 65, 65 };
+const char* COLUMN_TITLES_CORE[] ={ "ID", "Title", "Points", "Author", "Achieved?", "Modified?" };
+const char* COLUMN_TITLES_UNOFFICIAL[] ={ "ID", "Title", "Points", "Author", "Active",	"Votes" };
+const char* COLUMN_TITLES_LOCAL[] ={ "ID", "Title", "Points", "Author", "Active",	"Votes" };
+const int COLUMN_SIZE[] ={ 45, 200, 45, 80, 65, 65 };
 
-	const int NUM_COLS = SIZEOF_ARRAY(COLUMN_SIZE);
+// let me check something
+//using a = decltype(COLUMN_SIZE);
+//static_assert(std::is_array_v<a>);
+//static_assert(std::is_array_v<const char*[]>);
+// makeshift solution, these will be STL arrays later, just needed it to compile
+// At least it's constexpr now
+const auto NUM_COLS = SIZEOF_ARRAY(COLUMN_SIZE);
 
-	int iSelect = -1;
+int iSelect = -1;
 }
 
 Dlg_Achievements g_AchievementsDialog;
@@ -56,8 +62,8 @@ void Dlg_Achievements::SetupColumns(HWND hList)
 		if (i == (NUM_COLS - 1))
 			newColumn.fmt |= LVCFMT_FILL;
 		newColumn.cx = COLUMN_SIZE[i];
-		tstring sColTitleStr = NativeStr( sColTitle );	//	Take a copy
-		newColumn.pszText = const_cast<LPTSTR>( sColTitleStr.c_str() );
+		tstring sColTitleStr = NativeStr(sColTitle);	//	Take a copy
+		newColumn.pszText = const_cast<LPTSTR>(sColTitleStr.c_str());
 		newColumn.cchTextMax = 255;
 		newColumn.iSubItem = i;
 
@@ -140,7 +146,7 @@ void Dlg_Achievements::RemoveAchievement(HWND hList, int nIter)
 	char buffer[16];
 	sprintf_s(buffer, 16, " %d", g_pActiveAchievements->NumAchievements());
 	SetDlgItemText(m_hAchievementsDlg, IDC_RA_NUMACH, NativeStr(buffer).c_str());
-	SetDlgItemText( m_hAchievementsDlg, IDC_RA_POINT_TOTAL, NativeStr( std::to_string( g_pActiveAchievements->PointTotal() ) ).c_str() );
+	SetDlgItemText(m_hAchievementsDlg, IDC_RA_POINT_TOTAL, NativeStr(std::to_string(g_pActiveAchievements->PointTotal())).c_str());
 
 	UpdateSelectedAchievementButtons(NULL);
 
@@ -183,7 +189,7 @@ size_t Dlg_Achievements::AddAchievement(HWND hList, const Achievement& Ach)
 		//	Cache this (stack) to ensure it lives until after ListView_*Item
 		//	SD: Is this necessary?
 		tstring sTextData = m_lbxData.back()[item.iSubItem].data();
-		item.pszText = const_cast<LPTSTR>( (LPCTSTR)sTextData.c_str() );
+		item.pszText = const_cast<LPTSTR>((LPCTSTR)sTextData.c_str());
 
 		if (item.iSubItem == 0)
 			item.iItem = ListView_InsertItem(hList, &item);
@@ -228,7 +234,7 @@ BOOL LocalValidateAchievementsBeforeCommit(int nLbxItems[1])
 			return FALSE;
 		}
 
-		char sIllegalChars[] = { '&', ':' };
+		char sIllegalChars[] ={ '&', ':' };
 
 		const size_t nNumIllegalChars = sizeof(sIllegalChars) / sizeof(sIllegalChars[0]);
 		for (size_t i = 0; i < nNumIllegalChars; ++i)
@@ -238,7 +244,7 @@ BOOL LocalValidateAchievementsBeforeCommit(int nLbxItems[1])
 			if (strchr(Ach.Title().c_str(), cNextChar) != nullptr)
 			{
 				sprintf_s(buffer, 2048, "Achievement title contains an illegal character: '%c'\nPlease remove and try again", cNextChar);
-				MessageBox(nullptr,  NativeStr(buffer).c_str(), TEXT("Error!"), MB_OK);
+				MessageBox(nullptr, NativeStr(buffer).c_str(), TEXT("Error!"), MB_OK);
 				return FALSE;
 			}
 			if (strchr(Ach.Description().c_str(), cNextChar) != nullptr)
@@ -341,9 +347,9 @@ void Dlg_Achievements::OnClickAchievementSet(AchievementSetType nAchievementSet)
 		CheckDlgButton(m_hAchievementsDlg, IDC_RA_ACTIVE_LOCAL, TRUE);
 	}
 
-	SetDlgItemText( m_hAchievementsDlg, IDC_RA_POINT_TOTAL, NativeStr( std::to_string( g_pActiveAchievements->PointTotal() ) ).c_str() );
+	SetDlgItemText(m_hAchievementsDlg, IDC_RA_POINT_TOTAL, NativeStr(std::to_string(g_pActiveAchievements->PointTotal())).c_str());
 
-	CheckDlgButton( m_hAchievementsDlg, IDC_RA_CHKACHPROCESSINGACTIVE, g_pActiveAchievements->ProcessingActive() );
+	CheckDlgButton(m_hAchievementsDlg, IDC_RA_CHKACHPROCESSINGACTIVE, g_pActiveAchievements->ProcessingActive());
 	OnLoad_NewRom(g_pCurrentGameData->GetGameID()); // assert: calls UpdateSelectedAchievementButtons
 	g_AchievementEditorDialog.OnLoad_NewRom();
 }
@@ -435,7 +441,7 @@ INT_PTR Dlg_Achievements::AchievementsProc(HWND hwnd, UINT nMsg, WPARAM wParam, 
 						TEXT("to officially obtain this achievement and the points for it.\n"),
 						//TEXT("Note: all players who have achieved it while it has been unofficial\n")
 						//TEXT("will have to earn this again now it is in the core group.\n"),
-						TEXT("Are you sure?"), MB_YESNO|MB_ICONWARNING) == IDYES)
+						TEXT("Are you sure?"), MB_YESNO | MB_ICONWARNING) == IDYES)
 					{
 						const Achievement& selectedAch = g_pActiveAchievements->GetAchievement(nSel);
 
@@ -514,9 +520,14 @@ INT_PTR Dlg_Achievements::AchievementsProc(HWND hwnd, UINT nMsg, WPARAM wParam, 
 					}
 				}
 			}
+
 			else if (MessageBox(hwnd,
-				TEXT("Are you sure that you want to download fresh achievements from ") RA_HOST_URL TEXT("?\n")
-				TEXT("This will overwrite any changes that you have made with fresh achievements from the server.\n"),
+				NativeStr(
+					tfm::format("Are you sure that you want to download fresh"
+						" achievements from %s\n"
+						"This will overwrite any changes that you have made "
+						"with fresh achievements from the server.\n", 
+						RA_HOST_URL)).c_str(),
 				TEXT("Refresh from Server"),
 				MB_YESNO | MB_ICONWARNING) == IDYES)
 			{
@@ -620,7 +631,7 @@ INT_PTR Dlg_Achievements::AchievementsProc(HWND hwnd, UINT nMsg, WPARAM wParam, 
 			char buffer2[16];
 			sprintf_s(buffer2, 16, " %d", g_pActiveAchievements->NumAchievements());
 			SetDlgItemText(m_hAchievementsDlg, IDC_RA_NUMACH, NativeStr(buffer2).c_str());
-			SetDlgItemText( m_hAchievementsDlg, IDC_RA_POINT_TOTAL, NativeStr( std::to_string( g_pActiveAchievements->PointTotal() ) ).c_str() );
+			SetDlgItemText(m_hAchievementsDlg, IDC_RA_POINT_TOTAL, NativeStr(std::to_string(g_pActiveAchievements->PointTotal())).c_str());
 
 			NewClone.SetModified(TRUE);
 			UpdateSelectedAchievementButtons(&NewClone);
@@ -654,14 +665,15 @@ INT_PTR Dlg_Achievements::AchievementsProc(HWND hwnd, UINT nMsg, WPARAM wParam, 
 				}
 				else
 				{
+					auto msg{ tfm::format("This achievement exists on %s.\n\n"
+						"*Removing it will affect other gamers*\n\n"
+						"Are you absolutely sure you want to delete this??",
+						RA_HOST_URL)
+					};
 					//	This achievement exists on the server: must call SQL to remove!
 					//	Note: this is probably going to affect other users: frown on this D:
-					MessageBox(hwnd,
-						TEXT("This achievement exists on ") RA_HOST_URL TEXT(".\n")
-						TEXT("\n")
-						TEXT("*Removing it will affect other gamers*\n")
-						TEXT("\n")
-						TEXT("Are you absolutely sure you want to delete this??"), TEXT("Are you sure?"), MB_YESNO | MB_ICONWARNING);
+					MessageBox(hwnd, TEXT(msg.c_str()), TEXT("Are you sure?"),
+						MB_YESNO | MB_ICONWARNING);
 				}
 			}
 		}
@@ -677,10 +689,10 @@ INT_PTR Dlg_Achievements::AchievementsProc(HWND hwnd, UINT nMsg, WPARAM wParam, 
 				if (g_pActiveAchievements->SaveToFile())
 				{
 					MessageBox(hwnd, TEXT("Saved OK!"), TEXT("OK"), MB_OK);
-					for ( unsigned int i = 0; i < g_pActiveAchievements->NumAchievements(); i++ )
-						g_pActiveAchievements->GetAchievement( i ).SetModified( FALSE );
+					for (unsigned int i = 0; i < g_pActiveAchievements->NumAchievements(); i++)
+						g_pActiveAchievements->GetAchievement(i).SetModified(FALSE);
 
-					InvalidateRect( hwnd, NULL, TRUE );
+					InvalidateRect(hwnd, NULL, TRUE);
 				}
 				else
 				{
@@ -965,9 +977,9 @@ INT_PTR Dlg_Achievements::CommitAchievements(HWND hwnd)
 
 	char message[1024];
 	sprintf_s(message, 1024, "Uploading the selected %d achievement(s).\n"
-							 "Are you sure? This will update the server with your new achievements\n"
-							 "and players will be able to download them into their games immediately.",
-							 nNumChecked);
+		"Are you sure? This will update the server with your new achievements\n"
+		"and players will be able to download them into their games immediately.",
+		nNumChecked);
 
 	BOOL bErrorsEncountered = FALSE;
 
@@ -1126,7 +1138,7 @@ void Dlg_Achievements::OnLoad_NewRom(GameID nGameID)
 
 		sprintf_s(buffer, " %d", g_pActiveAchievements->NumAchievements());
 		SetDlgItemText(m_hAchievementsDlg, IDC_RA_NUMACH, NativeStr(buffer).c_str());
-		SetDlgItemText( m_hAchievementsDlg, IDC_RA_POINT_TOTAL, NativeStr( std::to_string( g_pActiveAchievements->PointTotal() ) ).c_str() );
+		SetDlgItemText(m_hAchievementsDlg, IDC_RA_POINT_TOTAL, NativeStr(std::to_string(g_pActiveAchievements->PointTotal())).c_str());
 	}
 
 	UpdateSelectedAchievementButtons(NULL);
@@ -1152,7 +1164,7 @@ void Dlg_Achievements::OnEditAchievement(const Achievement& ach)
 	{
 		OnEditData(nIndex, Dlg_Achievements::Points, std::to_string(ach.Points()));
 
-		SetDlgItemText( m_hAchievementsDlg, IDC_RA_POINT_TOTAL, NativeStr( std::to_string( g_pActiveAchievements->PointTotal() ) ).c_str() );
+		SetDlgItemText(m_hAchievementsDlg, IDC_RA_POINT_TOTAL, NativeStr(std::to_string(g_pActiveAchievements->PointTotal())).c_str());
 
 		if (g_nActiveAchievementSet == Core)
 			OnEditData(nIndex, Dlg_Achievements::Modified, "Yes");
@@ -1211,7 +1223,7 @@ void Dlg_Achievements::OnEditData(size_t nItem, Column nColumn, const std::strin
 		item.iSubItem = nColumn;
 		item.cchTextMax = 256;
 		tstring sStr = m_lbxData[nItem][nColumn].data();	//	scoped cache
-		item.pszText = const_cast<LPTSTR>( sStr.c_str() );
+		item.pszText = const_cast<LPTSTR>(sStr.c_str());
 		if (ListView_SetItem(hList, &item) == FALSE)
 		{
 			ASSERT(!"Failed to ListView_SetItem!");

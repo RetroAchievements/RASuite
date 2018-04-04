@@ -19,9 +19,14 @@ class Dlg_GameLibrary : public IRA_Dialog
 	// readability
 	using FileQueue        = std::deque<std::string>;
 	using GameEntries      = std::vector<GameEntry>;
-	using GameHashLib      = std::map<std::string, GameID>;
-	using GameTitleLib     = std::map<GameID, std::string>;
-	using ProgressLib      = std::map<GameID, std::string>;
+    // OK I got it, this is supposed to be a hash table but you're using a tree
+    // plus with how big all these files are you might as well make all of the hash tables
+    // To speed up the average lookup time
+	using GameHashLib      = std::unordered_map<std::string, GameID>;
+	using GameTitleLib     = std::unordered_map<GameID, std::string>;
+	using ProgressLib      = std::unordered_map<GameID, std::string>;
+
+    // going to make these two regualar ones and see if that changes anything
 	using ResultMap        = std::map<std::string, std::string>;
 	using VisibleResultMap = std::map<std::string, std::string>;
 public:

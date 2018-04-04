@@ -400,9 +400,10 @@ BOOL AchievementSet::FetchFromWebBlocking( GameID nGameID )
 	}
 	else
 	{
+		auto msg{ tfm::format("Could not connect to %s...", RA_HOST_URL) };
 		//	Could not connect...
 		PopupWindows::AchievementPopups().AddMessage(
-			MessagePopup(std::string("Could not connect to " RA_HOST_URL "..."), "Working offline...", PopupInfo)
+			MessagePopup{ msg, "Working offline...", PopupInfo }
 		);
 
 		return FALSE;

@@ -55,11 +55,18 @@ protected:
 
 struct LB_Entry
 {
+	constexpr bool operator==(const LB_Entry& b) noexcept {
+		return{ this->m_nRank == b.m_nRank };
+	}
 	unsigned int m_nRank;
 	std::string	 m_sUsername;
 	int m_nScore;
 	time_t m_TimeAchieved;
 };
+constexpr bool operator==(const LB_Entry& a, const LB_Entry& b) noexcept {
+	return{ a == b };
+}
+static_assert(is_equality_comparable_v<LB_Entry>);
 
 class RA_Leaderboard
 {
@@ -79,7 +86,16 @@ public:
 public:
 	RA_Leaderboard( const LeaderboardID nLBID );
 	~RA_Leaderboard();
+	
 
+	// Ok we need some operator overloads, assuming each leaderboard is unique
+	// We will only check for the ID. We'll also put some helper callback functions
+	// Can't be constexpr
+	// Every user defined type in here needs on too
+	bool operator==(const RA_Leaderboard& b) noexcept {
+		return{ this->m_nID == b.m_nID };
+	}
+	
 public:
 	void LoadFromJSON( const Value& element );
 	void ParseLine( char* sBuffer );
@@ -127,6 +143,10 @@ private:
 	std::vector<LB_Entry>	m_RankInfo;		//	Recent users ranks
 };
 
+constexpr bool 
+operator==(const RA_Leaderboard& a, const RA_Leaderboard& b) noexcept {
+	return{ a == b };
+}
 
 class RA_LeaderboardManager
 {

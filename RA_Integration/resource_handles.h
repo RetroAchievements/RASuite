@@ -62,8 +62,8 @@ class file_h
 {
 	using fhandle      = std::unique_ptr<FILE, decltype(&_CSTD fclose)>;
 	using deleter_type = fhandle::deleter_type;
-	using element_type = typename std::pointer_traits<fhandle>::element_type;
-	using pointer      = typename std::pointer_traits<fhandle>::pointer;
+	using element_type = FILE;
+	using pointer      = FILE*;
 public:
 	// A FILE* only uses const char*, but could use others
 	// Will throw if it cannot be opened
@@ -80,6 +80,7 @@ public:
 		->typename cstring_h::const_pointer {
 		return filename_.get();
 	}
+	inline auto get() noexcept->pointer { return fp_.get(); }
 private:
 	fhandle fp_;
 	cstring_h filename_;

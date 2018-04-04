@@ -27,7 +27,7 @@ INT_PTR IRA_Dialog::DoModal()
 {
 	bIsModal = true;
 	return DialogBox(g_hThisDLLInst, MAKEINTRESOURCE(nResourceId), g_RAMainWnd,
-		dlgproc);
+		MsgQueue);
 }
 
 
@@ -71,7 +71,7 @@ INT_PTR IRA_Dialog::MsgQueue(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	auto ira{ reinterpret_cast<IRA_Dialog*>(lStorage) };
 
 
-
+	// BN_CLICKED
 	switch (uMsg)
 	{
 		HANDLE_MSG(hwnd, WM_ACTIVATE, ira->Activate);

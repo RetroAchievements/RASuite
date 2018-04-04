@@ -41,7 +41,7 @@ using GbcExtentions  = std::array<cstring, 6>;
 using GbExtentions   = std::array<cstring, 7>;
 using GensExtentions = std::array<cstring, 6>;
 using N64Extentions  = std::array<cstring, 12>;
-using NesExtentions  = std::array<cstring, 10>;
+using NesExtentions  = std::array<cstring, 9>;
 using PceExtentions  = std::array<cstring, 4>; // Never gonna test it, the emu is unreliable
 using S32xExtentions = std::array<cstring, 2>;
 using ScdExtentions  = std::array<cstring, 3>;
@@ -75,8 +75,9 @@ constexpr N64Extentions n64_ext{
 	"*.bin", "*.ndd", "*.zip", "*.7z"
 };
 
+// There's also *.pas but I think only Nestopia supports that
 constexpr NesExtentions nes_ext{
-	"*.nes", "*.nsf", "*.fds", "*.unf", "*.pas", "*.zip", "*.rar", "*.7z",
+	"*.nes", "*.nsf", "*.fds", "*.unf", "*.zip", "*.rar", "*.7z",
 	"*.zip", "*.gz"
 };
 
@@ -176,11 +177,9 @@ void Dlg_GameLibrary::ParseGameHashLibraryFromFile(GameHashLib& gamehash_libary)
 			if (iter->name.IsNull() || iter->value.IsNull())
 				continue;
 
-			// unless the warning is high enough "/Wall" aliases don't trigger
-			// a warning since they don't declare a type they just use a type
-			const auto nID{ iter->value.GetUint() };
-			// somthing's fucked up
-			gamehash_libary[iter->name.GetString()] = nID;
+
+			gamehash_libary.emplace(iter->name.GetString(),
+				iter->value.GetUint());
 		} // end for
 	} // end if
 } // end function ParseGameHashLibraryFromFile
@@ -202,13 +201,18 @@ void Dlg_GameLibrary::ParseGameTitlesFromFile(GameTitleLib& gametitle_libary)
 		// I swear I've seen this function before...
 		for (auto iter = List.MemberBegin(); iter != List.MemberEnd(); ++iter)
 		{
+            // This should not be allowed to happen
 			if (iter->name.IsNull() || iter->value.IsNull())
 				continue;
 
 			const auto nID{ std::stoul(iter->name.GetString()) };
 			// Someone needs to check how this is done because this
 			// happens everywhere, it overflows if checked
-			gametitle_libary[nID] = iter->value.GetString();
+
+            // Finally remembered, it's because this is the wrong way to add
+            // stuff to a dictionary
+
+			gametitle_libary.emplace(nID, iter->value.GetString());
 		} // end for
 	} // end if
 } // end function ParseGameTitlesFromFile
@@ -248,7 +252,7 @@ void Dlg_GameLibrary::ParseMyProgressFromFile(ProgressLib& progress_library)
 				tfm::format(sstr, " (%1.1f%%)", res);
 			} // end if
 			// again? damn
-			progress_library[nID] = sstr.str();
+			progress_library.emplace(nID, sstr.str());
 		} // end for
 	} // end if
 } // end function ParseMyProgressFromFile  
@@ -353,9 +357,7 @@ void Dlg_GameLibrary::ThreadedScanProc() //noexcept
 		} // end if
 		mtx.unlock();
 
-		// This opens and closes automatically, otherwise throws an exception
-		// if this file always exists it won't throw
-		std::ifstream ifile{ FilesToScan.front(), std::ios::binary };
+
 
 		// weird... simple test
 		// ok it works now, needs to use value_type instead of actual type
@@ -363,18 +365,56 @@ void Dlg_GameLibrary::ThreadedScanProc() //noexcept
 		static_assert(is_char_v<std::string::value_type>);
 
 		// obtain file size:
-		auto fsize{ filesize(FilesToScan.front()) };
+        // Ok it's giving me a real number now
+        // Checking "Zunou Senkan Galg (Japan).nes"
+		// size: 40.0 KB (40,976 bytes)
+        // size on disk: 44.0 KB (45,056 bytes)
+        // fsize: 40976, YES!!!!!!!!! This was the problem, very proud to have figured it out.
+
+		auto fsize{
+			static_cast<std::streamsize>(filesize(FilesToScan.front()))
+		};
+		// a bit a strech 
+		
+        // would it make more sense to use the numeric_limit of unsigned char
+#undef max
+        // don't care, C++ has one anyway
+		constexpr auto cap{ 6 * 1024 * 1024 }; // 7
 
 
-		constexpr auto cap{ std::size_t{ 6 * 1024 * 1024 } };
+        // OK, it can't use conversions inside it
+        
 
-		DataStream dstream;
-		dstream.reserve(cap);
-		ifile.read(DataStreamAsString(dstream).data(), fsize); //Check
-        // more god damn bounds problems
-		Results[FilesToScan.front()] = RAGenerateMD5(dstream.c_str(),
-			static_cast<std::size_t>(fsize));
+		// This opens and closes automatically, otherwise throws an exception
+		// if this file always exists it won't throw
+		// let's try something else
+		//auto dfilename{stodata_stream(FilesToScan.front())};
+		Data_ifstream ifile{ FilesToScan.front(), std::ios::binary};
+        // ................
+		auto dstr = new BYTE[cap];
+        // I hate pointers and their damn access violations
+        // Still wrong MD5, last resort
+		ifile.read(dstr, fsize);
+        
+        // this crap is giving the wrong MD5
+        // Getting this weird string
+        // game: "Zunou Senkan Galg (Japan).nes"
+        // str: "NES\x1a\x2\x1" is that expected?
+        // It's getting closer but still wrong
+        // What we need:        f5a9605e36ce33f2d6b9160f7d5124ae
+        // A little bit closer: f23b3fb954701b22ca16258e25d3e1c4
+        // Tried the old way and it made no difference
 
+        // These all give different results, none of them are correct!
+        // just to see it faster
+		auto md5_tmp = RAGenerateMD5(DataStream{ dstr }); // "729af7ee2cf263834c44850ce43fb694"
+		auto md5_tmp2 = RAGenerateMD5(DataStreamAsString(dstr)); // "f23b3fb954701b22ca16258e25d3e1c4"
+		auto md5_tmp3 = RAGenerateMD5(dstr, static_cast<size_t>(fsize)); // "6feacb4ce68100d10d50336912a5bd12", "f14332e7a1fd953d07f3dfcb25026535"
+
+		Results.emplace(FilesToScan.front(), RAGenerateMD5(DataStream{ dstr }));
+
+		if (dstr)
+			delete dstr;
 		// WM_TIMER is a nonqueued message so it's posted
 		// Could use OnTimer instead but doesn't have a TimerProc or default
 		OnTimer(m_hGameLibWnd, 0U);
@@ -781,7 +821,7 @@ BOOL Dlg_GameLibrary::OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
 	m_GameHashLibrary.clear();
 	m_GameTitlesLibrary.clear();
 	m_ProgressLibrary.clear();
-	ParseGameHashLibraryFromFile(m_GameHashLibrary);
+	ParseGameHashLibraryFromFile(m_GameHashLibrary); // function is fine after switching to a hash table
 	ParseGameTitlesFromFile(m_GameTitlesLibrary);
 	ParseMyProgressFromFile(m_ProgressLibrary);
 
@@ -794,6 +834,10 @@ BOOL Dlg_GameLibrary::OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
 
 void Dlg_GameLibrary::OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
+    // Alright initially codeNotify is 1024(not sure),
+	// and id is 1593 (IDC_RA_ROMDIR)
+    // We made hwndCtls in to members because I don't know which control it is
+    // IDC_GLIBNAME is getting passed now...
 	switch (id)
 	{
 	case IDOK:

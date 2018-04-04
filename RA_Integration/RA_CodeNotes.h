@@ -5,11 +5,19 @@
 class CodeNotes
 {
 public:
+    // This really shouldn't be nested but w/e
 	class CodeNoteObj
 	{
 	public:
 		CodeNoteObj( const std::string& sAuthor, std::string sNote ) : 
 		  m_sAuthor( sAuthor ), m_sNote( sNote ) {}
+
+		bool operator==(const CodeNoteObj& b) noexcept {
+			return {
+				this->m_sAuthor == b.m_sAuthor &&
+				this->m_sAuthor == b.m_sNote
+			};
+		}
 
 	public:
 		const std::string& Author() const			{ return m_sAuthor; }
@@ -46,3 +54,9 @@ public:
 private:
 	std::map<ByteAddress, CodeNoteObj> m_CodeNotes;
 };
+
+using cnobj = CodeNotes::CodeNoteObj;
+
+constexpr bool operator==(const cnobj& a, const cnobj& b) noexcept {
+	return { a == b };
+}
