@@ -44,7 +44,7 @@ Dlg_AchievementEditor g_AchievementEditorDialog;
 std::vector<ResizeContent> vDlgAchEditorResize;
 POINT pDlgAchEditorMin;
 
-INT_PTR CALLBACK AchProgressProc(HWND hwnd, UINT nMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK AchProgressProc(HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (nMsg)
 	{
@@ -59,12 +59,12 @@ INT_PTR CALLBACK AchProgressProc(HWND hwnd, UINT nMsg, WPARAM wParam, LPARAM lPa
 		switch (LOWORD(wParam))
 		{
 		case IDC_RA_ACHPROGRESSENABLE:
-			//BOOL bEnabled = IsDlgButtonChecked( hwnd, IDC_RA_ACHPROGRESSENABLE );
+			//BOOL bEnabled = IsDlgButtonChecked( hDlg, IDC_RA_ACHPROGRESSENABLE );
 			return FALSE;
 
 		case IDOK:
 		case IDCLOSE:
-			EndDialog(hwnd, true);
+			EndDialog(hDlg, true);
 			return TRUE;
 
 		default:
@@ -73,7 +73,7 @@ INT_PTR CALLBACK AchProgressProc(HWND hwnd, UINT nMsg, WPARAM wParam, LPARAM lPa
 	}
 
 	case WM_DESTROY:
-		EndDialog(hwnd, true);
+		EndDialog(hDlg, true);
 		return FALSE;
 	}
 
@@ -225,7 +225,7 @@ void Dlg_AchievementEditor::UpdateCondition(HWND hList, LV_ITEM& item, const Con
 }
 
 
-// LRESULT CALLBACK ICEDialogProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+// LRESULT CALLBACK ICEDialogProc( HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
 // {
 // 	BOOL bFullyHandled = FALSE;
 // 
@@ -237,15 +237,15 @@ void Dlg_AchievementEditor::UpdateCondition(HWND hList, LV_ITEM& item, const Con
 // 
 // // 			{
 // // 				//	Disable the underlying dialog!
-// // 				HWND hwnd2 = g_AchievementEditorDialog.GetHWND();
-// // 				HWND hLbx = GetDlgItem( hwnd2, IDC_RA_LBX_CONDITIONS );
+// // 				HWND hDlg2 = g_AchievementEditorDialog.GetHWND();
+// // 				HWND hLbx = GetDlgItem( hDlg2, IDC_RA_LBX_CONDITIONS );
 // // 				DWORD nStyle = GetWindowStyle( hLbx );
 // // 				nStyle &= ~WS_VISIBLE;
 // // 				SetWindowLongPtr( hLbx, GWL_EXSTYLE, nStyle );
 // // 				UpdateWindow( hLbx );
 // // 			}
 // 
-// 			//ComboBox_ShowDropdown( hwnd, TRUE );
+// 			//ComboBox_ShowDropdown( hDlg, TRUE );
 // 			int i = ComboBox_GetCurSel( g_AchievementEditorDialog.GetICEControl() );
 // 
 // 			bFullyHandled = TRUE;
@@ -253,9 +253,9 @@ void Dlg_AchievementEditor::UpdateCondition(HWND hList, LV_ITEM& item, const Con
 // 		}
 // 	case WM_SETFOCUS:
 // 		{
-// 			//BringWindowToTop( hwnd );
+// 			//BringWindowToTop( hDlg );
 // 
-// 			//EndDialog( hwnd, FALSE );
+// 			//EndDialog( hDlg, FALSE );
 // 			//AchievementEditorDialog.SetICEControl( NULL );
 // 			//m_hICEControl = NULL;	//	end of life
 // 			bFullyHandled = FALSE;
@@ -263,12 +263,12 @@ void Dlg_AchievementEditor::UpdateCondition(HWND hList, LV_ITEM& item, const Con
 // 		}
 // 	case WM_KILLFOCUS:
 // 		{
-// 			//EndDialog( hwnd, FALSE );
+// 			//EndDialog( hDlg, FALSE );
 // 			//g_AchievementEditorDialog.SetICEControl( NULL );
 // // 
 // // 			{
-// // 				HWND hwnd = g_AchievementEditorDialog.GetHWND();
-// // 				HWND hLbx = GetDlgItem( hwnd, IDC_RA_LBX_CONDITIONS );
+// // 				HWND hDlg = g_AchievementEditorDialog.GetHWND();
+// // 				HWND hLbx = GetDlgItem( hDlg, IDC_RA_LBX_CONDITIONS );
 // // 				DWORD nStyle = GetWindowStyle( hLbx );
 // // 				nStyle |= WS_VISIBLE;
 // // 				SetWindowLongPtr( hLbx, GWL_EXSTYLE, nStyle );
@@ -283,7 +283,7 @@ void Dlg_AchievementEditor::UpdateCondition(HWND hList, LV_ITEM& item, const Con
 // 			case IDC_CBODROPDOWN:
 // 			case CBN_SELENDOK:
 // 			{
-// 				HWND hCbo = GetDlgItem( hwnd, IDC_CBODROPDOWN );
+// 				HWND hCbo = GetDlgItem( hDlg, IDC_CBODROPDOWN );
 // 
 // 				char buffer[255];
 // 				sprintf_s( buffer, "NewVal: %d", ComboBox_GetCurSel( hCbo ) );
@@ -292,12 +292,12 @@ void Dlg_AchievementEditor::UpdateCondition(HWND hList, LV_ITEM& item, const Con
 // 			}
 // 			break;
 // 		}
-// 			//EndDialog( hwnd, FALSE );
+// 			//EndDialog( hDlg, FALSE );
 // 			//g_AchievementEditorDialog.SetICEControl( NULL );
 // 			// 
 // 			// 			{
-// 			// 				HWND hwnd = g_AchievementEditorDialog.GetHWND();
-// 			// 				HWND hLbx = GetDlgItem( hwnd, IDC_RA_LBX_CONDITIONS );
+// 			// 				HWND hDlg = g_AchievementEditorDialog.GetHWND();
+// 			// 				HWND hLbx = GetDlgItem( hDlg, IDC_RA_LBX_CONDITIONS );
 // 			// 				DWORD nStyle = GetWindowStyle( hLbx );
 // 			// 				nStyle |= WS_VISIBLE;
 // 			// 				SetWindowLongPtr( hLbx, GWL_EXSTYLE, nStyle );
@@ -798,13 +798,13 @@ BOOL CreateIPE(int nItem, int nSubItem)
 
 
 //static
-INT_PTR CALLBACK Dlg_AchievementEditor::s_AchievementEditorProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK Dlg_AchievementEditor::s_AchievementEditorProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	//	Intercept some msgs?
-	return g_AchievementEditorDialog.AchievementEditorProc(hwnd, uMsg, wParam, lParam);
+	return g_AchievementEditorDialog.AchievementEditorProc(hDlg, uMsg, wParam, lParam);
 }
 
-INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	BOOL bHandled = TRUE;
 
@@ -830,12 +830,12 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 
 	case WM_INITDIALOG:
 	{
-		m_hAchievementEditorDlg = hwnd;
-		GenerateResizes(hwnd);
+		m_hAchievementEditorDlg = hDlg;
+		GenerateResizes(hDlg);
 
 		HWND hList = GetDlgItem(m_hAchievementEditorDlg, IDC_RA_LBX_CONDITIONS);
 		SetupColumns(hList);
-		CheckDlgButton(hwnd, IDC_RA_CHK_SHOW_DECIMALS, g_bPreferDecimalVal);
+		CheckDlgButton(hDlg, IDC_RA_CHK_SHOW_DECIMALS, g_bPreferDecimalVal);
 
 		//	For scanning changes to achievement conditions (hit counts)
 		SetTimer(m_hAchievementEditorDlg, 1, 200, (TIMERPROC)s_AchievementEditorProc);
@@ -844,15 +844,15 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 		m_BadgeNames.FetchNewBadgeNamesThreaded();
 
 		if (m_pSelectedAchievement != NULL)
-			RepopulateGroupList(m_pSelectedAchievement);
+  		    RepopulateGroupList(m_pSelectedAchievement);
 
 		if (!CanCausePause())
 		{
-			ShowWindow(GetDlgItem(m_hAchievementEditorDlg, IDC_RA_CHK_ACH_PAUSE_ON_TRIGGER), SW_HIDE);
-			ShowWindow(GetDlgItem(m_hAchievementEditorDlg, IDC_RA_CHK_ACH_PAUSE_ON_RESET), SW_HIDE);
+            ShowWindow(GetDlgItem(m_hAchievementEditorDlg, IDC_RA_CHK_ACH_PAUSE_ON_TRIGGER), SW_HIDE);
+            ShowWindow(GetDlgItem(m_hAchievementEditorDlg, IDC_RA_CHK_ACH_PAUSE_ON_RESET), SW_HIDE);
 		}
 
-		RestoreWindowPosition(hwnd, "Achievement Editor", true, true);
+		RestoreWindowPosition(hDlg, "Achievement Editor", true, true);
 	}
 	return TRUE;
 
@@ -866,26 +866,26 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 	case WM_SIZE:
 	{
 		RARect winRect;
-		GetWindowRect( hwnd, &winRect );
+		GetWindowRect( hDlg, &winRect );
 
 		for ( ResizeContent content : vDlgAchEditorResize )
 			content.Resize( winRect.Width(), winRect.Height() );
 
-		InvalidateRect( hwnd, NULL, TRUE );
+		InvalidateRect( hDlg, NULL, TRUE );
 
-		RememberWindowSize(hwnd, "Achievement Editor");
+		RememberWindowSize(hDlg, "Achievement Editor");
 	}
 	break;
 
 	case WM_MOVE:
-		RememberWindowPosition(hwnd, "Achievement Editor");
+		RememberWindowPosition(hDlg, "Achievement Editor");
 		break;
 
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
 		case IDCLOSE:
-			EndDialog(hwnd, true);
+			EndDialog(hDlg, true);
 			bHandled = TRUE;
 			break;
 
@@ -894,7 +894,7 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 			g_bPreferDecimalVal = !g_bPreferDecimalVal;
 			if (ActiveAchievement() != NULL)
 			{
-				ActiveAchievement()->SetDirtyFlag(df::Dirty__All);
+				ActiveAchievement()->SetDirtyFlag(Dirty__All);
 				LoadAchievement(ActiveAchievement(), TRUE);
 				ActiveAchievement()->ClearDirtyFlag();
 			}
@@ -906,7 +906,7 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 			if (ActiveAchievement() != NULL)
 			{
 				SendMessage(g_AchievementsDialog.GetHWND(), WM_COMMAND, IDC_RA_RESET_ACH, NULL);
-				CheckDlgButton(hwnd, IDC_RA_CHK_ACH_ACTIVE, ActiveAchievement()->Active());
+				CheckDlgButton(hDlg, IDC_RA_CHK_ACH_ACTIVE, ActiveAchievement()->Active());
 			}
 			bHandled = TRUE;
 			break;
@@ -931,7 +931,7 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 
 		// 		case ID_SELECT_ALL:
 		// 			{
-		// 				HWND hList = GetDlgItem( hwnd, IDC_RA_LBX_CONDITIONS );
+		// 				HWND hList = GetDlgItem( hDlg, IDC_RA_LBX_CONDITIONS );
 		// 				for( size_t i = 0; i < m_nNumOccupiedRows; ++i )
 		// 					ListView_SetCheckState( hList, i, TRUE );
 		// 				bHandled = TRUE;
@@ -946,7 +946,7 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 			// 					break;
 			// 				}
 
-			HWND hBadgeNameCtrl = GetDlgItem(hwnd, IDC_RA_BADGENAME);
+			HWND hBadgeNameCtrl = GetDlgItem(hDlg, IDC_RA_BADGENAME);
 			switch (HIWORD(wParam))
 			{
 			case CBN_SELENDOK:
@@ -968,8 +968,8 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 
 		case IDC_RA_PROGRESSINDICATORS:
 		{
-			DialogBox((HINSTANCE)(GetModuleHandle(NULL)), MAKEINTRESOURCE(IDD_RA_ACHIEVEMENTPROGRESS), hwnd, AchProgressProc);
-			//DialogBox( ghInstance, MAKEINTRESOURCE(IDD_RA_ACHIEVEMENTPROGRESS), hwnd, AchProgressProc );
+			DialogBox((HINSTANCE)(GetModuleHandle(NULL)), MAKEINTRESOURCE(IDD_RA_ACHIEVEMENTPROGRESS), hDlg, AchProgressProc);
+			//DialogBox( ghInstance, MAKEINTRESOURCE(IDD_RA_ACHIEVEMENTPROGRESS), hDlg, AchProgressProc );
 			bHandled = TRUE;
 		}
 		break;
@@ -1001,7 +1001,7 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 				{
 					//	Implicit updating:
 					TCHAR buffer[1024];
-					if (GetDlgItemText(hwnd, IDC_RA_ACH_TITLE, buffer, 1024))
+					if (GetDlgItemText(hDlg, IDC_RA_ACH_TITLE, buffer, 1024))
 					{
 						pActiveAch->SetTitle(NativeStr(buffer));
 
@@ -1042,7 +1042,7 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 				//	Implicit updating:
 				//char* psDesc = g_AchievementsDialog.LbxDataAt( nSelectedIndex, (int)Dlg_Achievements:: );
 				TCHAR buffer[128];
-				if (GetDlgItemText(hwnd, IDC_RA_ACH_DESC, buffer, 128))
+				if (GetDlgItemText(hDlg, IDC_RA_ACH_DESC, buffer, 128))
 					pActiveAch->SetDescription(Narrow(buffer));
 			}
 			break;
@@ -1062,7 +1062,7 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 					return FALSE;
 
 				TCHAR buffer[16];
-				if (GetDlgItemText(hwnd, IDC_RA_ACH_POINTS, buffer, 16))
+				if (GetDlgItemText(hDlg, IDC_RA_ACH_POINTS, buffer, 16))
 				{
 					int nVal = strtol(NativeStr(buffer).c_str(), nullptr, 10);
 					if (nVal < 0 || nVal > 100)
@@ -1114,14 +1114,15 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 			pActiveAch->ClearDirtyFlag();
 
 			//	Select last item
-			HWND hList = GetDlgItem(hwnd, IDC_RA_LBX_CONDITIONS);
+			HWND hList = GetDlgItem(hDlg, IDC_RA_LBX_CONDITIONS);
 			ListView_SetItemState(hList, nNewID, LVIS_FOCUSED | LVIS_SELECTED, -1);
 			ListView_EnsureVisible(hList, nNewID, FALSE);
 		}
 		break;
+
 		case IDC_RA_COPYCOND:
 		{
-			HWND hList = GetDlgItem(hwnd, IDC_RA_LBX_CONDITIONS);
+			HWND hList = GetDlgItem(hDlg, IDC_RA_LBX_CONDITIONS);
 			Achievement* pActiveAch = ActiveAchievement();
 			if (pActiveAch != NULL)
 			{
@@ -1148,9 +1149,10 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 			}
 		}
 		break;
+
 		case IDC_RA_PASTECOND:
 		{
-			HWND hList = GetDlgItem(hwnd, IDC_RA_LBX_CONDITIONS);
+			HWND hList = GetDlgItem(hDlg, IDC_RA_LBX_CONDITIONS);
 			Achievement* pActiveAch = ActiveAchievement();
 
 			if (pActiveAch != NULL)
@@ -1176,9 +1178,10 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 			}
 		}
 		break;
+
 		case IDC_RA_DELETECOND:
 		{
-			HWND hList = GetDlgItem(hwnd, IDC_RA_LBX_CONDITIONS);
+			HWND hList = GetDlgItem(hDlg, IDC_RA_LBX_CONDITIONS);
 			int nSel = ListView_GetNextItem(hList, -1, LVNI_SELECTED);
 
 			if (nSel != -1)
@@ -1190,9 +1193,8 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 
 					char buffer[256];
 					sprintf_s(buffer, 256, "Are you sure you wish to delete %d condition(s)?", uSelectedCount);
-					if (MessageBox(hwnd, NativeStr(buffer).c_str(), TEXT("Warning"), MB_YESNO) == IDYES)
+					if (MessageBox(hDlg, NativeStr(buffer).c_str(), TEXT("Warning"), MB_YESNO) == IDYES)
 					{
-
 						nSel = -1;
 						std::vector<int> items;
 
@@ -1220,6 +1222,118 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 		}
 		break;
 
+		case IDC_RA_MOVECONDUP:
+		{
+			HWND hList = GetDlgItem(hDlg, IDC_RA_LBX_CONDITIONS);
+			Achievement* pActiveAch = ActiveAchievement();
+			if (pActiveAch != NULL)
+			{
+				int nSelectedIndex = ListView_GetNextItem(hList, -1, LVNI_SELECTED);
+				if (nSelectedIndex >= 0)
+				{
+					//  Get conditions to move
+					std::vector<Condition> conditionsToMove;
+					size_t nSelectedConditionGroup = GetSelectedConditionGroup();
+
+					for (int i = nSelectedIndex; i >= 0; i = ListView_GetNextItem(hList, i, LVNI_SELECTED))
+					{
+						// as we remove items, the index within the achievement changes, but not in the UI until we refresh
+						size_t nUpdatedIndex = static_cast<size_t>(i) - conditionsToMove.size(); 
+
+						const Condition& CondToMove = pActiveAch->GetCondition(nSelectedConditionGroup, static_cast<size_t>(nUpdatedIndex));
+						conditionsToMove.push_back(std::move(CondToMove));
+						pActiveAch->RemoveCondition(nSelectedConditionGroup, static_cast<size_t>(nUpdatedIndex));
+					}
+
+					//  Insert at new location
+					int nInsertIndex = (nSelectedIndex > 0) ? nSelectedIndex - 1 : 0;
+					size_t nInsertCount = conditionsToMove.size();
+
+					for (size_t i = 0; i < nInsertCount; ++i)
+					{
+						const Condition& CondToMove = conditionsToMove[i];
+						pActiveAch->InsertCondition(nSelectedConditionGroup, nInsertIndex + i, CondToMove);
+					}
+
+					//	Set this achievement as 'modified'
+					pActiveAch->SetModified(TRUE);
+					g_AchievementsDialog.OnEditAchievement(*pActiveAch);
+
+					//	Refresh:
+					LoadAchievement(pActiveAch, TRUE);
+
+					//  Update selections
+					ListView_SetItemState(hList, -1, LVIF_STATE, LVIS_SELECTED);
+					for (size_t i = 0; i < nInsertCount; ++i)
+						ListView_SetItemState(hList, nInsertIndex + i, LVIS_FOCUSED | LVIS_SELECTED, -1);
+
+					ListView_EnsureVisible(hList, nInsertIndex, FALSE);
+				}
+
+				SetFocus(hList);
+				bHandled = TRUE;
+			}
+		}
+		break;
+
+		case IDC_RA_MOVECONDDOWN:
+		{
+			HWND hList = GetDlgItem(hDlg, IDC_RA_LBX_CONDITIONS);
+			Achievement* pActiveAch = ActiveAchievement();
+			if (pActiveAch != NULL)
+			{
+				int nSelectedIndex = ListView_GetNextItem(hList, -1, LVNI_SELECTED);
+				if (nSelectedIndex >= 0)
+				{
+					//  Get conditions to move
+					std::vector<Condition> conditionsToMove;
+					size_t nSelectedConditionGroup = GetSelectedConditionGroup();
+
+					for (int i = nSelectedIndex; i >= 0; i = ListView_GetNextItem(hList, i, LVNI_SELECTED))
+					{
+						// as we remove items, the index within the achievement changes, but not in the UI until we refresh
+						size_t nUpdatedIndex = static_cast<size_t>(i) - conditionsToMove.size();
+
+						const Condition& CondToMove = pActiveAch->GetCondition(nSelectedConditionGroup, static_cast<size_t>(nUpdatedIndex));
+						conditionsToMove.push_back(std::move(CondToMove));
+						pActiveAch->RemoveCondition(nSelectedConditionGroup, static_cast<size_t>(nUpdatedIndex));
+
+						// want to insert after last selected item, update nSelectedIndex
+						nSelectedIndex = nUpdatedIndex;
+					}
+
+					//  Insert at new location
+					int nConditionCount = pActiveAch->NumConditions(nSelectedConditionGroup);
+					int nInsertIndex = (nSelectedIndex < nConditionCount) ? nSelectedIndex + 1 : nConditionCount;
+					size_t nInsertCount = conditionsToMove.size();
+
+					for (size_t i = 0; i < nInsertCount; ++i)
+					{
+						const Condition& CondToMove = conditionsToMove[i];
+						pActiveAch->InsertCondition(nSelectedConditionGroup, nInsertIndex + i, CondToMove);
+					}
+
+					//	Set this achievement as 'modified'
+					pActiveAch->SetModified(TRUE);
+					g_AchievementsDialog.OnEditAchievement(*pActiveAch);
+
+					//	Refresh:
+					LoadAchievement(pActiveAch, TRUE);
+
+					//  Update selections
+					ListView_SetItemState(hList, -1, LVIF_STATE, LVIS_SELECTED);
+					for (size_t i = 0; i < nInsertCount; ++i)
+						ListView_SetItemState(hList, nInsertIndex + i, LVIS_FOCUSED | LVIS_SELECTED, -1);
+
+					ListView_EnsureVisible(hList, nInsertIndex, FALSE);
+				}
+
+				SetFocus(hList);
+				bHandled = TRUE;
+			}
+		}
+		break;
+
 		case IDC_RA_UPLOAD_BADGE:
 		{
 			SetCurrentDirectory(TEXT("\\"));
@@ -1231,7 +1345,7 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 			OPENFILENAME ofn;
 			ZeroMemory(&ofn, sizeof(OPENFILENAME));
 			ofn.lStructSize = sizeof(OPENFILENAME);
-			ofn.hwndOwner = hwnd;
+			ofn.hwndOwner = hDlg;
 			ofn.hInstance = static_cast<HINSTANCE>(GetModuleHandle(nullptr));
 			ofn.lpstrFile = buffer;
 			ofn.nMaxFile = BUF_SIZE - 1;
@@ -1504,7 +1618,7 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 			}
 
 			//	Inject the new text into the lbx
-			SendDlgItemMessage(hwnd, IDC_RA_LBX_CONDITIONS, LVM_SETITEMTEXT, (WPARAM)lvItem.iItem, (LPARAM)&lvItem); // put new text
+			SendDlgItemMessage(hDlg, IDC_RA_LBX_CONDITIONS, LVM_SETITEMTEXT, (WPARAM)lvItem.iItem, (LPARAM)&lvItem); // put new text
 
 			//	Update the cached data:
 			strcpy_s(sData, MEM_STRING_TEXT_LEN, Narrow(pDispInfo->item.pszText).c_str());
@@ -1520,7 +1634,7 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 					if ( strcmp( sData, CONDITIONTYPE_STR[ i ] ) == 0 )
 						rCond.SetConditionType( static_cast<Condition::ConditionType>( i ) );
 				}
-				UpdateCondition( GetDlgItem( hwnd, IDC_RA_LBX_CONDITIONS ), pDispInfo->item, rCond );
+				UpdateCondition( GetDlgItem( hDlg, IDC_RA_LBX_CONDITIONS ), pDispInfo->item, rCond );
 				break;
 			}
 			case CSI_TYPE_SRC:
@@ -1616,7 +1730,7 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 	}
 	break;
 	case WM_CLOSE:
-		EndDialog(hwnd, true);
+		EndDialog(hDlg, true);
 		bHandled = TRUE;
 		break;
 		// 	case WM_LBUTTONDOWN:
@@ -1626,7 +1740,7 @@ INT_PTR Dlg_AchievementEditor::AchievementEditorProc(HWND hwnd, UINT uMsg, WPARA
 	}
 
 	return !bHandled;
-	//return DefWindowProc( hwnd, uMsg, wParam, lParam );
+	//return DefWindowProc( hDlg, uMsg, wParam, lParam );
 }
 
 void Dlg_AchievementEditor::UpdateSelectedBadgeImage(const std::string& sBackupBadgeToUse)
@@ -1820,23 +1934,23 @@ void Dlg_AchievementEditor::LoadAchievement(Achievement* pCheevo, BOOL bAttemptK
 
 		m_bPopulatingAchievementEditorData = TRUE;
 
-		if (pCheevo->GetDirtyFlags() & df::id)
+		if (pCheevo->GetDirtyFlags() & Dirty_ID)
 			SetDlgItemText(m_hAchievementEditorDlg, IDC_RA_ACH_ID, NativeStr(std::to_string(m_pSelectedAchievement->ID())).c_str());
-		if ((pCheevo->GetDirtyFlags() & df::points) && !bPointsSelected)
+		if ((pCheevo->GetDirtyFlags() & Dirty_Points) && !bPointsSelected)
 			SetDlgItemText(m_hAchievementEditorDlg, IDC_RA_ACH_POINTS, NativeStr(std::to_string(m_pSelectedAchievement->Points())).c_str());
-		if ((pCheevo->GetDirtyFlags() & df::title) && !bTitleSelected)
+		if ((pCheevo->GetDirtyFlags() & Dirty_Title) && !bTitleSelected)
 			SetDlgItemText(m_hAchievementEditorDlg, IDC_RA_ACH_TITLE, NativeStr(m_pSelectedAchievement->Title()).c_str());
-		if ((pCheevo->GetDirtyFlags() & df::description) && !bDescSelected)
+		if ((pCheevo->GetDirtyFlags() & Dirty_Description) && !bDescSelected)
 			SetDlgItemText(m_hAchievementEditorDlg, IDC_RA_ACH_DESC, NativeStr(m_pSelectedAchievement->Description()).c_str());
-		if (pCheevo->GetDirtyFlags() & df::author)
+		if (pCheevo->GetDirtyFlags() & Dirty_Author)
 			SetDlgItemText(m_hAchievementEditorDlg, IDC_RA_ACH_AUTHOR, NativeStr(m_pSelectedAchievement->Author()).c_str());
-		if (pCheevo->GetDirtyFlags() & df::badge)
+		if (pCheevo->GetDirtyFlags() & Dirty_Badge)
 		{
 			SetDlgItemText(m_hAchievementEditorDlg, IDC_RA_BADGENAME, NativeStr(m_pSelectedAchievement->BadgeImageURI()).c_str());
 			UpdateBadge(m_pSelectedAchievement->BadgeImageURI());
 		}
 
-		if (pCheevo->GetDirtyFlags() & df::conditions)
+		if (pCheevo->GetDirtyFlags() & Dirty_Conditions)
 		{
 			HWND hCondList = GetDlgItem(m_hAchievementEditorDlg, IDC_RA_LBX_CONDITIONS);
 			if (hCondList != NULL)
@@ -1972,40 +2086,44 @@ void BadgeNames::AddNewBadgeName(const char* pStr, bool bAndSelect)
 	}
 }
 
-void GenerateResizes(HWND hwnd)
+void GenerateResizes(HWND hDlg)
 {
 	RARect windowRect;
-	GetWindowRect ( hwnd, &windowRect );
+	GetWindowRect ( hDlg, &windowRect );
 	pDlgAchEditorMin.x = windowRect.Width();
 	pDlgAchEditorMin.y = windowRect.Height();
 
-	vDlgAchEditorResize.push_back ( ResizeContent( hwnd,
-		GetDlgItem( hwnd, IDC_RA_LBX_CONDITIONS ), ResizeContent::ALIGN_BOTTOM_RIGHT, TRUE ) );
-	vDlgAchEditorResize.push_back ( ResizeContent( hwnd,
-		GetDlgItem( hwnd, IDC_RA_ACH_GROUP ), ResizeContent::ALIGN_BOTTOM, TRUE ) );
+	vDlgAchEditorResize.push_back ( ResizeContent( hDlg,
+		GetDlgItem( hDlg, IDC_RA_LBX_CONDITIONS ), ResizeContent::ALIGN_BOTTOM_RIGHT, TRUE ) );
+	vDlgAchEditorResize.push_back ( ResizeContent( hDlg,
+		GetDlgItem( hDlg, IDC_RA_ACH_GROUP ), ResizeContent::ALIGN_BOTTOM, TRUE ) );
 
-	vDlgAchEditorResize.push_back ( ResizeContent( hwnd,
-		GetDlgItem( hwnd, IDC_RA_CHK_ACH_PAUSE_ON_RESET ), ResizeContent::ALIGN_RIGHT, FALSE ) );
-	vDlgAchEditorResize.push_back ( ResizeContent( hwnd,
-		GetDlgItem( hwnd, IDC_RA_CHK_ACH_PAUSE_ON_TRIGGER ), ResizeContent::ALIGN_RIGHT, FALSE ) );
-	vDlgAchEditorResize.push_back ( ResizeContent( hwnd,
-		GetDlgItem( hwnd, IDC_RA_CHK_ACH_ACTIVE ), ResizeContent::ALIGN_RIGHT, FALSE ) );
-	vDlgAchEditorResize.push_back ( ResizeContent( hwnd,
-		GetDlgItem( hwnd, IDC_RA_CHK_SHOW_DECIMALS ), ResizeContent::ALIGN_BOTTOM_RIGHT, FALSE ) );
+	vDlgAchEditorResize.push_back ( ResizeContent( hDlg,
+		GetDlgItem( hDlg, IDC_RA_CHK_ACH_PAUSE_ON_RESET ), ResizeContent::ALIGN_RIGHT, FALSE ) );
+	vDlgAchEditorResize.push_back ( ResizeContent( hDlg,
+		GetDlgItem( hDlg, IDC_RA_CHK_ACH_PAUSE_ON_TRIGGER ), ResizeContent::ALIGN_RIGHT, FALSE ) );
+	vDlgAchEditorResize.push_back ( ResizeContent( hDlg,
+		GetDlgItem( hDlg, IDC_RA_CHK_ACH_ACTIVE ), ResizeContent::ALIGN_RIGHT, FALSE ) );
+	vDlgAchEditorResize.push_back ( ResizeContent( hDlg,
+		GetDlgItem( hDlg, IDC_RA_CHK_SHOW_DECIMALS ), ResizeContent::ALIGN_BOTTOM_RIGHT, FALSE ) );
 
-	vDlgAchEditorResize.push_back ( ResizeContent( hwnd,
-		GetDlgItem( hwnd, IDC_RA_ACH_ADDGROUP ), ResizeContent::ALIGN_BOTTOM, FALSE ) );
-	vDlgAchEditorResize.push_back ( ResizeContent( hwnd,
-		GetDlgItem( hwnd, IDC_RA_ACH_DELGROUP ), ResizeContent::ALIGN_BOTTOM, FALSE ) );
-	vDlgAchEditorResize.push_back ( ResizeContent( hwnd,
-		GetDlgItem( hwnd, IDC_RA_ADDCOND ), ResizeContent::ALIGN_BOTTOM, FALSE ) );
-	vDlgAchEditorResize.push_back ( ResizeContent( hwnd,
-		GetDlgItem( hwnd, IDC_RA_DELETECOND ), ResizeContent::ALIGN_BOTTOM, FALSE ) );
-	vDlgAchEditorResize.push_back ( ResizeContent( hwnd,
-		GetDlgItem( hwnd, IDC_RA_COPYCOND ), ResizeContent::ALIGN_BOTTOM, FALSE ) );
-	vDlgAchEditorResize.push_back ( ResizeContent( hwnd,
-		GetDlgItem( hwnd, IDC_RA_PASTECOND ), ResizeContent::ALIGN_BOTTOM, FALSE ) );
+	vDlgAchEditorResize.push_back ( ResizeContent( hDlg,
+		GetDlgItem( hDlg, IDC_RA_ACH_ADDGROUP ), ResizeContent::ALIGN_BOTTOM, FALSE ) );
+	vDlgAchEditorResize.push_back ( ResizeContent( hDlg,
+		GetDlgItem( hDlg, IDC_RA_ACH_DELGROUP ), ResizeContent::ALIGN_BOTTOM, FALSE ) );
+	vDlgAchEditorResize.push_back ( ResizeContent( hDlg,
+		GetDlgItem( hDlg, IDC_RA_ADDCOND ), ResizeContent::ALIGN_BOTTOM, FALSE ) );
+	vDlgAchEditorResize.push_back ( ResizeContent( hDlg,
+		GetDlgItem( hDlg, IDC_RA_DELETECOND ), ResizeContent::ALIGN_BOTTOM, FALSE ) );
+	vDlgAchEditorResize.push_back ( ResizeContent( hDlg,
+		GetDlgItem( hDlg, IDC_RA_COPYCOND ), ResizeContent::ALIGN_BOTTOM, FALSE ) );
+	vDlgAchEditorResize.push_back ( ResizeContent( hDlg,
+		GetDlgItem( hDlg, IDC_RA_PASTECOND ), ResizeContent::ALIGN_BOTTOM, FALSE ) );
+	vDlgAchEditorResize.push_back( ResizeContent(hDlg,
+		GetDlgItem( hDlg, IDC_RA_MOVECONDUP), ResizeContent::ALIGN_BOTTOM, FALSE) );
+	vDlgAchEditorResize.push_back( ResizeContent(hDlg,
+		GetDlgItem( hDlg, IDC_RA_MOVECONDDOWN), ResizeContent::ALIGN_BOTTOM, FALSE) );
 
-	vDlgAchEditorResize.push_back ( ResizeContent( hwnd,
-		GetDlgItem( hwnd, IDCLOSE ), ResizeContent::ALIGN_BOTTOM_RIGHT, FALSE ) );
+	vDlgAchEditorResize.push_back ( ResizeContent( hDlg,
+		GetDlgItem( hDlg, IDCLOSE ), ResizeContent::ALIGN_BOTTOM_RIGHT, FALSE ) );
 }
