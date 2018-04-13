@@ -15,28 +15,30 @@ Make a default handler
 *we use this to monitor which messages are being posted
 Already Handled
 ---------------
-6   — WM_ACTIVATE
-7   — WM_SETFOCUS (dwp)
-8   — WM_KILLFOCUS
-15  — WM_PAINT
-20  — WM_ERASEBKGND
-24  — WM_SHOWWINDOW (dwp)
-28  — WM_ACTIVATEAPP
-48  — WM_SETFONT
-49  — WM_GETFONT
-70  — WM_WINDOWPOSCHANGING (dwp)
-71  — WM_WINDOWPOSCHANGED (dwp)
-78  — WM_NOTIFY
-127 — WM_GETICON
-133 — WM_NCPAINT
-134 — WM_NCACTIVATE (dwp)
-272 — WM_INITDIALOG
-273 — WM_COMMAND
-307 — WM_CTLCOLOREDIT
-308 — WM_CTLCOLORLISTBOX
-309 — WM_CTLCOLORBTN - buttons appear
-310 — WM_CTLCOLORDLG - Modal Dialogs appear
-312 — WM_CTLCOLORSTATIC
+6   — WM_ACTIVATE,
+7   — WM_SETFOCUS, (dwp)
+8   — WM_KILLFOCUS,
+15  — WM_PAINT,
+20  — WM_ERASEBKGND,
+24  — WM_SHOWWINDOW, (dwp)
+28  — WM_ACTIVATEAPP,
+48  — WM_SETFONT,
+49  — WM_GETFONT,
+70  — WM_WINDOWPOSCHANGING, (dwp)
+71  — WM_WINDOWPOSCHANGED, (dwp)
+78  — WM_NOTIFY,
+127 — WM_GETICON,
+128 — WM_SETICON,
+130 — WM_NCDESTROY (used instead of a destructor)
+133 — WM_NCPAINT,
+134 — WM_NCACTIVATE, (dwp)
+272 — WM_INITDIALOG,
+273 — WM_COMMAND,
+307 — WM_CTLCOLOREDIT,
+308 — WM_CTLCOLORLISTBOX,
+309 — WM_CTLCOLORBTN, - buttons appear
+310 — WM_CTLCOLORDLG, - Modal Dialogs appear
+312 — WM_CTLCOLORSTATIC,
 
 Possible Message Cracker (need to define it)
 --------------------------------------------

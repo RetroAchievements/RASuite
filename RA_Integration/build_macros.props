@@ -4,6 +4,11 @@
   <PropertyGroup Label="UserMacros">
     <RANes_ProjectDir>$(SolutionDir)RANes/vc/</RANes_ProjectDir>
     <RASnes9x_OutDir>$(SolutionDir)RASnes9x/win32/$(Configuration)/</RASnes9x_OutDir>
+    <RA_DIR>$(SolutionDir)RA_Integration/</RA_DIR>
+    <LibDir>$(RA_DIR)lib/</LibDir>
+    <RapidjsonDir>$(LibDir)rapidjson/include/</RapidjsonDir>
+    <MD5_DIR>$(LibDir)md5/</MD5_DIR>
+    <tinyformat_dir>$(LibDir)tinyformat/</tinyformat_dir>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
@@ -14,6 +19,26 @@
     </BuildMacro>
     <BuildMacro Include="RASnes9x_OutDir">
       <Value>$(RASnes9x_OutDir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="RA_DIR">
+      <Value>$(RA_DIR)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="LibDir">
+      <Value>$(LibDir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="RapidjsonDir">
+      <Value>$(RapidjsonDir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="MD5_DIR">
+      <Value>$(MD5_DIR)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="tinyformat_dir">
+      <Value>$(tinyformat_dir)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
   </ItemGroup>
