@@ -1,7 +1,7 @@
 #include "RA_Interface.h"
 
 #include <WinHttp.h>
-
+#include <cassert>
 
 
 //	Exposed, shared
