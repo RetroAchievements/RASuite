@@ -1,3 +1,18 @@
+# WARNING: this repo exists only for historical reasons and is not used anymore!
+
+In April/2018 this repository were splitted into two:
+
+- [RAIntegration](https://github.com/RetroAchievements/RAIntegration): with `RA_Integration`'s code only.
+
+- [RAEmus](https://github.com/RetroAchievements/RAEmus), with the source files of the standalone emulators used in RetroAchievements.org.
+
+**Note**: If you are interested in contribute to RetroAchievements project with code on the emulators front, consider working
+on [RALibretro](https://github.com/RetroAchievements/RALibretro).
+
+Now, the original README:
+
+---
+
 RASuite
 =======
 
