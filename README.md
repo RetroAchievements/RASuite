@@ -1,6 +1,8 @@
-# WARNING: this repo exists only for historical reasons and is not used anymore!
+# DEPRECATED
 
-In April/2018 this repository were splitted into two:
+This repo exists for historical reasons and is not used anymore.
+
+In April/2018 this repository was split:
 
 - [RAIntegration](https://github.com/RetroAchievements/RAIntegration): with `RA_Integration`'s code only.
 
@@ -9,7 +11,7 @@ In April/2018 this repository were splitted into two:
 **Note**: If you are interested in contribute to RetroAchievements project with code on the emulators front, consider working
 on [RALibretro](https://github.com/RetroAchievements/RALibretro).
 
-Now, the original README:
+Original README:
 
 ---
 
